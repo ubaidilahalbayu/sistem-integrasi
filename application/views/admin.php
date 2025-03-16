@@ -1,6 +1,6 @@
 <?php
-    $data_header['css'] = ["<link rel='stylesheet' href='".base_url('assets/data-tables/datatables.css')."'>"];
-    view('components/header', $data_header);
+$data_header['css'] = ["<link rel='stylesheet' href='" . base_url('assets/data-tables/datatables.css') . "'>"];
+view('components/header', $data_header);
 ?>
 
 <nav class="navbar navbar-expand-lg fixed-top mycolor-1">
@@ -17,7 +17,7 @@
             <li class="nav-item">
                 <div class="text-center">
                     <img src="<?= base_url('assets/image/user_default.png') ?>" alt="User" height="50px" width="50px">
-                    <div>user</div>
+                    <div><?= !empty($this->session->userdata('username')) ? $this->session->userdata('username') : 'user' ?></div>
                 </div>
             </li>
         </ul>
@@ -53,14 +53,19 @@
             </li>
         </ul>
         <?php
-            view('components/copyright');
+        view('components/copyright');
         ?>
     </div>
-    <div class="mycontent" id="mycontent">
+    <div class="mycontent">
+        <?php
+        view('components/alert');
+        ?>
+        <div id="mycontent">
+        </div>
     </div>
 </div>
 
 <?php
-    $data_footer['script'] = [];
-    view('components/footer', $data_footer);
+$data_footer['script'] = [];
+view('components/footer', $data_footer);
 ?>

@@ -1,7 +1,7 @@
 <?php
-    $data_header['title'] = 'Login Sistem';
-    $data_header['body_login'] = 1;
-    view('components/header', $data_header);
+$data_header['title'] = 'Login Sistem';
+$data_header['body_login'] = 1;
+view('components/header', $data_header);
 ?>
 <div class="container">
     <div class="row justify-content-center">
@@ -14,21 +14,8 @@
             </div>
             <form action="<?= base_url('login') ?>" method="POST">
                 <div class="row justify-content-start">
-                    <?php 
-                    if (!empty($this->session->flashdata('alert'))) {
-                        $dataAlert = $this->session->flashdata('alert');
-                    ?>
-                    <div class="alert alert-<?= $dataAlert['status'] ?> d-flex align-items-center alert-dismissible fade show"
-                        role="alert">
-                        <svg class="bi flex-shrink-0 me-2" style="width: 20px; height: 20px;" role="img"
-                            aria-label="Danger:">
-                            <use xlink:href="#exclamation-triangle-fill" />
-                        </svg>
-                        <div><?= $dataAlert['message'] ?></div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <?php 
-                    }
+                    <?php
+                    view('components/alert');
                     ?>
                     <div class="col-lg-12 mb-4">
                         <label for="username" class="form-label">Username</label>
@@ -50,6 +37,6 @@
     </div>
 </div>
 <?php
-    view('components/copyright');
-    view('components/footer');
+view('components/copyright');
+view('components/footer');
 ?>
