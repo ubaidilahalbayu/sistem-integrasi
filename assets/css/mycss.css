@@ -1,0 +1,79 @@
+.mybody {
+	background: linear-gradient(to top, rgb(123, 183, 218), rgb(228, 244, 253));
+	height: 100vh;
+	color: black;
+}
+
+.myloading {
+	background: linear-gradient(to top, rgb(123, 183, 218), rgb(228, 244, 253));
+	color: black;
+	border-radius: 10px;
+}
+
+.mycolor-1 {
+	background: linear-gradient(to top, rgb(123, 183, 218), rgb(228, 244, 253));
+	color: black;
+}
+
+.mycolor-2 {
+	background: linear-gradient(to top, rgb(157, 163, 167), rgb(228, 244, 253));
+	color: black;
+}
+
+.mybtn-1 {
+	background: linear-gradient(to top, rgb(123, 183, 218), rgb(228, 244, 253));
+	color: black;
+	height: 50px;
+	text-align: center;
+	line-height: 2;
+	border-radius: 15px;
+}
+
+.mybtn-1:hover {
+	background: linear-gradient(to top, rgb(157, 163, 167), rgb(228, 244, 253));
+	color: black;
+	height: 45px;
+	line-height: 1;
+}
+
+.mybtn-2 {
+	background: linear-gradient(to top, rgb(157, 163, 167), rgb(228, 244, 253));
+	color: black;
+	height: 50px;
+	text-align: center;
+	line-height: 2;
+	border-radius: 15px;
+}
+
+.mybtn-2:hover {
+	background: linear-gradient(to top, rgb(228, 244, 253), rgb(157, 163, 167));
+	color: white;
+	height: 45px;
+	line-height: 1;
+}
+
+.navbar {
+	margin-left: 250px;
+	height: 80px;
+}
+
+.mysidebar {
+	width: 250px;
+	height: 100vh;
+	position: fixed;
+}
+
+.mycontent {
+	margin-left: 250px;
+	margin-top: 56px;
+	padding: 20px;
+	width: 100%;
+}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	text-align: center;
+	padding: 10px;
+}
