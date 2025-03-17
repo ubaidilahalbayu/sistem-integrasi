@@ -17,7 +17,9 @@ view('components/header', $data_header);
             <li class="nav-item">
                 <div class="text-center">
                     <img src="<?= base_url('assets/image/user_default.png') ?>" alt="User" height="50px" width="50px">
-                    <div><?= !empty($this->session->userdata('username')) ? $this->session->userdata('username') : 'user' ?></div>
+                    <div>
+                        <?= !empty($this->session->userdata('username')) ? $this->session->userdata('username') : 'user' ?>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -49,6 +51,9 @@ view('components/header', $data_header);
                 <a class="nav-link mybtn-1" href="#data_dosen" id="data_dosen">Data Dosen</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#data_kelas" id="data_kelas">Data Kelas</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link mybtn-1" href="<?= base_url('logout') ?>">Logout</a>
             </li>
         </ul>
@@ -64,8 +69,31 @@ view('components/header', $data_header);
         </div>
     </div>
 </div>
-
 <?php
-$data_footer['script'] = [];
+$data_footer['script'] = ["
+<script type='text/javascript'>
+$(document).ready(function() {
+    appendContentMenu('dashboard');
+    $('#dashboard').on('click', function() {
+        appendContentMenu('dashboard');
+    });
+    $('#rekap_absensi').on('click', function() {
+        appendContentMenu('rekap_absensi');
+    });
+    $('#data_mk').on('click', function() {
+        appendContentMenu('data_mk');
+    });
+    $('#data_mahasiswa').on('click', function() {
+        appendContentMenu('data_mahasiswa');
+    });
+    $('#data_dosen').on('click', function() {
+        appendContentMenu('data_dosen');
+    });
+    $('#data_kelas').on('click', function() {
+        appendContentMenu('data_kelas');
+    });
+});
+</script>"
+];
 view('components/footer', $data_footer);
 ?>

@@ -92,6 +92,11 @@ class Main extends CI_Controller
 			$getData = $this->MainModel->get_table('data_dosen');
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
+		} else if ($nama_content == 'data_kelas') {
+			$data['title_header'] = 'Data Kelas';
+			$getData = $this->MainModel->get_table('data_kelas');
+			$data['header_table'] = $getData['header'];
+			$data['data'] = $getData['data'];
 		} else if ($nama_content == 'data_user') {
 			$data['title_header'] = 'Data User';
 			$getData = $this->MainModel->get_table('user');

@@ -47,6 +47,7 @@ function changeActive(menu_aktif) {
     $("#data_mk").removeClass("mybtn-2").addClass("mybtn-1");
     $("#data_mahasiswa").removeClass("mybtn-2").addClass("mybtn-1");
     $("#data_dosen").removeClass("mybtn-2").addClass("mybtn-1");
+    $("#data_kelas").removeClass("mybtn-2").addClass("mybtn-1");
 
     // Change the active menu item
     $("#" + menu_aktif).removeClass("mybtn-1").addClass("mybtn-2");
@@ -70,25 +71,6 @@ function appendContentMenu(nama_content) {
         }
     });
 }
-
-$(document).ready(function() {
-    appendContentMenu('dashboard');
-    $('#dashboard').on('click', function() {
-        appendContentMenu('dashboard');
-    });
-    $('#rekap_absensi').on('click', function() {
-        appendContentMenu('rekap_absensi');
-    });
-    $('#data_mk').on('click', function() {
-        appendContentMenu('data_mk');
-    });
-    $('#data_mahasiswa').on('click', function() {
-        appendContentMenu('data_mahasiswa');
-    });
-    $('#data_dosen').on('click', function() {
-        appendContentMenu('data_dosen');
-    });
-});
 </script>
 <?php
     if (!empty($script)) {
