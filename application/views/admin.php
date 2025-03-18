@@ -70,10 +70,12 @@ view('components/header', $data_header);
     </div>
 </div>
 <?php
-$data_footer['script'] = ["
+$menu_now = !empty($this->session->flashdata('menu_now')) ? $this->session->flashdata('menu_now') : 'dashboard';
+$data_footer['script'] = [
+    "
 <script type='text/javascript'>
 $(document).ready(function() {
-    appendContentMenu('dashboard');
+    appendContentMenu('" . $menu_now . "');
     $('#dashboard').on('click', function() {
         appendContentMenu('dashboard');
     });

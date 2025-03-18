@@ -13,28 +13,28 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
             </div>
             <div class="modal-body">
                 <form id="export_form">
-                    <input type="hidden" name="menu" value="<?= str_replace(' ', '_',strtolower($title_header)) ?>">
+                    <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
                     <div class="row justify-content-start">
                         <?php
                         if ($title_header == "Rekap Absensi") {
-                            view('components/form/rekap_absensi',$data['export']=1);
+                            view('components/form/rekap_absensi', $data['export'] = 1);
                         ?>
+                            <?php
+                        } else {
+                            if (!empty($header_table)) {
+                                foreach ($header_table as $key => $value) {
+                            ?>
+                                    <div class="col-lg-4 mb-3">
+                                        <label for="<?= $value ?>" class="form-label">Filter
+                                            <?= str_replace('_', ' ', ucwords($value)) ?></label>
+                                        <select class="form-select" id="<?= $value ?>" name="<?= $value ?>">
+                                            <option value="all">Semua</option>
+                                            <option value="1">1</option>
+                                        </select>
+                                    </div>
                         <?php
-                        } else{
-                        if (!empty($header_table)) {
-                        foreach ($header_table as $key => $value) {
-                        ?>
-                        <div class="col-lg-4 mb-3">
-                            <label for="<?= $value ?>" class="form-label">Filter
-                                <?= str_replace('_' ,' ',ucwords($value)) ?></label>
-                            <select class="form-control" id="<?= $value ?>" name="<?= $value ?>">
-                                <option value="all">Semua</option>
-                                <option value="1">1</option>
-                            </select>
-                        </div>
-                        <?php
-                        }
-                        }
+                                }
+                            }
                         }
                         ?>
                     </div>

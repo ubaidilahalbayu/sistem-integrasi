@@ -105,4 +105,26 @@ class Main extends CI_Controller
 		}
 		view("menu/" . ($nama_content != 'dashboard' ? 'tampil_data' : $nama_content), $data, true);
 	}
+	public function proses()
+	{
+		if (!empty($this->input->post())) {
+			$menu = $this->input->post('menu');
+			$dataAlert = [
+				'status' => 'danger',
+				'message' => 'Gagal Disimpan'
+			];
+
+			if (isset($_FILES["formFile"]["name"])) {
+				echo json_encode($_FILES["formFile"]);
+			} else {
+				echo json_encode($this->input->post());
+				die;
+			}
+			$this->session->set_flashdata('menu_now', $menu);
+			$this->session->set_flashdata('alert', $dataAlert);
+			// redirect('/');
+		} else {
+			show_404();
+		}
+	}
 }

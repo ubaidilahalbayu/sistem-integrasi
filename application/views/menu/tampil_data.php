@@ -17,43 +17,43 @@ view('components/modal/modal_export');
                 <?php
                 if (empty($header_table)) {
                 ?>
-                <thead></thead>
-                <tbody></tbody>
+                    <thead></thead>
+                    <tbody></tbody>
                 <?php
                 } else {
                 ?>
-                <thead>
-                    <tr>
-                        <?php
+                    <thead>
+                        <tr>
+                            <?php
                             foreach ($header_table as $key => $value) {
                             ?>
-                        <th><?= ucwords(str_replace('_', ' ', $value)) ?></th>
-                        <?php
+                                <th><?= ucwords(str_replace('_', ' ', $value)) ?></th>
+                            <?php
                             }
                             ?>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
                         if (!empty($data)) {
                             foreach ($data as $key1 => $dt) {
                         ?>
-                    <tr>
-                        <?php
+                                <tr>
+                                    <?php
                                     foreach ($header_table as $key2 => $value) {
                                     ?>
-                        <td><?= $dt[$value] ?></td>
-                        <?php
+                                        <td><?= $dt[$value] ?></td>
+                                    <?php
                                     }
                                     ?>
-                        <td><button type="button" class="btn btn-warning">Edit</button></td>
-                    </tr>
-                    <?php
+                                    <td><button type="button" class="btn btn-warning">Edit</button></td>
+                                </tr>
+                        <?php
                             }
                         }
                         ?>
-                </tbody>
+                    </tbody>
                 <?php
                 }
                 ?>
@@ -62,24 +62,35 @@ view('components/modal/modal_export');
     </div>
 </div>
 <script>
-$(document).ready(function() {
-    $('#myTable').DataTable({
-        columnDefs: [{
-            className: 'text-center',
-            targets: '_all'
-        }, {
-            className: 'border border-secondary',
-            targets: '_all'
-        }]
+    $(document).ready(function() {
+        $('#myTable').DataTable({
+            columnDefs: [{
+                className: 'text-center',
+                targets: '_all'
+            }, {
+                className: 'border border-secondary',
+                targets: '_all'
+            }]
+        });
+        // $("#import_tidak_dari_file").removeAttr("style");
+        // $("#import_dari_file").attr("style", "display: none");
+        // $("#formFile").attr("disabled");
+        $("#dari_file").on("change", function() {
+            if ($(this).is(':checked')) {
+                $("#import_dari_file").removeAttr("style");
+                $("#formFile").removeAttr("disabled");
+                $("#import_tidak_dari_file").attr("style", "display: none");
+            } else {
+                $("#import_tidak_dari_file").removeAttr("style");
+                $("#import_dari_file").attr("style", "display: none");
+                $("#formFile").attr("disabled");
+                $("#formFile").val('');
+            }
+        });
+        $('#import_submit').on('click', function() {
+            $('#modalImport').modal('hide');
+            $('#import_form').submit();
+            // location.href = base_url();
+        });
     });
-    $("#dari_file").on("change", function() {
-        if ($(this).is(':checked')) {
-            $("#import_dari_file").removeAttr("style");
-            $("#import_tidak_dari_file").attr("style", "display: none");
-        } else {
-            $("#import_tidak_dari_file").removeAttr("style");
-            $("#import_dari_file").attr("style", "display: none");
-        }
-    });
-});
 </script>
