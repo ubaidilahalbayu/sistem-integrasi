@@ -114,15 +114,93 @@ class Main extends CI_Controller
 				'message' => 'Gagal Disimpan'
 			];
 
-			if (isset($_FILES["formFile"]["name"])) {
+			if (!empty($_FILES["formFile"]["name"])) {
 				echo json_encode($_FILES["formFile"]);
-			} else {
-				echo json_encode($this->input->post());
 				die;
+			} else {
+				$data = $this->input->post();
+				if ($menu == "rekap_absensi") {
+					
+				}else{
+					$dataAlert = $this->MainModel->create($menu, $data);
+				}
 			}
 			$this->session->set_flashdata('menu_now', $menu);
 			$this->session->set_flashdata('alert', $dataAlert);
-			// redirect('/');
+			redirect('/');
+		} else {
+			show_404();
+		}
+	}
+	public function edit()
+	{
+		if (!empty($this->input->post())) {
+			$menu = $this->input->post('menu');
+			$dataAlert = [
+				'status' => 'danger',
+				'message' => 'Gagal Disimpan'
+			];
+			$where = $this->input->post('param');
+			try{
+				$where = explode(';_@_;', $where);
+				$where = [
+					$where[0] => $where[1],
+					$where[2] => $where[3]
+				];
+			} catch(\Throwable $e){
+				$this->session->set_flashdata('menu_now', $menu);
+				$dataAlert['message'] = $e->getMessage();
+				$this->session->set_flashdata('alert', $dataAlert);
+				redirect('/');
+				die;
+			}
+			$data = $this->input->post();
+			if ($menu == "rekap_absensi") {
+				
+			}else{
+				$dataAlert = $this->MainModel->update($menu, $data, $where);
+			}
+			$this->session->set_flashdata('menu_now', $menu);
+			$this->session->set_flashdata('alert', $dataAlert);
+			redirect('/');
+		} else {
+			show_404();
+		}
+	}
+	public function hapus()
+	{
+		if (!empty($this->input->post('_method'))) {
+			if ($this->input->post('_method') == "DELETE") {
+				$menu = $this->input->post('menu');
+				$dataAlert = [
+					'status' => 'danger',
+					'message' => 'Gagal Disimpan'
+				];
+				$where = $this->input->post('param_delete');
+				try{
+					$where = explode(';_@_;', $where);
+					$where = [
+						$where[0] => $where[1],
+						$where[2] => $where[3]
+					];
+				} catch(\Throwable $e){
+					$this->session->set_flashdata('menu_now', $menu);
+					$dataAlert['message'] = $e->getMessage();
+					$this->session->set_flashdata('alert', $dataAlert);
+					redirect('/');
+					die;
+				}
+				if ($menu == "rekap_absensi") {
+					
+				}else{
+					$dataAlert = $this->MainModel->delete($menu, $where);
+				}
+				$this->session->set_flashdata('menu_now', $menu);
+				$this->session->set_flashdata('alert', $dataAlert);
+				redirect('/');
+			}else{
+				show_404();
+			}
 		} else {
 			show_404();
 		}

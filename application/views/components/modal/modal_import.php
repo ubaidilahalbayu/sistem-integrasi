@@ -15,7 +15,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                 <form id="import_form" action="<?= base_url('proses') ?>" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
                     <div class="row justify-content-start">
-                        <div class="col-lg-4 mb-3 ms-3">
+                        <div class="col-lg-4 mb-3">
                             <input type="checkbox" class="btn-check" id="dari_file" autocomplete="off">
                             <label class="btn btn-outline-primary" for="dari_file">
                                 <svg class="bi flex-shrink-0 mb-1 me-1" style="width: 15px; height: 15px;" role="img"
@@ -36,16 +36,16 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                         if ($title_header == "Rekap Absensi") {
                             view('components/form/rekap_absensi');
                         ?>
-                            <?php
+                        <?php
                         } else {
                             if (!empty($header_table)) {
                                 foreach ($header_table as $key => $value) {
                             ?>
-                                    <div class="col-lg-6 mb-3">
-                                        <label for="<?= $value ?>"
-                                            class="form-label"><?= str_replace('_', ' ', ucwords($value)) ?></label>
-                                        <textarea class="form-control" id="<?= $value ?>" name="<?= $value ?>" rows="1"></textarea>
-                                    </div>
+                        <div class="col-lg-6 mb-3">
+                            <label for="<?= $value ?>"
+                                class="form-label"><?= str_replace('_', ' ', ucwords($value)) ?></label>
+                            <textarea class="form-control" id="<?= $value ?>" name="<?= $value ?>" rows="1"></textarea>
+                        </div>
                         <?php
                                 }
                             }

@@ -9,9 +9,37 @@ class MainModel extends CI_Model {
         $this->load->database();
     }
 
-    // Menambahkan pengguna baru
-    public function create_user($data) {
-        return $this->db->insert('user', $data);
+    public function create($table, $data) {
+        $this->db->trans_begin();
+        $return = [];
+        try{
+            $header = $this->db->list_fields($table);
+            $insert = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $header)) {
+                    $insert[$key] = !empty($value) ? $value : NULL;
+                }
+            }
+            $this->db->insert($table, $insert);
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Simpan tabel '.$table;
+            }
+        }catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: '.$e->getMessage();
+        }
+        return $return;
     }
 
     // Mengambil semua pengguna beserta nama kolom
@@ -41,15 +69,65 @@ class MainModel extends CI_Model {
         return $query->row();
     }
 
-    // Memperbarui pengguna
-    public function update_user($id, $data) {
-        $this->db->where('id', $id);
-        return $this->db->update('user', $data);
+    public function update($table, $data, $where) {
+        $this->db->trans_begin();
+        $return = [];
+        try{
+            $header = $this->db->list_fields($table);
+            $insert = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $header)) {
+                    $insert[$key] = !empty($value) ? $value : NULL;
+                }
+            }
+            $this->db->where($where);
+            $this->db->update($table, $insert);
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Ubah tabel '.$table;
+            }
+        }catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: '.$e->getMessage();
+        }
+        return $return;
     }
 
     // Menghapus pengguna
-    public function delete_user($id) {
-        $this->db->where('id', $id);
-        return $this->db->delete('user');
+    public function delete($table, $where) {
+        $this->db->trans_begin();
+        $return = [];
+        try{
+            $this->db->where($where);
+            $this->db->delete($table);
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Hapus dari tabel '.$table;
+            }
+        }catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: '.$e->getMessage();
+        }
+        return $return;
     }
 }
