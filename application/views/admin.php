@@ -39,16 +39,22 @@ view('components/header', $data_header);
                 <a class="nav-link mybtn-1" href="#dashboard" id="dashboard">Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#rekap_absensi" id="rekap_absensi">Rekap Absensi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_mk" id="data_mk">Data MK</a>
+                <a class="nav-link mybtn-1" href="#data_dosen" id="data_dosen">Data Dosen</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link mybtn-1" href="#data_mahasiswa" id="data_mahasiswa">Data Mahasiswa</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_dosen" id="data_dosen">Data Dosen</a>
+                <a class="nav-link mybtn-1" href="#jadwal_kuliah" id="jadwal_kuliah">Jadwal Kuliah</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#rekap_absensi" id="rekap_absensi">Rekap Absensi</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#data_semester" id="data_semester">Data Semester</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#data_mk" id="data_mk">Data MK</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link mybtn-1" href="#data_kelas" id="data_kelas">Data Kelas</a>
@@ -93,6 +99,12 @@ $(document).ready(function() {
     });
     $('#data_kelas').on('click', function() {
         appendContentMenu('data_kelas');
+    });
+    $('#data_semester').on('click', function() {
+        appendContentMenu('data_semester');
+    });
+    $('#jadwal_kuliah').on('click', function() {
+        appendContentMenu('jadwal_kuliah');
     });
 });
 </script>"

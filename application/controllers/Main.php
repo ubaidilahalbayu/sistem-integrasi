@@ -76,7 +76,32 @@ class Main extends CI_Controller
 		if ($nama_content == 'dashboard') {
 			$data['title_header'] = 'Dashboard';
 		} else if ($nama_content == 'rekap_absensi') {
+			$where = [];
+			if (!empty($this->input->post('param_dosen'))) {
+				$where['dosen'] = 1;
+				$this->session->set_flashdata('selected_rekap', 2);
+			} elseif (($this->input->post('param_mhs'))) {
+				$where['mhs'] = 1;
+				$this->session->set_flashdata('selected_rekap', 3);
+			} else {
+				$this->session->set_flashdata('selected_rekap', 1);
+			}
 			$data['title_header'] = 'Rekap Absensi';
+			$getData = $this->MainModel->get_table('rekap_absensi', $where);
+			$data['header_table'] = $getData['header'];
+			$data['data'] = $getData['data'];
+			$data['abs'] = $this->MainModel->get_table('rekap_absensi')['data'];
+			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
+			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
+		} else if ($nama_content == 'jadwal_kuliah') {
+			$data['title_header'] = 'Jadwal Kuliah';
+			$getData = $this->MainModel->get_table('jadwal_kuliah');
+			$data['header_table'] = $getData['header'];
+			$data['data'] = $getData['data'];
+			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
+			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
+			$data['kls'] = $this->MainModel->get_table('data_kelas')['data'];
 		} else if ($nama_content == 'data_mk') {
 			$data['title_header'] = 'Data MK';
 			$getData = $this->MainModel->get_table('data_mk');
@@ -95,6 +120,11 @@ class Main extends CI_Controller
 		} else if ($nama_content == 'data_kelas') {
 			$data['title_header'] = 'Data Kelas';
 			$getData = $this->MainModel->get_table('data_kelas');
+			$data['header_table'] = $getData['header'];
+			$data['data'] = $getData['data'];
+		} else if ($nama_content == 'data_semester') {
+			$data['title_header'] = 'Data Semester';
+			$getData = $this->MainModel->get_table('data_semester');
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
 		} else if ($nama_content == 'data_user') {
@@ -120,8 +150,15 @@ class Main extends CI_Controller
 			} else {
 				$data = $this->input->post();
 				if ($menu == "rekap_absensi") {
-					
-				}else{
+					$pilihan_rekap = $this->input->post('pilihan_rekap');
+					if ($pilihan_rekap == 2) {
+						$dataAlert = $this->MainModel->create('isi_absen_dosen', $data);
+					} elseif ($pilihan_rekap == 3) {
+						$dataAlert = $this->MainModel->create('isi_absen_mhs', $data);
+					} else {
+						$dataAlert = $this->MainModel->create('absensi', $data);
+					}
+				} else {
 					$dataAlert = $this->MainModel->create($menu, $data);
 				}
 			}
@@ -138,16 +175,16 @@ class Main extends CI_Controller
 			$menu = $this->input->post('menu');
 			$dataAlert = [
 				'status' => 'danger',
-				'message' => 'Gagal Disimpan'
+				'message' => 'Gagal Diubah'
 			];
 			$where = $this->input->post('param');
-			try{
+			try {
 				$where = explode(';_@_;', $where);
 				$where = [
 					$where[0] => $where[1],
 					$where[2] => $where[3]
 				];
-			} catch(\Throwable $e){
+			} catch (\Throwable $e) {
 				$this->session->set_flashdata('menu_now', $menu);
 				$dataAlert['message'] = $e->getMessage();
 				$this->session->set_flashdata('alert', $dataAlert);
@@ -156,8 +193,8 @@ class Main extends CI_Controller
 			}
 			$data = $this->input->post();
 			if ($menu == "rekap_absensi") {
-				
-			}else{
+				$dataAlert = $this->MainModel->update('absensi', $data, $where);
+			} else {
 				$dataAlert = $this->MainModel->update($menu, $data, $where);
 			}
 			$this->session->set_flashdata('menu_now', $menu);
@@ -174,16 +211,16 @@ class Main extends CI_Controller
 				$menu = $this->input->post('menu');
 				$dataAlert = [
 					'status' => 'danger',
-					'message' => 'Gagal Disimpan'
+					'message' => 'Gagal Hapus'
 				];
 				$where = $this->input->post('param_delete');
-				try{
+				try {
 					$where = explode(';_@_;', $where);
 					$where = [
 						$where[0] => $where[1],
 						$where[2] => $where[3]
 					];
-				} catch(\Throwable $e){
+				} catch (\Throwable $e) {
 					$this->session->set_flashdata('menu_now', $menu);
 					$dataAlert['message'] = $e->getMessage();
 					$this->session->set_flashdata('alert', $dataAlert);
@@ -191,14 +228,13 @@ class Main extends CI_Controller
 					die;
 				}
 				if ($menu == "rekap_absensi") {
-					
-				}else{
+				} else {
 					$dataAlert = $this->MainModel->delete($menu, $where);
 				}
 				$this->session->set_flashdata('menu_now', $menu);
 				$this->session->set_flashdata('alert', $dataAlert);
 				redirect('/');
-			}else{
+			} else {
 				show_404();
 			}
 		} else {
