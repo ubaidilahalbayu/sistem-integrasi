@@ -43,7 +43,7 @@ class MainModel extends CI_Model
     }
 
     // Mengambil semua pengguna beserta nama kolom
-    public function get_table($table, $where = [])
+    public function get_table($table, $get_header = true, $get_data = true, $where = [])
     {
         if ($table == 'jadwal_kuliah') {
             $this->db->select('*');
@@ -93,10 +93,14 @@ class MainModel extends CI_Model
         }
 
         // Mengembalikan data dan nama kolom dalam array
-        return [
-            'header' => $header,
-            'data' => $query->result_array()
-        ];
+        $return = [];
+        if ($get_header) {
+            $return['header'] = $header;
+        }
+        if ($get_data) {
+            $return['data'] = $query->result_array();
+        }
+        return $return;
     }
 
     // Mengambil pengguna berdasarkan ID
