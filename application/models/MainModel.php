@@ -42,6 +42,161 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function create_jadwal_by_file($data)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        $data_jadwal = $data['data_jadwal'];
+        $data_dosen = $data['data_dosen'];
+        $data_mk = $data['data_mk'];
+        $data_kelas = $data['data_kelas'];
+        try {
+            //SIMPAN SEMESTER
+            $lanjut = true;
+            foreach ($data_mk['semester'] as $key => $value) {
+                $where = ['id_semester' => $value];
+                $check = $this->get_table('data_semester', false, true, $where);
+                if (count($check) > 0) {
+                    continue;
+                } else {
+                    $insert = [
+                        'id_semester' => $value,
+                        'tahun' => date('Y'),
+                    ];
+                    $this->db->insert('data_semester', $insert);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                        break;
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA MK
+                foreach ($data_mk['kode_mk'] as $key => $value) {
+                    $where = ['kode_mk' => $value];
+                    $check = $this->get_table('data_mk', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $insert = [
+                            'kode_mk' => $value,
+                            'nama_mk' => $data_mk['nama_mk'][$key],
+                            'sks' => $data_mk['sks'][$key],
+                            'semester' => $data_mk['semester'][$key],
+                        ];
+                        $this->db->insert('data_mk', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if ($lanjut) {
+                // SIMPAN DATA KELAS
+                foreach ($data_kelas['kode_kelas'] as $key => $value) {
+                    $where = ['kode_kelas' => $value];
+                    $check = $this->get_table('data_kelas', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $insert = [
+                            'kode_kelas' => $value,
+                            'nama_kelas' => $data_kelas['nama_kelas'][$key],
+                        ];
+                        $this->db->insert('data_kelas', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if ($lanjut) {
+                // SIMPAN DATA DOSEN
+                //UNTUK MENNYIMPAN NIP ASLI KARENA NIP BELUM ADA
+                $data_dosen['nip_asli'] = [];
+                foreach ($data_dosen['nama_dosen'] as $key => $value) {
+                    $where = ['nama_dosen' => $value, 'nama_gelar_belakang' => $data_dosen['nama_gelar_belakang'][$key]];
+                    $check = $this->get_table('data_dosen', false, true, $where);
+                    if (count($check) > 0) {
+                        $data_dosen['nip_asli'][$key] = $check[0]['nip'];
+                        continue;
+                    } else {
+                        //BUAT NIP RANDOM SEMENTARA
+                        do {
+                            $nip = '';
+                            for ($i = 0; $i < 15; $i++) {
+                                $nip .= random_int(0, 9);
+                            }
+                            $where = ['nip' => $nip];
+                            $check = $this->get_table('data_dosen', false, true, $where);
+                        } while (count($check) > 0);
+
+                        $insert = [
+                            'nip' => $nip,
+                            'nama_gelar_depan' => '-',
+                            'nama_dosen' => $value,
+                            'nama_gelar_belakang' => $data_dosen['nama_gelar_belakang'][$key],
+                        ];
+                        $this->db->insert('data_dosen', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                        $data_dosen['nip_asli'][$key] = $nip;
+                    }
+                }
+            }
+            if ($lanjut) {
+                // SIMPAN DATA JADWAL
+                foreach ($data_jadwal['kode_kelas'] as $key => $value) {
+                    $where = ['kode_kelas' => $value];
+                    $check = $this->get_table('data$data_jadwal', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $insert = [
+                            'kode_kelas' => $value,
+                            'nama_kelas' => $data_jadwal['nama_kelas'][$key],
+                        ];
+                        $this->db->insert('data$data_jadwal', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
+
     // Mengambil semua pengguna beserta nama kolom
     public function get_table($table, $get_header = true, $get_data = true, $where = [])
     {
@@ -94,11 +249,13 @@ class MainModel extends CI_Model
 
         // Mengembalikan data dan nama kolom dalam array
         $return = [];
-        if ($get_header) {
+        if ($get_header && $get_data) {
             $return['header'] = $header;
-        }
-        if ($get_data) {
             $return['data'] = $query->result_array();
+        } elseif ($get_data) {
+            $return = $query->result_array();
+        } elseif ($get_header) {
+            $return = $header;
         }
         return $return;
     }
