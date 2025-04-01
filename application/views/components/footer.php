@@ -76,6 +76,18 @@
     }
 </script>
 <?php
+if (!empty($this->session->flashdata('alert'))) {
+    $script[] = '<script type="text/javascript">
+        $(document).ready(function() {
+            window.setTimeout(function() {
+                $(".alert").fadeTo(1000, 0).slideUp(1000, function() {
+                    $(this).remove();
+                });
+            }, 5000);
+
+        });
+    </script>';
+}
 if (!empty($script)) {
     foreach ($script as $key => $item) {
         echo $item;

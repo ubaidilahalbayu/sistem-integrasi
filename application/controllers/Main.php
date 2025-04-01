@@ -88,7 +88,7 @@ class Main extends CI_Controller
 				$this->session->set_flashdata('selected_rekap', 1);
 			}
 			$data['title_header'] = 'Rekap Absensi';
-			$getData = $this->MainModel->get_table('rekap_absensi', $where);
+			$getData = $this->MainModel->get_table('rekap_absensi', true, true, $where);
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
 			$data['abs'] = $this->MainModel->get_table('rekap_absensi')['data'];
@@ -166,9 +166,9 @@ class Main extends CI_Controller
 						}
 					} elseif ($menu == "jadwal_kuliah") {
 						$data_extract = $this->excel->getExtractJadwal($path);
-
-						echo json_encode($data_extract['data_jadwal']);
-						die;
+						$dataAlert = $this->MainModel->create_jadwal_by_file($data_extract);
+						// echo json_encode($data_extract['data_jadwal']);
+						// die;
 					} else {
 						$temp_data = [];
 						foreach ($object->getWorksheetIterator() as $worksheet) {
@@ -189,8 +189,6 @@ class Main extends CI_Controller
 				} catch (\Throwable $e) {
 					$dataAlert['message'] = $e->getMessage();
 				}
-				echo json_encode($temp_data);
-				die;
 			} else {
 				$data = $this->input->post();
 				if ($menu == "rekap_absensi") {

@@ -8,7 +8,7 @@ if (!empty($this->session->flashdata('alert'))) {
         $icon = '#info-fill';
     }
 ?>
-    <div class="alert alert-<?= $dataAlert['status'] ?> d-flex align-items-center alert-dismissible fade show"
+    <div id="my-alert" class="alert alert-<?= $dataAlert['status'] ?> d-flex align-items-center alert-dismissible fade show"
         role="alert">
         <svg class="bi flex-shrink-0 me-2" style="width: 20px; height: 20px;" role="img"
             aria-label="Danger:">

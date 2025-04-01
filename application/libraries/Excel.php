@@ -31,8 +31,8 @@ class Excel extends PHPExcel
 				$nip2 = $worksheet->getCellByColumnAndRow(12, $row)->getValue();
 				$nip3 = $worksheet->getCellByColumnAndRow(13, $row)->getValue();
 				$hari = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
-				$jam_mulai = date((string)$worksheet->getCellByColumnAndRow(2, $row)->getValue());
-				$jam_selesai = date((string)$worksheet->getCellByColumnAndRow(3, $row)->getValue());
+				$jam_mulai = $worksheet->getCellByColumnAndRow(2, $row)->getFormattedValue();
+				$jam_selesai = (string)$worksheet->getCellByColumnAndRow(3, $row)->getFormattedValue();
 				if (empty($kode_mk) || empty($kode_kelas) || empty($nip) || empty($hari) || empty($jam_mulai) || empty($jam_selesai)) {
 					continue;
 				}

@@ -167,17 +167,37 @@ class MainModel extends CI_Model
             }
             if ($lanjut) {
                 // SIMPAN DATA JADWAL
-                foreach ($data_jadwal['kode_kelas'] as $key => $value) {
-                    $where = ['kode_kelas' => $value];
-                    $check = $this->get_table('data$data_jadwal', false, true, $where);
+                foreach ($data_jadwal as $key => $value) {
+                    $nip_asli = $data_dosen['nip_asli'][array_search($value['nip'], $data_dosen['nip'])]; //Mencari nip asli
+                    $nip_asli2 = $data_dosen['nip_asli'][array_search($value['nip2'], $data_dosen['nip'])]; //Mencari nip asli
+                    $nip_asli3 = $data_dosen['nip_asli'][array_search($value['nip3'], $data_dosen['nip'])]; //Mencari nip asli
+
+                    $where = [
+                        'jadwal_kuliah.kode_mk' => $value['kode_mk'],
+                        'jadwal_kuliah.kode_kelas' => $value['kode_kelas'],
+                        'jadwal_kuliah.nip' => $nip_asli,
+                        'jadwal_kuliah.nip2' => $nip_asli2,
+                        'jadwal_kuliah.nip3' => $nip_asli3,
+                        'jadwal_kuliah.hari' => $value['hari'],
+                        'jadwal_kuliah.jam_mulai' => $value['jam_mulai'],
+                        'jadwal_kuliah.jam_selesai' => $value['jam_selesai'],
+                    ];
+                    $check = $this->get_table('jadwal_kuliah', false, true, $where);
                     if (count($check) > 0) {
                         continue;
                     } else {
                         $insert = [
-                            'kode_kelas' => $value,
-                            'nama_kelas' => $data_jadwal['nama_kelas'][$key],
+                            'id' => '',
+                            'kode_mk' => $value['kode_mk'],
+                            'kode_kelas' => $value['kode_kelas'],
+                            'nip' => $nip_asli,
+                            'nip2' => $nip_asli2,
+                            'nip3' => $nip_asli3,
+                            'hari' => $value['hari'],
+                            'jam_mulai' => $value['jam_mulai'],
+                            'jam_selesai' => $value['jam_selesai'],
                         ];
-                        $this->db->insert('data$data_jadwal', $insert);
+                        $this->db->insert('jadwal_kuliah', $insert);
                         if ($this->db->trans_status() === FALSE) {
                             $this->db->trans_rollback();
                             $error = $this->db->error();
@@ -188,6 +208,12 @@ class MainModel extends CI_Model
                         }
                     }
                 }
+            }
+            if ($lanjut) {
+                //COMMIT TRANSACTION
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Simpan Jadwal Kuliah dari File';
             }
         } catch (\Throwable $e) {
             $this->db->trans_rollback();
@@ -210,7 +236,7 @@ class MainModel extends CI_Model
                 $this->db->where($where);
             }
             $query = $this->db->get();
-            $header = ['id', 'nama_mk', 'semester', 'kode_kelas', 'nama_dosen', 'hari', 'jam_mulai', 'jam_selesai'];
+            $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'nama_dosen', 'hari', 'jam_mulai', 'jam_selesai'];
         } elseif ($table == 'rekap_absensi') {
             $this->db->select('*');
             $this->db->from('absensi');
