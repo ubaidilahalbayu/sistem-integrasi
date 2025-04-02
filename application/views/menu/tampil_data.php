@@ -113,6 +113,12 @@ view('components/modal/modal_confirm');
             $('#import_form').submit();
             $('#loadingModal').modal('hide');
         });
+        $('#export_submit').on('click', function() {
+            $('#loadingModal').modal('show');
+            $('#modalExport').modal('hide');
+            $('#export_form').submit();
+            $('#loadingModal').modal('hide');
+        });
 
         $('#myTable').on('click', '.btn-warning', function() {
             let previousTdValues = $(this).closest('td').prevAll().map(function() {

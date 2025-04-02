@@ -170,21 +170,8 @@ class Main extends CI_Controller
 						// echo json_encode($data_extract['data_jadwal']);
 						// die;
 					} else {
-						$temp_data = [];
-						foreach ($object->getWorksheetIterator() as $worksheet) {
-							$highestRow = $worksheet->getHighestRow();
-							$highestColumn = $worksheet->getHighestColumn();
-							for ($row = 5; $row <= $highestRow; $row++) {
-								$nama = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
-								$jurusan = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
-								$angkatan = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
-								$temp_data[] = array(
-									'nama'	=> $nama,
-									'jurusan'	=> $jurusan,
-									'angkatan'	=> $angkatan
-								);
-							}
-						}
+						$data_extract = $this->excel->getExtractGeneral($path);
+						$dataAlert = $this->MainModel->create($menu, $data_extract, true);
 					}
 				} catch (\Throwable $e) {
 					$dataAlert['message'] = $e->getMessage();
@@ -279,6 +266,50 @@ class Main extends CI_Controller
 			} else {
 				show_404();
 			}
+		} else {
+			show_404();
+		}
+	}
+	public function export()
+	{
+		if (!empty($this->input->post())) {
+			$menu = $this->input->post('menu');
+			$dataAlert = [
+				'status' => 'danger',
+				'message' => 'Gagal Export'
+			];
+			try {
+				if ($menu == 'rekap_absensi') {
+					# code...
+				} else {
+					$where = $this->input->post();
+					unset($where['menu']);
+					foreach ($where as $key => $value) {
+						if ($value == "all") {
+							unset($where[$key]);
+						}
+					}
+					$data = $this->MainModel->get_table($menu, true, true, $where);
+					$title = ucwords(str_replace('_', ' ', $menu));
+					if (count($data['data']) > 0) {
+						$this->excel->exportGeneral($data, $title);
+						$dataAlert = [
+							'status' => 'success',
+							'message' => 'Berhasil Export'
+						];
+					} else {
+						$dataAlert = [
+							'status' => 'warning',
+							'message' => 'Data Tidak Ada'
+						];
+					}
+				}
+			} catch (\Throwable $e) {
+				$dataAlert['message'] = $e->getMessage();
+			}
+			$this->session->set_flashdata('menu_now', $menu);
+			$this->session->set_flashdata('alert', $dataAlert);
+			redirect('/');
 		} else {
 			show_404();
 		}

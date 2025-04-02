@@ -12,7 +12,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="export_form">
+                <form id="export_form" method="post" action="<?= base_url('export') ?>">
                     <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
                     <div class="row justify-content-start">
                         <?php
@@ -29,7 +29,6 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                                             <?= str_replace('_', ' ', ucwords($value)) ?></label>
                                         <select class="form-select" id="<?= $value ?>" name="<?= $value ?>">
                                             <option value="all">Semua</option>
-                                            <option value="1">1</option>
                                         </select>
                                     </div>
                         <?php

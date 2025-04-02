@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 04:07 PM
+-- Generation Time: Apr 02, 2025 at 05:19 PM
 -- Server version: 10.1.38-MariaDB
 -- PHP Version: 7.3.2
 
@@ -34,14 +34,6 @@ CREATE TABLE `absensi` (
   `tanggal` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `absensi`
---
-
-INSERT INTO `absensi` (`id`, `id_jadwal`, `tanggal`) VALUES
-(1, 1, '2025-03-24'),
-(2, 2, '2025-03-24');
-
 -- --------------------------------------------------------
 
 --
@@ -55,14 +47,6 @@ CREATE TABLE `data_dosen` (
   `nama_gelar_belakang` varchar(15) DEFAULT '-'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `data_dosen`
---
-
-INSERT INTO `data_dosen` (`nip`, `nama_gelar_depan`, `nama_dosen`, `nama_gelar_belakang`) VALUES
-('121212', 'Dr.', 'Jupri', 'Phd'),
-('127899', NULL, 'Osvari', 'S.Kom, M.TI');
-
 -- --------------------------------------------------------
 
 --
@@ -73,14 +57,6 @@ CREATE TABLE `data_kelas` (
   `kode_kelas` varchar(6) NOT NULL,
   `nama_kelas` varchar(128) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `data_kelas`
---
-
-INSERT INTO `data_kelas` (`kode_kelas`, `nama_kelas`) VALUES
-('MI-1A', 'KelasA'),
-('MI-1B', 'KelasB');
 
 -- --------------------------------------------------------
 
@@ -94,14 +70,6 @@ CREATE TABLE `data_mahasiswa` (
   `angkatan` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `data_mahasiswa`
---
-
-INSERT INTO `data_mahasiswa` (`nim`, `nama_mahasiswa`, `angkatan`) VALUES
-('16080808', 'Ubai', 2018),
-('16812810', 'Udin', 2020);
-
 -- --------------------------------------------------------
 
 --
@@ -109,21 +77,11 @@ INSERT INTO `data_mahasiswa` (`nim`, `nama_mahasiswa`, `angkatan`) VALUES
 --
 
 CREATE TABLE `data_mk` (
-  `kode_mk` varchar(6) NOT NULL,
+  `kode_mk` varchar(10) NOT NULL,
   `nama_mk` varchar(128) NOT NULL,
   `sks` smallint(2) NOT NULL,
   `semester` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `data_mk`
---
-
-INSERT INTO `data_mk` (`kode_mk`, `nama_mk`, `sks`, `semester`) VALUES
-('MK-01', 'Alpro1', 3, 1),
-('MK-02', 'Alpro2', 3, 2),
-('Mk-03', 'Database', 2, 1),
-('Mk-04', 'Database2', 2, 2);
 
 -- --------------------------------------------------------
 
@@ -135,14 +93,6 @@ CREATE TABLE `data_semester` (
   `id_semester` int(11) NOT NULL,
   `tahun` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `data_semester`
---
-
-INSERT INTO `data_semester` (`id_semester`, `tahun`) VALUES
-(1, 2024),
-(2, 2025);
 
 -- --------------------------------------------------------
 
@@ -170,13 +120,6 @@ CREATE TABLE `isi_absen_mhs` (
   `keterangan` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `isi_absen_mhs`
---
-
-INSERT INTO `isi_absen_mhs` (`id`, `nim`, `id_absen`, `keterangan`) VALUES
-(1, '16080808', 1, 'Hadir');
-
 -- --------------------------------------------------------
 
 --
@@ -185,23 +128,15 @@ INSERT INTO `isi_absen_mhs` (`id`, `nim`, `id_absen`, `keterangan`) VALUES
 
 CREATE TABLE `jadwal_kuliah` (
   `id` int(11) NOT NULL,
-  `kode_mk` varchar(6) NOT NULL,
+  `kode_mk` varchar(10) NOT NULL,
   `kode_kelas` varchar(6) NOT NULL,
   `nip` varchar(16) NOT NULL,
+  `nip2` varchar(16) NOT NULL,
+  `nip3` varchar(16) NOT NULL,
   `hari` varchar(6) NOT NULL,
   `jam_mulai` time NOT NULL,
   `jam_selesai` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `jadwal_kuliah`
---
-
-INSERT INTO `jadwal_kuliah` (`id`, `kode_mk`, `kode_kelas`, `nip`, `hari`, `jam_mulai`, `jam_selesai`) VALUES
-(1, 'MK-01', 'MI-1A', '121212', 'Senin', '08:00:00', '10:00:00'),
-(2, 'MK-01', 'MI-1B', '121212', 'Senin', '13:00:00', '15:00:00'),
-(3, 'Mk-03', 'MI-1A', '127899', 'Selasa', '08:00:00', '10:00:00'),
-(4, 'Mk-03', 'MI-1B', '127899', 'Selasa', '13:00:00', '15:00:00');
 
 -- --------------------------------------------------------
 
@@ -287,7 +222,9 @@ ALTER TABLE `jadwal_kuliah`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_mk` (`kode_mk`),
   ADD KEY `fk_kelas` (`kode_kelas`),
-  ADD KEY `fk_nip` (`nip`);
+  ADD KEY `fk_nip` (`nip`),
+  ADD KEY `fk_nip2` (`nip2`),
+  ADD KEY `fk_nip3` (`nip3`);
 
 --
 -- Indexes for table `user`
@@ -303,7 +240,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `absensi`
 --
 ALTER TABLE `absensi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `isi_absen_dosen`
@@ -315,13 +252,13 @@ ALTER TABLE `isi_absen_dosen`
 -- AUTO_INCREMENT for table `isi_absen_mhs`
 --
 ALTER TABLE `isi_absen_mhs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `jadwal_kuliah`
 --
 ALTER TABLE `jadwal_kuliah`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
 
 --
 -- Constraints for dumped tables
@@ -359,7 +296,9 @@ ALTER TABLE `isi_absen_mhs`
 ALTER TABLE `jadwal_kuliah`
   ADD CONSTRAINT `fk_kelas` FOREIGN KEY (`kode_kelas`) REFERENCES `data_kelas` (`kode_kelas`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mk` FOREIGN KEY (`kode_mk`) REFERENCES `data_mk` (`kode_mk`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_nip` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_nip` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_nip2` FOREIGN KEY (`nip2`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_nip3` FOREIGN KEY (`nip3`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

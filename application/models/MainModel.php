@@ -11,28 +11,54 @@ class MainModel extends CI_Model
         $this->load->database();
     }
 
-    public function create($table, $data)
+    public function create($table, $data, $banyak = false)
     {
         $this->db->trans_begin();
         $return = [];
+        $header = $this->db->list_fields($table);
         try {
-            $header = $this->db->list_fields($table);
-            $insert = [];
-            foreach ($data as $key => $value) {
-                if (in_array($key, $header)) {
-                    $insert[$key] = !empty($value) ? $value : NULL;
+            if ($banyak) {
+                $lanjut = true;
+                foreach ($data as $key => $value) {
+                    $insert = [];
+                    foreach ($value as $key2 => $value2) {
+                        if (in_array($key2, $header)) {
+                            $insert[$key2] = !empty($value2) ? $value2 : NULL;
+                        }
+                    }
+                    $this->db->insert($table, $insert);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                        break;
+                    }
                 }
-            }
-            $this->db->insert($table, $insert);
-            if ($this->db->trans_status() === FALSE) {
-                $this->db->trans_rollback();
-                $error = $this->db->error();
-                $return['status'] = 'danger';
-                $return['message'] = 'Gagal :: ' . $error['message'];
+                if ($lanjut) {
+                    $this->db->trans_commit();
+                    $return['status'] = 'success';
+                    $return['message'] = 'Berhasil Simpan tabel ' . $table;
+                }
             } else {
-                $this->db->trans_commit();
-                $return['status'] = 'success';
-                $return['message'] = 'Berhasil Simpan tabel ' . $table;
+                $insert = [];
+                foreach ($data as $key => $value) {
+                    if (in_array($key, $header)) {
+                        $insert[$key] = !empty($value) ? $value : NULL;
+                    }
+                }
+                $this->db->insert($table, $insert);
+                if ($this->db->trans_status() === FALSE) {
+                    $this->db->trans_rollback();
+                    $error = $this->db->error();
+                    $return['status'] = 'danger';
+                    $return['message'] = 'Gagal :: ' . $error['message'];
+                } else {
+                    $this->db->trans_commit();
+                    $return['status'] = 'success';
+                    $return['message'] = 'Berhasil Simpan tabel ' . $table;
+                }
             }
         } catch (\Throwable $e) {
             $this->db->trans_rollback();

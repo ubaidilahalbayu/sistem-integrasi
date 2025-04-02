@@ -120,4 +120,110 @@ class Excel extends PHPExcel
 			'data_kelas' => $data_kelas,
 		];
 	}
+
+	public function getExtractGeneral($path)
+	{
+		$object = PHPExcel_IOFactory::load($path);
+		$data = [];
+		$head = [];
+		foreach ($object->getWorksheetIterator() as $worksheet) {
+			$highestRow = $worksheet->getHighestRow();
+			$highestColumn = $worksheet->getHighestColumn();
+			for ($row = 3; $row <= $highestRow; $row++) {
+				if ($row == 3) { // Inisialisasi head
+					foreach (range('B', $highestColumn) as $value) {
+						$head[] = strtolower(str_replace(' ', '_', $worksheet->getCell($value . $row)->getValue()));
+					}
+				} else {
+					$push = [];
+					foreach ($head as $key => $value) {
+						$push[$value] = $worksheet->getCellByColumnAndRow($key + 1, $row)->getValue();
+					}
+					$data[] = $push;
+				}
+			}
+		}
+		return $data;
+	}
+
+	public function exportGeneral($data, $title)
+	{
+		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle($title)->setSubject($title)->setDescription($title)->setKeywords($title);
+		$style_head = array(
+			'font' => array('bold' => true), // Set font nya jadi bold
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER, // Set text jadi ditengah secara horizontal (center)
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => '808080')
+			)
+		);
+		$style_body = array(
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			)
+		);
+		$head = $data['header'];
+		$body = $data['data'];
+		$tahun = date('Y');
+		$col = count($head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1, $title . " Tahun " . $tahun); // Set Title paling atas column 0 = A, baris 1
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 1, $col, 1); // Set Merge Cell pada kolom 1 sampai Sesuai panjang Col
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setBold(TRUE); // Set bold kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setSize(15); // Set font size 15 untuk kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER); // Set text center untuk kolom 1
+		// Buat header tabel nya pada baris ke 3
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 3, "No"); // Set No Header
+		// Apply style header yang telah kita buat tadi ke masing-masing kolom header
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 3)->applyFromArray($style_head);
+		foreach ($head as $key => $value) {
+			$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow($key + 1, 3, ucwords(str_replace('_', ' ', $value))); // Set Header
+			// Apply style header yang telah kita buat tadi ke masing-masing kolom header
+			$this->getActiveSheet()->getStyleByColumnAndRow($key + 1, 3)->applyFromArray($style_head);
+		}
+		$no = 1; // Untuk penomoran tabel, di awal set dengan 1
+		$numrow = 4; // Set baris pertama untuk isi tabel adalah baris ke 4
+		foreach ($body as $data) { // Lakukan looping pada isi body
+			$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $numrow, $no); // Set Nomor column 0 = A, baris numrow 
+			// Apply style body yang telah kita buat tadi ke masing-masing baris (isi tabel)
+			$this->getActiveSheet()->getStyleByColumnAndRow(0, $numrow)->applyFromArray($style_body);
+			foreach ($head as $key => $value) {
+				$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow($key + 1, $numrow, $data[$value]); // Set Isi Body
+				// Apply style body yang telah kita buat tadi ke masing-masing baris (isi tabel)
+				$this->getActiveSheet()->getStyleByColumnAndRow($key + 1, $numrow)->applyFromArray($style_body);
+			}
+			$no++; // Tambah 1 setiap kali looping
+			$numrow++; // Tambah 1 setiap kali looping
+		}
+
+		for ($i = 0; $i <= $col; $i++) {
+			$this->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
+		}
+
+		// Set orientasi kertas jadi LANDSCAPE
+		$this->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+		// Set judul file nya
+		$this->getActiveSheet(0)->setTitle($title);
+		$this->setActiveSheetIndex(0);
+		// Proses file 
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="' . $title . ' Tahun ' . $tahun . '.xlsx"'); // Set nama file
+		header('Cache-Control: max-age=0');
+		$write = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
+		$write->save('php://output');
+	}
 }
