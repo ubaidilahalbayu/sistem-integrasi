@@ -253,33 +253,43 @@ class MainModel extends CI_Model
     public function get_table($table, $get_header = true, $get_data = true, $where = [])
     {
         if ($table == 'jadwal_kuliah') {
-            $this->db->select('*');
+            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, jadwal_kuliah.kode_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3");
             $this->db->from($table);
             $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
             $this->db->join('data_dosen', 'jadwal_kuliah.nip = data_dosen.nip');
+            $this->db->join('data_dosen AS data_dosen2', 'jadwal_kuliah.nip2 = data_dosen2.nip');
+            $this->db->join('data_dosen AS data_dosen3', 'jadwal_kuliah.nip3 = data_dosen3.nip');
             $this->db->join('data_kelas', 'jadwal_kuliah.kode_kelas = data_kelas.kode_kelas');
             if (!empty($where)) {
                 $this->db->where($where);
             }
             $query = $this->db->get();
-            $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'nama_dosen', 'hari', 'jam_mulai', 'jam_selesai'];
+            $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'pengampu_1', 'pengampu_2', 'pengampu_3', 'hari', 'jam_mulai', 'jam_selesai'];
         } elseif ($table == 'rekap_absensi') {
-            $this->db->select('*');
-            $this->db->from('absensi');
-            $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
-            $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
             if (!empty($where['dosen'])) {
+                $this->db->select('isi_absen_dosen.id, data_dosen.nip, data_dosen.nama_dosen, jadwal_kuliah.hari, absensi.tanggal, data_mk.nama_mk, data_mk.semester, isi_absen_dosen.keterangan, absensi.id AS id_absen');
+                $this->db->from('absensi');
+                $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
+                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
                 $this->db->join('isi_absen_dosen', 'isi_absen_dosen.id_absen = absensi.id');
                 $this->db->join('data_dosen', 'isi_absen_dosen.nip = data_dosen.nip');
                 unset($where['dosen']);
-                $header = ['id', 'hari',  'tanggal', 'nama_mk', 'semester', 'nama_dosen', 'keterangan'];
+                $header = ['id', 'nip', 'nama_dosen', 'hari',  'tanggal', 'nama_mk', 'semester', 'keterangan'];
             } elseif (!empty($where['mhs'])) {
+                $this->db->select('isi_absen_mhs.id, data_mahasiswa.nim, data_mahasiswa.nama_mahasiswa, jadwal_kuliah.hari, absensi.tanggal, data_mk.nama_mk, data_mk.semester, isi_absen_mhs.keterangan, absensi.id AS id_absen');
+                $this->db->from('absensi');
+                $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
+                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
                 $this->db->join('isi_absen_mhs', 'isi_absen_mhs.id_absen = absensi.id');
                 $this->db->join('data_mahasiswa', 'isi_absen_mhs.nim = data_mahasiswa.nim');
                 unset($where['mhs']);
-                $header = ['id', 'hari',  'tanggal', 'nama_mk', 'semester', 'nama_mahasiswa', 'keterangan'];
+                $header = ['id', 'nim', 'nama_mahasiswa', 'hari',  'tanggal', 'nama_mk', 'semester', 'keterangan'];
             } else {
-                $header = ['id', 'hari',  'tanggal', 'nama_mk', 'semester'];
+                $this->db->select('absensi.id, jadwal_kuliah.hari, absensi.tanggal, data_mk.nama_mk, data_mk.semester, jadwal_kuliah.kode_kelas, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, absensi.id_jadwal');
+                $this->db->from('absensi');
+                $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
+                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
+                $header = ['id', 'tanggal', 'hari', 'nama_mk', 'semester'];
             }
             if (!empty($where)) {
                 $this->db->where($where);
@@ -357,8 +367,12 @@ class MainModel extends CI_Model
         $this->db->trans_begin();
         $return = [];
         try {
-            $this->db->where($where);
-            $this->db->delete($table);
+            if ($where == "all") {
+                $this->db->empty_table($table);
+            } else {
+                $this->db->where($where);
+                $this->db->delete($table);
+            }
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
                 $error = $this->db->error();

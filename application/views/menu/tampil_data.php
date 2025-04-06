@@ -13,6 +13,9 @@ view('components/modal/modal_confirm');
         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
             data-bs-target="#modalImport">Import</button>
     </div>
+    <div class="col-lg-2 d-grid gap-2 mb-3">
+        <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
+    </div>
     <?php
     if ($title_header == "Rekap Absensi") {
     ?>
@@ -64,12 +67,12 @@ view('components/modal/modal_confirm');
                                     ?>
                                     <td><button type="button" class="btn btn-warning"
                                             param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
-                                            name="<?= $dt[$header_table[0]] ?>">Edit</button> <button type="button"
+                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "'" : '' ?>>Edit</button> <button type="button"
                                             class="btn btn-danger"
                                             param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
                                             name="<?= $dt[$header_table[0]] ?>"
                                             head="<?= ucwords(str_replace('_', ' ', $header_table[0])) ?>"
-                                            table="<?= $title_header ?>">Hapus</button></td>
+                                            table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?>>Hapus</button></td>
                                 </tr>
                         <?php
                             }
@@ -121,16 +124,44 @@ view('components/modal/modal_confirm');
         });
 
         $('#myTable').on('click', '.btn-warning', function() {
+            let name_table = $(this).attr('table');
             let previousTdValues = $(this).closest('td').prevAll().map(function() {
                 return $(this).html(); // Mengambil nilai dari setiap <td> sebelumnya
             }).get(); // Mengubah hasil menjadi array
             let index_td = previousTdValues.length - 1;
 
-            // $('#edit_form input, #edit_form textarea').each(function() {
-            $('#edit_form textarea').each(function() {
-                $(this).val(previousTdValues[index_td]);
-                index_td--;
-            });
+            if (name_table == "Rekap Absensi") {
+                let selected_rekap = $(this).attr('selected_rekap');
+                let id_selected = $(this).attr('id');
+
+                if (selected_rekap == 1) {
+                    $("#edit_form #id_jadwal").val(id_selected);
+                    $("#edit_form #tanggal").val(previousTdValues[3]);
+                } else {
+                    $("#edit_form #id_absen").val(id_selected);
+                    $("#edit_form #nip").val(previousTdValues[6]);
+                    $("#edit_form #nim").val(previousTdValues[6]);
+                    $("#edit_form #keterangan").val(previousTdValues[0]);
+                }
+            } else if (name_table == "Jadwal Kuliah") {
+                let nip = $(this).attr("nip");
+                let nip2 = $(this).attr("nip2");
+                let nip3 = $(this).attr("nip3");
+
+                $("#edit_form #nip").val(nip);
+                $("#edit_form #nip2").val(nip2);
+                $("#edit_form #nip3").val(nip3);
+                $("#edit_form #kode_mk").val(previousTdValues[9]);
+                $("#edit_form #kode_kelas").val(previousTdValues[6]);
+                $("#edit_form #hari").val(previousTdValues[2]);
+                $("#edit_form #jam_mulai").val(previousTdValues[1]);
+                $("#edit_form #jam_selesai").val(previousTdValues[0]);
+            } else {
+                $('#edit_form textarea').each(function() {
+                    $(this).val(previousTdValues[index_td]);
+                    index_td--;
+                });
+            }
 
             let name = $(this).attr('name');
             let param = $(this).attr('param');
@@ -146,15 +177,27 @@ view('components/modal/modal_confirm');
         });
 
         $('#myTable').on('click', '.btn-danger', function() {
+            $(".hapus-semua").attr('style', 'display: none;');
+            $(".hapus-satu").removeAttr('style');
             let name = $(this).attr('name');
             let param = $(this).attr('param');
             let head = $(this).attr('head');
             let name_table = $(this).attr('table');
+            let selected_rekap = $(this).attr('selected_rekap');
             $("#title_name_delete").html(name);
             $("#konfir_name_delete").html(name);
             $("#head_delete").html(head);
             $("#title_head_delete").html(name_table);
             $("#param_delete").val(param);
+            $("#selected_rekap_delete").val(selected_rekap);
+            $("#modalConfirm").modal('show');
+        });
+        $('#hapusSemua').on('click', function() {
+            $("#title_name_delete").html("Semua");
+            $(".hapus-satu").attr('style', 'display: none;');
+            $(".hapus-semua").removeAttr('style');
+            $("#param_delete").val("all");
+            $("#selected_rekap_delete").val($("#ganti_rekap").val());
             $("#modalConfirm").modal('show');
         });
         $('#delete_submit').on('click', function() {

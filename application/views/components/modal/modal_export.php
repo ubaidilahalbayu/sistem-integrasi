@@ -16,11 +16,14 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                     <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
                     <div class="row justify-content-start">
                         <?php
+                        $paramView['export'] = 1;
                         if ($title_header == "Rekap Absensi") {
-                            view('components/form/rekap_absensi', $data['export'] = 1);
+                            view('components/form/rekap_absensi', $paramView);
+                        } elseif ($title_header == "Jadwal Kuliah") {
+                            view('components/form/jadwal_kuliah', $paramView);
+                        } else {
                         ?>
                             <?php
-                        } else {
                             if (!empty($header_table)) {
                                 foreach ($header_table as $key => $value) {
                             ?>

@@ -26,19 +26,6 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                     </div>
                     <?php if ($title_header == "Rekap Absensi") {
                     ?>
-                        <div class="row justify-content-start">
-                            <div class="col-lg-3 mb-3">
-                                <label for="">Opsi Rekap Absensi:</label>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option1" autocomplete="off" checked value="1">
-                                <label class="btn btn-outline-primary" for="option1">New Absen</label>
-                                <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option2" autocomplete="off" value="2">
-                                <label class="btn btn-outline-primary" for="option2">Dosen</label>
-                                <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option3" autocomplete="off" value="3">
-                                <label class="btn btn-outline-primary" for="option3">Mahasiswa</label>
-                            </div>
-                        </div>
                     <?php
                     }
                     ?>

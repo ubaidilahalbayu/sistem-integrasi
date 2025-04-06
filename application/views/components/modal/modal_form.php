@@ -17,19 +17,21 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                     <input type="hidden" name="param" id="param">
                     <div class="row justify-content-start">
                         <?php
+                        $dataED['edit'] = 1;
                         if ($title_header == "Rekap Absensi") {
-                            view('components/form/rekap_absensi');
-                        ?>
-                        <?php
+                            view('components/form/rekap_absensi', $dataED);
+                        } elseif ($title_header == "Jadwal Kuliah") {
+                            $paramView['export'] = 0;
+                            view('components/form/jadwal_kuliah', $paramView);
                         } else {
                             if (!empty($header_table)) {
                                 foreach ($header_table as $key => $value) {
-                            ?>
-                        <div class="col-lg-6 mb-3">
-                            <label for="<?= $value ?>"
-                                class="form-label"><?= str_replace('_', ' ', ucwords($value)) ?></label>
-                            <textarea class="form-control" id="<?= $value ?>" name="<?= $value ?>" rows="1"></textarea>
-                        </div>
+                        ?>
+                                    <div class="col-lg-6 mb-3">
+                                        <label for="<?= $value ?>"
+                                            class="form-label"><?= str_replace('_', ' ', ucwords($value)) ?></label>
+                                        <textarea class="form-control" id="<?= $value ?>" name="<?= $value ?>" rows="1"></textarea>
+                                    </div>
                         <?php
                                 }
                             }

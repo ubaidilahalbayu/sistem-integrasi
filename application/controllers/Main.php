@@ -182,10 +182,13 @@ class Main extends CI_Controller
 					$pilihan_rekap = $this->input->post('pilihan_rekap');
 					if ($pilihan_rekap == 2) {
 						$dataAlert = $this->MainModel->create('isi_absen_dosen', $data);
+						$this->session->set_flashdata('selected_rekap', 2);
 					} elseif ($pilihan_rekap == 3) {
 						$dataAlert = $this->MainModel->create('isi_absen_mhs', $data);
+						$this->session->set_flashdata('selected_rekap', 3);
 					} else {
 						$dataAlert = $this->MainModel->create('absensi', $data);
+						$this->session->set_flashdata('selected_rekap', 1);
 					}
 				} else {
 					$dataAlert = $this->MainModel->create($menu, $data);
@@ -222,7 +225,17 @@ class Main extends CI_Controller
 			}
 			$data = $this->input->post();
 			if ($menu == "rekap_absensi") {
-				$dataAlert = $this->MainModel->update('absensi', $data, $where);
+				$pilihan_rekap = $this->input->post('pilihan_rekap');
+				if ($pilihan_rekap == 2) {
+					$dataAlert = $this->MainModel->update('isi_absen_dosen', $data, $where);
+					$this->session->set_flashdata('selected_rekap', 2);
+				} elseif ($pilihan_rekap == 3) {
+					$dataAlert = $this->MainModel->update('isi_absen_mhs', $data, $where);
+					$this->session->set_flashdata('selected_rekap', 3);
+				} else {
+					$dataAlert = $this->MainModel->update('absensi', $data, $where);
+					$this->session->set_flashdata('selected_rekap', 1);
+				}
 			} else {
 				$dataAlert = $this->MainModel->update($menu, $data, $where);
 			}
@@ -243,20 +256,33 @@ class Main extends CI_Controller
 					'message' => 'Gagal Hapus'
 				];
 				$where = $this->input->post('param_delete');
-				try {
-					$where = explode(';_@_;', $where);
-					$where = [
-						$where[0] => $where[1],
-						$where[2] => $where[3]
-					];
-				} catch (\Throwable $e) {
-					$this->session->set_flashdata('menu_now', $menu);
-					$dataAlert['message'] = $e->getMessage();
-					$this->session->set_flashdata('alert', $dataAlert);
-					redirect('/');
-					die;
+				if ($where != "all") {
+					try {
+						$where = explode(';_@_;', $where);
+						$where = [
+							$where[0] => $where[1],
+							$where[2] => $where[3]
+						];
+					} catch (\Throwable $e) {
+						$this->session->set_flashdata('menu_now', $menu);
+						$dataAlert['message'] = $e->getMessage();
+						$this->session->set_flashdata('alert', $dataAlert);
+						redirect('/');
+						die;
+					}
 				}
 				if ($menu == "rekap_absensi") {
+					$pilihan_rekap = $this->input->post('selected_rekap_delete');
+					if ($pilihan_rekap == 2) {
+						$dataAlert = $this->MainModel->delete('isi_absen_dosen', $where);
+						$this->session->set_flashdata('selected_rekap', 2);
+					} elseif ($pilihan_rekap == 3) {
+						$dataAlert = $this->MainModel->delete('isi_absen_mhs', $where);
+						$this->session->set_flashdata('selected_rekap', 3);
+					} else {
+						$dataAlert = $this->MainModel->delete('absensi', $where);
+						$this->session->set_flashdata('selected_rekap', 1);
+					}
 				} else {
 					$dataAlert = $this->MainModel->delete($menu, $where);
 				}

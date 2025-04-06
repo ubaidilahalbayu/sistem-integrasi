@@ -16,10 +16,18 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
                     <input type="hidden" name="param_delete" id="param_delete">
+                    <?php
+                    if ($title_header == "Rekap Absensi") {
+                    ?>
+                        <input type="hidden" name="selected_rekap_delete" id="selected_rekap_delete">
+                    <?php
+                    }
+                    ?>
                     <div class="row justify-content-start">
                         <div class="col-lg-12 mb-3">
-                            <h4 class="text-center">Apakah Yakin Ingin Menghapus Data dengan <b id="head_delete"></b> <b
+                            <h4 class="text-center hapus-satu">Apakah Yakin Ingin Menghapus Data dengan <b id="head_delete"></b> <b
                                     id="konfir_name_delete"></b> dari <b id="title_head_delete"></b> ?</h4>
+                            <h4 class="text-center hapus-semua" style="display: none;">Apakah Yakin Ingin Menghapus Semua <b><?= $title_header ?></b> ?<br>ini Mungkin akan menghapus juga beberapa data lain yang <b>Terkait. Yakin?!</b></h4>
                         </div>
                     </div>
                 </form>
