@@ -305,16 +305,31 @@ class Main extends CI_Controller
 				'message' => 'Gagal Export'
 			];
 			try {
-				if ($menu == 'rekap_absensi') {
-					# code...
-				} else {
-					$where = $this->input->post();
-					unset($where['menu']);
-					foreach ($where as $key => $value) {
-						if ($value == "all") {
-							unset($where[$key]);
-						}
+				$where = $this->input->post();
+				unset($where['menu']);
+				foreach ($where as $key => $value) {
+					if ($value == "all") {
+						unset($where[$key]);
 					}
+				}
+				if ($menu == 'rekap_absensi') {
+					$dataAlert['message'] = 'Coming soon !!';
+				} elseif($menu == 'jadwal_kuliah'){
+					$data = $this->MainModel->get_table($menu, false, true, $where);
+					$title = ucwords(str_replace('_', ' ', $menu));
+					if (count($data) > 0) {
+						$this->excel->exportJadwalKuliah($data);
+						$dataAlert = [
+							'status' => 'success',
+							'message' => 'Berhasil Export'
+						];
+					} else {
+						$dataAlert = [
+							'status' => 'warning',
+							'message' => 'Data Tidak Ada'
+						];
+					}
+				} else {
 					$data = $this->MainModel->get_table($menu, true, true, $where);
 					$title = ucwords(str_replace('_', ' ', $menu));
 					if (count($data['data']) > 0) {
@@ -333,8 +348,10 @@ class Main extends CI_Controller
 			} catch (\Throwable $e) {
 				$dataAlert['message'] = $e->getMessage();
 			}
-			$this->session->set_flashdata('menu_now', $menu);
-			$this->session->set_flashdata('alert', $dataAlert);
+			if ($dataAlert['status'] != 'success') {
+				$this->session->set_flashdata('menu_now', $menu);
+				$this->session->set_flashdata('alert', $dataAlert);
+			}
 			redirect('/');
 		} else {
 			show_404();

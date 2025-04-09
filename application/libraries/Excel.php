@@ -146,6 +146,195 @@ class Excel extends PHPExcel
 		return $data;
 	}
 
+	public function exportJadwalKuliah($data)
+	{
+		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle('JADWAL')->setSubject('JADWAL')->setDescription('JADWAL')->setKeywords('JADWAL');
+		$style_head = array(
+			'font' => array('bold' => true), // Set font nya jadi bold
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER, // Set text jadi ditengah secara horizontal (center)
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => '808080')
+			)
+		);
+		$style_body = array(
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E5C298')
+			)
+		);
+		$style_body2 = array(
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			)
+		);
+
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1, "JADWAL KULIAH SEMESTER GENAP 2024/2025 (JANUARI - JUNI 2025)"); // Set Title paling atas column 0 = A, baris 1
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 1, 14, 1); // Set Merge Cell pada kolom 1 sampai Sesuai panjang Col
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setBold(TRUE); // Set bold kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setSize(15); // Set font size 15 untuk kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER); // Set text center untuk kolom 1
+		
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 2, "PROGRAM STUDI D3 MANAJEMEN INFORMATIKA"); // Set Title paling atas column 0 = A, baris 1
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 2, 14, 2); // Set Merge Cell pada kolom 1 sampai Sesuai panjang Col
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getFont()->setBold(TRUE); // Set bold kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getFont()->setSize(15); // Set font size 15 untuk kolom 1
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER); // Set text center untuk kolom 1
+
+		//SET HEADER
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 3, "NO.");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 3, 0, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(0, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 3, "HARI");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(1, 3, 1, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(1, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2, 3, "JAM");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(2, 3, 3, 3);
+		$this->getActiveSheet()->getStyleByColumnAndRow(2, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2, 4, "MASUK");
+		$this->getActiveSheet()->getStyleByColumnAndRow(2, 4)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, 4, "KELUAR");
+		$this->getActiveSheet()->getStyleByColumnAndRow(3, 4)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, 3, "RUANG");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(4, 3, 4, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(4, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5, 3, "SKS");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(5, 3, 5, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(5, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, 3, "SEM.");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(6, 3, 6, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(6, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7, 3, "KELAS");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(7, 3, 7, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(7, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8, 3, "SIMAK");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(8, 3, 8, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(8, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9, 3, "KODE MK");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(9, 3, 9, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(9, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10, 3, "MATA KULIAH");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(10, 3, 10, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(10, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11, 3, "PENGAMPU 1");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(11, 3, 11, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(11, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(12, 3, "PENGAMPU 2");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(12, 3, 12, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(12, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(13, 3, "PENGAMPU 3");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(13, 3, 13, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(13, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(14, 3, "DIFF");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(14, 3, 14, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(14, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15, 3, "BENTROK");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(15, 3, 15, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(15, 3)->applyFromArray($style_head);
+		$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(16, 3, "STATUS JADWAL");
+		$this->getActiveSheet()->mergeCellsByColumnAndRow(16, 3, 16, 4);
+		$this->getActiveSheet()->getStyleByColumnAndRow(16, 3)->applyFromArray($style_head);
+		
+		//SET BODY
+		$hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+		$row = 5;
+		foreach ($hari as $key => $value) {
+			$no = 1;
+			$ada = false;
+			for ($i=0; $i < count($data); $i++) { 
+				if ($data[$i]['hari'] == $value) {
+					if ($ada) {
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $row, $no);
+						$this->getActiveSheet()->getStyleByColumnAndRow(0, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $row, $data[$i]['hari']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(1, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2, $row, $data[$i]['jam_mulai']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(2, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $row, $data[$i]['jam_selesai']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(3, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $row, $data[$i]['kode_kelas']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(4, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5, $row, $data[$i]['sks']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(5, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $row, $data[$i]['semester']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(6, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7, $row, $data[$i]['kode_kelas']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(7, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8, $row, $data[$i]['kode_kelas']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(8, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9, $row, $data[$i]['kode_mk']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(9, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10, $row, $data[$i]['nama_mk']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(10, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11, $row, $data[$i]['pengampu_1']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(11, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(12, $row, $data[$i]['pengampu_2']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(12, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(13, $row, $data[$i]['pengampu_3']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(13, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(14, $row, $data[$i]['diff']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(14, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15, $row, $data[$i]['bentrok']);
+						$this->getActiveSheet()->getStyleByColumnAndRow(15, $row)->applyFromArray($style_body);
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(16, $row, '');
+						$this->getActiveSheet()->getStyleByColumnAndRow(16, $row)->applyFromArray($style_body);
+						$no++;
+					}else{
+						$ada = true;
+						$this->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $row, strtoupper($value));
+						$this->getActiveSheet()->mergeCellsByColumnAndRow(0, $row, 16, $row);
+						$this->getActiveSheet()->getStyleByColumnAndRow(0, $row)->getFont()->setBold(TRUE);
+						$this->getActiveSheet()->getStyleByColumnAndRow(0, $row)->applyFromArray($style_body2);
+						$i--;
+					}
+					$row++;
+				}
+			}
+		}
+		$tahun = date('Y');
+		for ($i = 0; $i <= 16; $i++) {
+			$this->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
+		}
+
+		// Set orientasi kertas jadi LANDSCAPE
+		$this->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+		// Set judul file nya
+		$this->getActiveSheet(0)->setTitle("JADWAL");
+		$this->setActiveSheetIndex(0);
+		// Proses file 
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="Jadwal MI Tahun Ajaran ' . $tahun . '.xlsx"'); // Set nama file
+		header('Cache-Control: max-age=0');
+		$write = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
+		$write->save('php://output');
+
+		
+	}
+
 	public function exportGeneral($data, $title)
 	{
 		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle($title)->setSubject($title)->setDescription($title)->setKeywords($title);
