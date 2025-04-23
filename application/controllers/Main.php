@@ -308,13 +308,14 @@ class Main extends CI_Controller
 				$where = $this->input->post();
 				unset($where['menu']);
 				foreach ($where as $key => $value) {
-					if ($value == "all") {
-						unset($where[$key]);
+					if ($value != "all") {
+						$where[str_replace('_@_', '.', $key)] = $value;
 					}
+					unset($where[$key]);
 				}
 				if ($menu == 'rekap_absensi') {
 					$dataAlert['message'] = 'Coming soon !!';
-				} elseif($menu == 'jadwal_kuliah'){
+				} elseif ($menu == 'jadwal_kuliah') {
 					$data = $this->MainModel->get_table($menu, false, true, $where);
 					$title = ucwords(str_replace('_', ' ', $menu));
 					if (count($data) > 0) {

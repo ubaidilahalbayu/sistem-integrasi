@@ -1,6 +1,6 @@
 <div class="col-lg-6 mb-3">
     <label for="kode_mk"><?= !empty($export) ? 'Filter ' : '' ?>Mata Kuliah</label>
-    <select class="form-select" id="kode_mk" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>kode_mk">
+    <select class="form-select" id="kode_mk" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>kode_mk">
         <?php
         if (!empty($export)) {
         ?>
@@ -17,7 +17,7 @@
 </div>
 <div class="col-lg-6 mb-3">
     <label for="kode_kelas"><?= !empty($export) ? 'Filter ' : '' ?>Kelas</label>
-    <select class="form-select" id="kode_kelas" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>kode_kelas">
+    <select class="form-select" id="kode_kelas" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>kode_kelas">
         <?php
         if (!empty($export)) {
         ?>
@@ -34,7 +34,7 @@
 </div>
 <div class="col-lg-6 mb-3">
     <label for="nip"><?= !empty($export) ? 'Filter ' : '' ?>Dosen Pengampu 1</label>
-    <select class="form-select" id="nip" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>nip">
+    <select class="form-select" id="nip" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>nip">
         <?php
         if (!empty($export)) {
         ?>
@@ -51,7 +51,7 @@
 </div>
 <div class="col-lg-6 mb-3">
     <label for="nip2"><?= !empty($export) ? 'Filter ' : '' ?>Dosen Pengampu 2</label>
-    <select class="form-select" id="nip2" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>nip2">
+    <select class="form-select" id="nip2" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>nip2">
         <?php
         if (!empty($export)) {
         ?>
@@ -68,7 +68,7 @@
 </div>
 <div class="col-lg-6 mb-3">
     <label for="nip3"><?= !empty($export) ? 'Filter ' : '' ?>Dosen Pengampu 3</label>
-    <select class="form-select" id="nip3" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>nip3">
+    <select class="form-select" id="nip3" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>nip3">
         <?php
         if (!empty($export)) {
         ?>
@@ -85,7 +85,7 @@
 </div>
 <div class="col-lg-6 mb-3">
     <label for="hari"><?= !empty($export) ? 'Filter ' : '' ?>Hari</label>
-    <select class="form-select" id="hari" name="<?= !empty($export) ? 'jadwal_kuliah.' : '' ?>hari">
+    <select class="form-select" id="hari" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>hari">
         <?php
         if (!empty($export)) {
         ?>
