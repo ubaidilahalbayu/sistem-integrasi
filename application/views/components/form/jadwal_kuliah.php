@@ -9,7 +9,7 @@
         }
         foreach ($mk as $key => $value) {
         ?>
-            <option value="<?= $value['kode_mk'] ?>"><?= $value['nama_mk'] ?> Semester <?= $value['semester'] ?> <?= $value['semester'] ?> SKS</option>
+            <option value="<?= $value['kode_mk'] ?>"><?= $value['nama_mk'] ?> Semester <?= $value['semester'] ?> <?= $value['sks'] ?> SKS</option>
         <?php
         }
         ?>

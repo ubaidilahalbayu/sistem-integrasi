@@ -95,6 +95,7 @@ class Main extends CI_Controller
 			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
+			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
 		} else if ($nama_content == 'jadwal_kuliah') {
 			$data['title_header'] = 'Jadwal Kuliah';
 			$getData = $this->MainModel->get_table('jadwal_kuliah');
@@ -150,25 +151,15 @@ class Main extends CI_Controller
 					$path = $_FILES["formFile"]["tmp_name"];
 					$object = PHPExcel_IOFactory::load($path);
 					if ($menu == "rekap_absensi") {
-						foreach ($object->getWorksheetIterator() as $worksheet) {
-							$highestRow = $worksheet->getHighestRow();
-							$highestColumn = $worksheet->getHighestColumn();
-							for ($row = 5; $row <= $highestRow; $row++) {
-								$nama = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
-								$jurusan = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
-								$angkatan = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
-								$temp_data[] = array(
-									'nama'	=> $nama,
-									'jurusan'	=> $jurusan,
-									'angkatan'	=> $angkatan
-								);
-							}
-						}
+						$pilihan_rekap = $this->input->post('pilihan_rekap');
+						$data_extract = $this->excel->getExtractAbsen($path, $pilihan_rekap);
+						// echo json_encode(count($data_extract['data_absen'][0]));
+						// echo json_encode(count($data_extract['data_isi_absen'][0][0]));
+						// die;
+						$dataAlert = $this->MainModel->create_absen_by_file($data_extract);
 					} elseif ($menu == "jadwal_kuliah") {
 						$data_extract = $this->excel->getExtractJadwal($path);
 						$dataAlert = $this->MainModel->create_jadwal_by_file($data_extract);
-						// echo json_encode($data_extract['data_jadwal']);
-						// die;
 					} else {
 						$data_extract = $this->excel->getExtractGeneral($path);
 						$dataAlert = $this->MainModel->create($menu, $data_extract, true);
@@ -314,7 +305,26 @@ class Main extends CI_Controller
 					unset($where[$key]);
 				}
 				if ($menu == 'rekap_absensi') {
-					$dataAlert['message'] = 'Coming soon !!';
+					$pilihan_rekap = $this->input->post('type_absen');
+					if ($pilihan_rekap == 'mhs') {
+						$where['mhs'] = 1;
+					} else if ($pilihan_rekap == 'dsn') {
+						$where['dosen'] = 1;
+					}
+					$data = $this->MainModel->get_table($menu, false, true, $where);
+					$title = ucwords(str_replace('_', ' ', $menu));
+					if (count($data) > 0) {
+						$this->excel->exportAbsensi($data, $pilihan_rekap);
+						$dataAlert = [
+							'status' => 'success',
+							'message' => 'Berhasil Export'
+						];
+					} else {
+						$dataAlert = [
+							'status' => 'warning',
+							'message' => 'Data Tidak Ada'
+						];
+					}
 				} elseif ($menu == 'jadwal_kuliah') {
 					$data = $this->MainModel->get_table($menu, false, true, $where);
 					$title = ucwords(str_replace('_', ' ', $menu));

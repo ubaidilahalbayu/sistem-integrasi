@@ -19,6 +19,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                         <?php
                         $dataED['edit'] = 1;
                         if ($title_header == "Rekap Absensi") {
+                            $dataED['export'] = 0;
                             view('components/form/rekap_absensi', $dataED);
                         } elseif ($title_header == "Jadwal Kuliah") {
                             $paramView['export'] = 0;

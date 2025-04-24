@@ -10,6 +10,120 @@ class Excel extends PHPExcel
 		parent::__construct();
 	}
 
+	public function getExtractAbsen($path, $pilihan_rekap)
+	{
+		$object = PHPExcel_IOFactory::load($path);
+		$data_dosen["dosen1"] = [];
+		$data_dosen["dosen2"] = [];
+		$data_dosen["dosen3"] = [];
+		$data_mk = [];
+		$data_kelas = [];
+		$data_jadwal = [];
+		$data_mahasiswa = [];
+		$data_absen = [];
+		$data_isi_absen = [];
+		foreach ($object->getWorksheetIterator() as $worksheet) {
+
+			//DATA DOSEN
+			$dosen1 = $worksheet->getCell("C6")->getValue();
+			$data_dosen2 = $worksheet->getCell("C7")->getValue();
+			$data_dosen3 = $worksheet->getCell("C8")->getValue();
+			array_push($data_dosen["dosen1"], $dosen1);
+			array_push($data_dosen["dosen2"], $data_dosen2);
+			array_push($data_dosen["dosen3"], $data_dosen3);
+			
+			//DATA MK
+			$mk = $worksheet->getCell("C4")->getValue();
+			$mk = explode(" - ", $mk);
+			$kd_mk = $mk[0];
+			$nm_mk = $mk[1];
+			$mk = array(
+				"kode_mk" => $kd_mk,
+				"nama_mk" => $nm_mk,
+				"sks" => 1, //default nya 1 sementara
+				"semester" => 1, 
+			);
+			array_push($data_mk, $mk);
+
+			//DATA KELAS
+			$kelas = $worksheet->getCell("C5")->getValue();
+			$kelas_push = array(
+				"kode_kelas" => $kelas,
+				"nama_kelas" => $kelas,
+			);
+			array_push($data_kelas, $kelas_push);
+
+			//DATA JADWAL
+			$hari = $worksheet->getCell("C9")->getValue();
+			$jam = $worksheet->getCell("C10")->getValue();
+			$jam = explode(" - ", $jam);
+			$jam_mulai = $jam[0];
+			$jam_selesai = str_replace(" WIB", "", $jam[1]);
+			$jadwal = array(
+				"kode_mk" => $kd_mk,
+				"kode_kelas" => $kelas,
+				"hari" => $hari,
+				"jam_mulai" => $jam_mulai,
+				"jam_selesai" => $jam_selesai
+			);
+			array_push($data_jadwal, $jadwal);
+
+			$highestRow = $worksheet->getHighestRow();
+			$highestColumn = $worksheet->getHighestColumn();
+			//DATA ABSEN
+			$absen = [];
+			foreach (range("D", $highestColumn) as $col) { 
+				$tanggal = $worksheet->getCell($col."13")->getFormattedValue();
+				if (empty($tanggal)) {
+					continue;
+				}
+				$tanggal = array("tanggal" => date('Y-m-d', strtotime($tanggal)));
+				array_push($absen, $tanggal);
+			}
+			// echo json_encode($absen);die;
+			array_push($data_absen, $absen);
+			$isi_absen = [];
+			for ($row = 14; $row <= $highestRow; $row++) {
+				//DATA MAHASISWA
+				$nim = $worksheet->getCell("B".$row)->getValue();
+				$nama = $worksheet->getCell("C".$row)->getValue();
+				if (empty($nim) && empty($nama)) {
+					continue;
+				}
+				$mahasiswa = array(
+					"nim" => $nim,
+					"nama_mahasiswa" => $nama,
+					"angkatan" => "2025", //Default angkatan 2025
+				);
+				array_push($data_mahasiswa, $mahasiswa);
+				
+				//DATA ISI ABSEN
+				$isi_absen_push = [];
+				foreach (range("D", $highestColumn) as $col) { 
+					$keterangan = $worksheet->getCell($col.$row)->getValue();
+					if (empty($keterangan)) {
+						continue;
+					}
+					$isi_sekali = array(
+						"nim" => $nim,
+						"keterangan" => $keterangan,
+					);
+					array_push($isi_absen_push, $isi_sekali);
+				}
+				array_push($isi_absen, $isi_absen_push);
+			}
+			array_push($data_isi_absen, $isi_absen);
+		}
+		return [
+			'data_jadwal' => $data_jadwal,
+			'data_dosen' => $data_dosen,
+			'data_mk' => $data_mk,
+			'data_kelas' => $data_kelas,
+			'data_absen' => $data_absen,
+			'data_isi_absen' => $data_isi_absen,
+			'data_mahasiswa' => $data_mahasiswa,
+		];
+	}
 	public function getExtractJadwal($path)
 	{
 		$object = PHPExcel_IOFactory::load($path);
@@ -144,6 +258,55 @@ class Excel extends PHPExcel
 			}
 		}
 		return $data;
+	}
+
+	public function exportAbsensi($data, $pilihan_rekap)
+	{
+		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle('JADWAL')->setSubject('JADWAL')->setDescription('JADWAL')->setKeywords('JADWAL');
+		$style_head = array(
+			'font' => array('bold' => true), // Set font nya jadi bold
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER, // Set text jadi ditengah secara horizontal (center)
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => '808080')
+			)
+		);
+		$style_body = array(
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E5C298')
+			)
+		);
+		$style_body2 = array(
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER // Set text jadi di tengah secara vertical (middle)
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			)
+		);
+		
 	}
 
 	public function exportJadwalKuliah($data)

@@ -1,3 +1,6 @@
+<?php
+if (empty($export)) {
+?>
 <div class="row justify-content-start">
     <div class="col-lg-3 mb-3">
         <label for="">Opsi Rekap Absensi:</label>
@@ -75,3 +78,42 @@
         </select>
     </div>
 </div>
+<?php
+}else{
+?>
+<div class="col-lg-6 mb-3">
+    <label for="filter_jadwal_kuliah">Filter Jadwal Kuliah</label>
+    <select class="form-select" id="filter_jadwal_kuliah" name="<?= !empty($export) ? 'absensi_@_' : '' ?>id_jadwal">
+            <option value="all">Semua</option>
+            <?php
+            foreach ($jdw as $key => $value) {
+            ?>
+                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['semester'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['hari'] ?></option>
+            <?php
+            }
+            ?>
+    </select>
+</div>
+<div class="col-lg-6 mb-3">
+    <label for="kode_mk">Filter Mata Kuliah</label>
+    <select class="form-select" id="kode_mk" name="<?= !empty($export) ? 'data_mk_@_' : '' ?>kode_mk">
+            <option value="all">Semua</option>
+            <?php
+            foreach ($mk as $key => $value) {
+            ?>
+                <option value="<?= $value['kode_mk'] ?>"><?= $value['nama_mk'] ?> Semester <?= $value['semester'] ?> <?= $value['sks'] ?> SKS</option>
+            <?php
+            }
+            ?>
+    </select>
+</div>
+<div class="col-lg-6 mb-3">
+    <label for="type_absen">Filter Opsi</label>
+    <select class="form-select" id="type_absen" name="type_absen">
+            <option value="mhs">Mahasiswa</option>
+            <!-- <option value="dsn">Dosen</option> -->
+    </select>
+</div>
+<?php
+}
+?>

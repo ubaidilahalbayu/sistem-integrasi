@@ -68,6 +68,297 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function create_absen_by_file($data)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        $data_jadwal = $data['data_jadwal'];
+        $data_dosen = $data['data_dosen'];
+        $data_mk = $data['data_mk'];
+        $data_kelas = $data['data_kelas'];
+        $data_mahasiswa = $data['data_mahasiswa'];
+        $data_absen = $data['data_absen'];
+        $data_isi_absen = $data['data_isi_absen'];
+
+        try{
+            $lanjut = true;
+            
+            //SIMPAN DATA MK
+            foreach ($data_mk as $key => $value) {
+                $where['kode_mk'] = $value['kode_mk'];
+                $check = $this->get_table('data_mk', false, true, $where);
+                if (count($check) > 0) {
+                    continue;
+                } else {
+                    $this->db->insert('data_mk', $value);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                    }
+                }
+            }
+
+            //SIMPAN DATA KELAS
+            if ($lanjut) {
+                foreach ($data_kelas as $key => $value) {
+                    $where = [];
+                    $where['kode_kelas'] = $value['kode_kelas'];
+                    $check = $this->get_table('data_kelas', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('data_kelas', $value);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+
+            //SIMPAN DATA MAHASISWA
+            if ($lanjut) {
+                foreach ($data_mahasiswa as $key => $value) {
+                    $where = [];
+                    $where['nim'] = $value['nim'];
+                    $check = $this->get_table('data_mahasiswa', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('data_mahasiswa', $value);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+
+            //SIMPAN DATA DOSEN
+            $nip1 = [];
+            $nip2 = [];
+            $nip3 = [];
+            if ($lanjut) {
+                foreach ($data_dosen['dosen1'] as $key => $value) {
+                    $where = [];
+                    $where['nama_dosen'] = $value;
+                    $check = $this->get_table('data_dosen', false, true, $where);
+                    if (count($check) > 0) {
+                        array_push($nip1, $check[0]['nip']);
+                        continue;
+                    } else {
+                        //BUAT NIP RANDOM SEMENTARA
+                        do {
+                            $nip = '';
+                            for ($i = 0; $i < 15; $i++) {
+                                $nip .= random_int(0, 9);
+                            }
+                            $where = ['nip' => $nip];
+                            $check = $this->get_table('data_dosen', false, true, $where);
+                        } while (count($check) > 0);
+                        array_push($nip1, $nip);
+                        $insert = array(
+                            'nip' => $nip,
+                            'nama_gelar_depan' => '-',
+                            'nama_dosen' => $value,
+                            'nama_gelar_belakang' => '-',
+                        );
+                        $this->db->insert('data_dosen', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+            if ($lanjut) {
+                foreach ($data_dosen['dosen2'] as $key => $value) {
+                    $where['nama_dosen'] = $value;
+                    $check = $this->get_table('data_dosen', false, true, $where);
+                    if (count($check) > 0) {
+                        array_push($nip2, $check[0]['nip']);
+                        continue;
+                    } else {
+                        //BUAT NIP RANDOM SEMENTARA
+                        do {
+                            $nip = '';
+                            for ($i = 0; $i < 15; $i++) {
+                                $nip .= random_int(0, 9);
+                            }
+                            $where = ['nip' => $nip];
+                            $check = $this->get_table('data_dosen', false, true, $where);
+                        } while (count($check) > 0);
+                        array_push($nip2, $nip);
+                        $insert = array(
+                            'nip' => $nip,
+                            'nama_gelar_depan' => '-',
+                            'nama_dosen' => $value,
+                            'nama_gelar_belakang' => '-',
+                        );
+                        $this->db->insert('data_dosen', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+            if ($lanjut) {
+                foreach ($data_dosen['dosen3'] as $key => $value) {
+                    $where['nama_dosen'] = $value;
+                    $check = $this->get_table('data_dosen', false, true, $where);
+                    if (count($check) > 0) {
+                        array_push($nip3, $check[0]['nip']);
+                        continue;
+                    } else {
+                        //BUAT NIP RANDOM SEMENTARA
+                        do {
+                            $nip = '';
+                            for ($i = 0; $i < 15; $i++) {
+                                $nip .= random_int(0, 9);
+                            }
+                            $where = ['nip' => $nip];
+                            $check = $this->get_table('data_dosen', false, true, $where);
+                        } while (count($check) > 0);
+                        array_push($nip3, $nip);
+                        $insert = array(
+                            'nip' => $nip,
+                            'nama_gelar_depan' => '-',
+                            'nama_dosen' => $value,
+                            'nama_gelar_belakang' => '-',
+                        );
+                        $this->db->insert('data_dosen', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+
+            //SIMPAN DATA JADWAL KULIAH
+            $id_jadwal = [];
+            if ($lanjut) {
+                foreach ($data_jadwal as $key => $value) {
+                    $where = [];
+                    foreach ($value as $key2 => $value2) {
+                        $where['jadwal_kuliah.'.$key2] = $value2;
+                    }
+                    $where['jadwal_kuliah.nip'] = $nip1[$key];
+                    $where['jadwal_kuliah.nip2'] = $nip2[$key];
+                    $where['jadwal_kuliah.nip3'] = $nip3[$key];
+                    $check = $this->get_table('jadwal_kuliah', false, true, $where);
+                    if (count($check) > 0) {
+                        array_push($id_jadwal, $check[0]['id']);
+                        continue;
+                    } else {
+                        $value['nip'] = $nip1[$key];
+                        $value['nip2'] = $nip2[$key];
+                        $value['nip3'] = $nip3[$key];
+                        $this->db->insert('jadwal_kuliah', $value);
+                        $id = $this->db->insert_id();
+                        array_push($id_jadwal, $id);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                        }
+                    }
+                }
+            }
+            
+            //SIMPAN DATA ABSEN
+            $id_absen = [];
+            if ($lanjut) {
+                foreach ($data_absen as $key => $value) {
+                    $id_absen_push = [];
+                    foreach ($value as $key2 => $value2) {
+                        $where = [];
+                        $where['id_jadwal'] = $id_jadwal[$key];
+                        $where['tanggal'] = $value2['tanggal'];
+                        $check = $this->get_table('absensi', false, true, $where);
+                        if (count($check) > 0) {
+                            array_push($id_absen_push, $check[0]['id']);
+                            continue;
+                        } else {
+                            $value2['id_jadwal'] = $id_jadwal[$key];
+                            $this->db->insert('absensi', $value2);
+                            $id = $this->db->insert_id();
+                            array_push($id_absen_push, $id);
+                            if ($this->db->trans_status() === FALSE) {
+                                $this->db->trans_rollback();
+                                $error = $this->db->error();
+                                $return['status'] = 'danger';
+                                $return['message'] = 'Gagal :: ' . $error['message'];
+                                $lanjut = false;
+                            }
+                        }
+                    }
+                    array_push($id_absen, $id_absen_push);
+                }
+            }
+
+            //SIMPAN ISI ABSEN
+            if ($lanjut) {
+                foreach ($data_isi_absen as $key => $value) {
+                    foreach ($value as $key2 => $value2) {
+                        foreach ($value2 as $key3 => $value3) {
+                            $where = [];
+                            $where['id_absen'] = $id_absen[$key][$key3];
+                            $where['nim'] = $value3['nim'];
+                            $check = $this->get_table('isi_absen_mhs', false, true, $where);
+                            if (count($check) > 0) {
+                                continue;
+                            } else {
+                                $value3['id_absen'] = $id_absen[$key][$key3];
+                                $this->db->insert('isi_absen_mhs', $value3);
+                                if ($this->db->trans_status() === FALSE) {
+                                    $this->db->trans_rollback();
+                                    $error = $this->db->error();
+                                    $return['status'] = 'danger';
+                                    $return['message'] = 'Gagal :: ' . $error['message'];
+                                    $lanjut = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //COMMIT TRANSACTION
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Simpan Jadwal Kuliah dari File';
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
+
     public function create_jadwal_by_file($data)
     {
         $this->db->trans_begin();
