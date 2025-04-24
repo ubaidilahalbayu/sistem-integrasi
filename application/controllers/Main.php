@@ -311,9 +311,12 @@ class Main extends CI_Controller
 					} else if ($pilihan_rekap == 'dsn') {
 						$where['dosen'] = 1;
 					}
-					$data = $this->MainModel->get_table($menu, false, true, $where);
+					$data['data_isi_absen'] = $this->MainModel->get_table($menu, false, true, $where);
+					unset($where['mhs'], $where['dosen']);
+					$data['data_absen'] = $this->MainModel->get_table($menu, false, true, $where);
+					$data['data_jadwal'] = $this->MainModel->get_table('jadwal_kuliah', false, true, $where);
 					$title = ucwords(str_replace('_', ' ', $menu));
-					if (count($data) > 0) {
+					if (count($data['data_absen']) > 0 && count($data['data_jadwal']) > 0) {
 						$this->excel->exportAbsensi($data, $pilihan_rekap);
 						$dataAlert = [
 							'status' => 'success',

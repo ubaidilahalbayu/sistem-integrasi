@@ -83,7 +83,7 @@ if (empty($export)) {
 ?>
 <div class="col-lg-6 mb-3">
     <label for="filter_jadwal_kuliah">Filter Jadwal Kuliah</label>
-    <select class="form-select" id="filter_jadwal_kuliah" name="<?= !empty($export) ? 'absensi_@_' : '' ?>id_jadwal">
+    <select class="form-select" id="filter_jadwal_kuliah" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>id">
             <option value="all">Semua</option>
             <?php
             foreach ($jdw as $key => $value) {
