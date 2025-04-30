@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 05:19 PM
+-- Generation Time: Apr 30, 2025 at 04:18 PM
 -- Server version: 10.1.38-MariaDB
 -- PHP Version: 7.3.2
 
@@ -90,9 +90,18 @@ CREATE TABLE `data_mk` (
 --
 
 CREATE TABLE `data_semester` (
-  `id_semester` int(11) NOT NULL,
-  `tahun` year(4) NOT NULL
+  `tahun_1` year(4) NOT NULL,
+  `tahun_2` year(4) NOT NULL,
+  `semester` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `data_semester`
+--
+
+INSERT INTO `data_semester` (`tahun_1`, `tahun_2`, `semester`) VALUES
+(2024, 2025, 1),
+(2024, 2025, 2);
 
 -- --------------------------------------------------------
 
@@ -103,8 +112,8 @@ CREATE TABLE `data_semester` (
 CREATE TABLE `isi_absen_dosen` (
   `id` int(11) NOT NULL,
   `nip` varchar(16) NOT NULL,
-  `id_absen` int(11) NOT NULL,
-  `keterangan` varchar(16) NOT NULL
+  `id_jadwal` int(11) NOT NULL,
+  `jumlah_hadir` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -117,7 +126,7 @@ CREATE TABLE `isi_absen_mhs` (
   `id` int(11) NOT NULL,
   `nim` varchar(16) NOT NULL,
   `id_absen` int(11) NOT NULL,
-  `keterangan` varchar(16) NOT NULL
+  `keterangan` char(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -197,15 +206,18 @@ ALTER TABLE `data_mk`
 -- Indexes for table `data_semester`
 --
 ALTER TABLE `data_semester`
-  ADD PRIMARY KEY (`id_semester`);
+  ADD PRIMARY KEY (`semester`,`tahun_1`,`tahun_2`) USING BTREE,
+  ADD KEY `tahun_1` (`tahun_1`) USING BTREE,
+  ADD KEY `semester` (`semester`) USING BTREE,
+  ADD KEY `tahun_2` (`tahun_2`) USING BTREE;
 
 --
 -- Indexes for table `isi_absen_dosen`
 --
 ALTER TABLE `isi_absen_dosen`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_absen_dosen` (`id_absen`),
-  ADD KEY `fk_isi_dosen` (`nip`);
+  ADD KEY `fk_isi_dosen` (`nip`),
+  ADD KEY `fk_isi_jadwal` (`id_jadwal`) USING BTREE;
 
 --
 -- Indexes for table `isi_absen_mhs`
@@ -258,7 +270,7 @@ ALTER TABLE `isi_absen_mhs`
 -- AUTO_INCREMENT for table `jadwal_kuliah`
 --
 ALTER TABLE `jadwal_kuliah`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -274,14 +286,14 @@ ALTER TABLE `absensi`
 -- Constraints for table `data_mk`
 --
 ALTER TABLE `data_mk`
-  ADD CONSTRAINT `fk_semester` FOREIGN KEY (`semester`) REFERENCES `data_semester` (`id_semester`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_semester_mk` FOREIGN KEY (`semester`) REFERENCES `data_semester` (`semester`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `isi_absen_dosen`
 --
 ALTER TABLE `isi_absen_dosen`
-  ADD CONSTRAINT `fk_absen_dosen` FOREIGN KEY (`id_absen`) REFERENCES `absensi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_isi_dosen` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_isi_dosen` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_isi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kuliah` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `isi_absen_mhs`
