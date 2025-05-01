@@ -32,7 +32,37 @@ if (empty($export)) {
         <input type="date" name="tanggal" id="tanggal" class="form-control">
     </div>
 </div>
-<div class="row justify-content-start" id="pilihan_rekap_2" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 1 ? 'style="display: none"' : '') : '' ?>>
+<div class="row justify-content-start" id="pilihan_rekap_2" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 2 ? 'style="display: none"' : '') : '' ?>>
+    <div class="col-lg-6 mb-3">
+        <label for="id_jadwal">Pilih Jadwal Kuliah</label>
+        <select class="form-select" id="id_jadwal" name="id_jadwal">
+            <?php
+            foreach ($jdw as $key => $value) {
+            ?>
+                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['semester'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['hari'] ?></option>
+            <?php
+            }
+            ?>
+        </select>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <label for="nip">Dosen</label>
+        <select class="form-select" id="nip" name="nip">
+            <?php
+            foreach ($dsn as $key => $value) {
+            ?>
+                <option value="<?= $value['nip'] ?>"><?= $value['nama_gelar_depan'] ?> <?= $value['nama_dosen'] ?>, <?= $value['nama_gelar_belakang'] ?></option>
+            <?php
+            }
+            ?>
+        </select>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <label for="jumlah_hadir">Jumlah Hadir</label>
+        <input type="number" name="jumlah_hadir" id="jumlah_hadir" value="1" class="form-control">
+    </div>
+</div>
+<div class="row justify-content-start" id="pilihan_rekap_3" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 3 ? 'style="display: none"' : '') : '' ?>>
     <div class="col-lg-6 mb-3">
         <label for="id_absen">Pilih Absen</label>
         <select class="form-select" id="id_absen" name="id_absen">
@@ -45,19 +75,7 @@ if (empty($export)) {
             ?>
         </select>
     </div>
-    <div class="col-lg-6 mb-3" id="pilihan_rekap_dosen" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 2 ? 'style="display: none"' : '') : '' ?>>
-        <label for="nip">Dosen</label>
-        <select class="form-select" id="nip" name="nip">
-            <?php
-            foreach ($dsn as $key => $value) {
-            ?>
-                <option value="<?= $value['nip'] ?>"><?= $value['nama_gelar_depan'] ?> <?= $value['nama_dosen'] ?>, <?= $value['nama_gelar_belakang'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3" id="pilihan_rekap_mhs" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 3 ? 'style="display: none"' : '') : '' ?>>
+    <div class="col-lg-6 mb-3">
         <label for="nim">Mahasiswa</label>
         <select class="form-select" id="nim" name="nim">
             <?php
@@ -82,36 +100,33 @@ if (empty($export)) {
 }else{
 ?>
 <div class="col-lg-6 mb-3">
-    <label for="filter_jadwal_kuliah">Filter Jadwal Kuliah</label>
-    <select class="form-select" id="filter_jadwal_kuliah" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>id">
+    <label for="filter_semester">Filter Semester</label>
+    <select class="form-select" id="filter_semester" name="<?= !empty($export) ? 'data_mk_@_' : '' ?>semester">
+            <option value="all">Semua</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+    </select>
+</div>
+<div class="col-lg-6 mb-3">
+    <label for="filter_tahun_1">Filter Tahun Akademik 1</label>
+    <select class="form-select" id="filter_tahun_1" name="<?= !empty($export) ? 'data_semester_@_' : '' ?>tahun_1">
             <option value="all">Semua</option>
             <?php
-            foreach ($jdw as $key => $value) {
-            ?>
-                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['semester'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['hari'] ?></option>
-            <?php
+            for ($year = 2020; $year <= date('Y'); $year++) {
+                echo '<option value="'.$year.'">' . $year . '</option>';
             }
             ?>
     </select>
 </div>
 <div class="col-lg-6 mb-3">
-    <label for="kode_mk">Filter Mata Kuliah</label>
-    <select class="form-select" id="kode_mk" name="<?= !empty($export) ? 'data_mk_@_' : '' ?>kode_mk">
+    <label for="filter_tahun_2">Filter Tahun Akademik 2</label>
+    <select class="form-select" id="filter_tahun_2" name="<?= !empty($export) ? 'data_semester_@_' : '' ?>tahun_2">
             <option value="all">Semua</option>
             <?php
-            foreach ($mk as $key => $value) {
-            ?>
-                <option value="<?= $value['kode_mk'] ?>"><?= $value['nama_mk'] ?> Semester <?= $value['semester'] ?> <?= $value['sks'] ?> SKS</option>
-            <?php
+            for ($year = 2020; $year <= date('Y'); $year++) {
+                echo '<option value="'.$year.'">' . $year . '</option>';
             }
             ?>
-    </select>
-</div>
-<div class="col-lg-6 mb-3">
-    <label for="type_absen">Filter Opsi</label>
-    <select class="form-select" id="type_absen" name="type_absen">
-            <option value="mhs">Mahasiswa</option>
-            <!-- <option value="dsn">Dosen</option> -->
     </select>
 </div>
 <?php

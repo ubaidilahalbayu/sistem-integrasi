@@ -218,38 +218,34 @@ view('components/modal/modal_confirm');
                 $('#pilihan_rekap_2 select').each(function() {
                     $(this).attr('disabled', true);
                 });
-            } else if ($(this).val() == 2) {
-                $('#pilihan_rekap_2').removeAttr('style');
-                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
+                $('#pilihan_rekap_3').attr('style', 'display: none;');
+                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
                     $(this).attr('disabled', true);
                 });
-                $('#pilihan_rekap_1').attr('style', 'display: none;');
+            } else if ($(this).val() == 2) {
+                $('#pilihan_rekap_2').removeAttr('style');
                 $('#pilihan_rekap_2 select').each(function() {
                     $(this).attr('disabled', false);
                 });
-                $('#pilihan_rekap_dosen').removeAttr('style');
-                $('#pilihan_rekap_dosen select').each(function() {
-                    $(this).attr('disabled', false);
+                $('#pilihan_rekap_1').attr('style', 'display: none;');
+                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
+                    $(this).attr('disabled', true);
                 });
-                $('#pilihan_rekap_mhs').attr('style', 'display: none;');
-                $('#pilihan_rekap_mhs select').each(function() {
+                $('#pilihan_rekap_3').attr('style', 'display: none;');
+                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
                     $(this).attr('disabled', true);
                 });
             } else if ($(this).val() == 3) {
-                $('#pilihan_rekap_2').removeAttr('style');
-                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
+                $('#pilihan_rekap_3').removeAttr('style');
+                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
+                    $(this).attr('disabled', false);
+                });
+                $('#pilihan_rekap_2').attr('style', 'display: none;');
+                $('#pilihan_rekap_2 select').each(function() {
                     $(this).attr('disabled', true);
                 });
                 $('#pilihan_rekap_1').attr('style', 'display: none;');
-                $('#pilihan_rekap_2 select').each(function() {
-                    $(this).attr('disabled', false);
-                });
-                $('#pilihan_rekap_mhs').removeAttr('style');
-                $('#pilihan_rekap_mhs select').each(function() {
-                    $(this).attr('disabled', false);
-                });
-                $('#pilihan_rekap_dosen').attr('style', 'display: none;');
-                $('#pilihan_rekap_dosen select').each(function() {
+                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
                     $(this).attr('disabled', true);
                 });
             }
