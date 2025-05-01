@@ -68,6 +68,262 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function create_absen_by_file_v2($data)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        $data_jadwal = $data['data_jadwal'];
+        $data_dosen = $data['data_dosen'];
+        $data_mk = $data['data_mk'];
+        $data_kelas = $data['data_kelas'];
+        $data_mahasiswa = $data['data_mahasiswa'];
+        $data_absen = $data['data_absen'];
+        $data_isi_absen_dsn = $data['data_isi_absen_dsn'];
+        $data_isi_absen_mhs = $data['data_isi_absen_mhs'];
+
+        try{
+            $lanjut = true;
+            
+            //SIMPAN DATA DOSEN
+            foreach ($data_dosen as $key => $value) {
+                $where = [];
+                $where['nip'] = $value['nip'];
+                $check = $this->get_table('data_dosen', false, true, $where);
+                if (count($check) > 0) {
+                    continue;
+                } else {
+                    $this->db->insert('data_dosen', $value);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                        break;
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA KELAS
+                foreach ($data_kelas as $key => $value) {
+                    $where = [];
+                    $where['kode_kelas'] = $value['kode_kelas'];
+                    $check = $this->get_table('data_kelas', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('data_kelas', $value);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA MK
+                foreach ($data_mk as $key => $value) {
+                    $where = [];
+                    $where['kode_mk'] = $value['kode_mk'];
+                    $check = $this->get_table('data_mk', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('data_mk', $value);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            $id_jadwal = [];
+            if ($lanjut) {
+                //SIMPAN DATA JADWAL
+                foreach ($data_jadwal as $key => $value) {
+                    $where = [];
+                    foreach ($value as $key2 => $value2) {
+                        $where['jadwal_kuliah.'.$key2] = $value2;
+                    }
+                    $check = $this->get_table('jadwal_kuliah', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('jadwal_kuliah', $value);
+                        $id = $this->db->insert_id();
+                        $id_jadwal[$key] = $id;
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA MAHASISWA
+                foreach ($data_mahasiswa['nim'] as $key => $value) {
+                    $where = [];
+                    $where['nim'] = $value;
+                    $check = $this->get_table('data_mahasiswa', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $insert = array(
+                            'nim' => $value,
+                            'nama_mahasiswa' => $data_mahasiswa['nama_mahasiswa'][$key],
+                            'angkatan' => $data_mahasiswa['angkatan'][$key],
+                        );
+                        $this->db->insert('data_mahasiswa', $insert);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            $id_absen = [];
+            if ($lanjut) {
+                //SIMPAN DATA ABSEN
+                foreach ($data_absen as $key => $value) {
+                    $push_absen = [];
+                    foreach ($value as $key2 => $value2) {
+                        $where = [];
+                        $where['id_jadwal'] = $id_jadwal[$key];
+                        $where['tanggal'] = $value2['tanggal'];
+                        $check = $this->get_table('absensi', false, true, $where);
+                        if (count($check) > 0) {
+                            continue;
+                        } else {
+                            $insert = array(
+                                'id_jadwal' => $id_jadwal[$key],
+                                'tanggal' => $value2['tanggal']
+                            );
+                            $this->db->insert('absensi', $insert);
+                            $id = $this->db->insert_id();
+                            $push_absen[] = $id;
+                            if ($this->db->trans_status() === FALSE) {
+                                $this->db->trans_rollback();
+                                $error = $this->db->error();
+                                $return['status'] = 'danger';
+                                $return['message'] = 'Gagal :: ' . $error['message'];
+                                $lanjut = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$lanjut) {
+                        break;
+                    }
+                    $id_absen[$key] = $push_absen;
+                }
+            }
+            
+            if ($lanjut) {
+                //SIMPAN DATA ISI ABSEN DOSEN
+                foreach ($data_isi_absen_dsn as $key => $value) {
+                    foreach ($value as $key2 => $value2) {
+                        $where = [];
+                        $where['id_jadwal'] = $id_jadwal[$key];
+                        $where['nip'] = $value2['nip'];
+                        $check = $this->get_table('isi_absen_dosen', false, true, $where);
+                        if (count($check) > 0) {
+                            continue;
+                        } else {
+                            $insert = array(
+                                'nip' => $value2['nip'],
+                                'id_jadwal' => $id_jadwal[$key],
+                                'jumlah_hadir' => $value2['jumlah_hadir']
+                            );
+                            $this->db->insert('isi_absen_dosen', $insert);
+                            if ($this->db->trans_status() === FALSE) {
+                                $this->db->trans_rollback();
+                                $error = $this->db->error();
+                                $return['status'] = 'danger';
+                                $return['message'] = 'Gagal :: ' . $error['message'];
+                                $lanjut = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$lanjut) {
+                        break;
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA ISI ABSEN MAHASISWA
+                foreach ($data_isi_absen_mhs as $key => $value) {
+                    foreach ($value as $key2 => $value2) {
+                        foreach ($value2 as $key3 => $value3) {
+                            $where = [];
+                            $where['id_absen'] = $id_absen[$key][$key3];
+                            $where['nim'] = $value3['nim'];
+                            $check = $this->get_table('isi_absen_mhs', false, true, $where);
+                            if (count($check) > 0) {
+                                continue;
+                            } else {
+                                $insert = array(
+                                    'nim' => $value3['nim'],
+                                    'id_absen' => $id_absen[$key][$key3],
+                                    'keterangan' => $value3['keterangan']
+                                );
+                                $this->db->insert('isi_absen_mhs', $insert);
+                                if ($this->db->trans_status() === FALSE) {
+                                    $this->db->trans_rollback();
+                                    $error = $this->db->error();
+                                    $return['status'] = 'danger';
+                                    $return['message'] = 'Gagal :: ' . $error['message'];
+                                    $lanjut = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!$lanjut) {
+                            break;
+                        }
+                    }
+                    if (!$lanjut) {
+                        break;
+                    }
+                }
+            }
+
+            if ($lanjut) {
+                //COMMIT TRANSACTION
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Simpan Rekap Absensi dari File';
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
+
     public function create_absen_by_file($data)
     {
         $this->db->trans_begin();
@@ -349,7 +605,7 @@ class MainModel extends CI_Model
                 //COMMIT TRANSACTION
                 $this->db->trans_commit();
                 $return['status'] = 'success';
-                $return['message'] = 'Berhasil Simpan Jadwal Kuliah dari File';
+                $return['message'] = 'Berhasil Simpan Rekap Absensi dari File';
             }
         } catch (\Throwable $e) {
             $this->db->trans_rollback();

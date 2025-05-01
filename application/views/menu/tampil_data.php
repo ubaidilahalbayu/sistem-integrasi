@@ -67,7 +67,7 @@ view('components/modal/modal_confirm');
                                     ?>
                                     <td><button type="button" class="btn btn-warning"
                                             param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
-                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "'" : '' ?>>Edit</button> <button type="button"
+                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 || $this->session->flashdata('selected_rekap') == 2 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "'" : '' ?>>Edit</button> <button type="button"
                                             class="btn btn-danger"
                                             param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
                                             name="<?= $dt[$header_table[0]] ?>"
@@ -137,9 +137,12 @@ view('components/modal/modal_confirm');
                 if (selected_rekap == 1) {
                     $("#edit_form #id_jadwal").val(id_selected);
                     $("#edit_form #tanggal").val(previousTdValues[3]);
+                }else if (selected_rekap == 2) {
+                    $("#edit_form #id_jadwal").val(id_selected);
+                    $("#edit_form #nip").val(previousTdValues[5]);
+                    $("#edit_form #jumlah_hadir").val(previousTdValues[0]);
                 } else {
                     $("#edit_form #id_absen").val(id_selected);
-                    $("#edit_form #nip").val(previousTdValues[6]);
                     $("#edit_form #nim").val(previousTdValues[6]);
                     $("#edit_form #keterangan").val(previousTdValues[0]);
                 }

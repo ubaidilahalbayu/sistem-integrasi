@@ -90,9 +90,10 @@ if (empty($export)) {
     <div class="col-lg-6 mb-3">
         <label for="keterangan">Keterangan</label>
         <select class="form-select" id="keterangan" name="keterangan">
-            <option value="Hadir">Hadir</option>
-            <option value="Izin">Izin</option>
-            <option value="Sakit">Sakit</option>
+            <option value="1">Hadir</option>
+            <option value="I">Izin</option>
+            <option value="S">Sakit</option>
+            <option value="0">Tidak Hadir</option>
         </select>
     </div>
 </div>
