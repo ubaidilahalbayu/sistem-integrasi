@@ -452,11 +452,15 @@ class Excel extends PHPExcel
 		return $data;
 	}
 
-	public function exportAbsensi($data, $pilihan_rekap)
+	public function exportAbsensi($data)
 	{
+		$data_mk = $data['data_mk'];
+		$data_dosen = $data['data_dosen'];
 		$data_jadwal = $data['data_jadwal'];
 		$data_absen = $data['data_absen'];
-		$data_isi_absen = $data['data_isi_absen'];
+		$kode_mk = $data['kode_mk'];
+		$kode_mk_jadwal = $data['kode_mk_jadwal'];
+		$data_isi_absen_mhs = $data['data_isi_absen_mhs'];
 		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle('ABSEN')->setSubject('ABSEN')->setDescription('ABSEN')->setKeywords('ABSEN');
 		$style_head = array(
 			'font' => array('bold' => true, 'size' => 10), // Set font nya jadi bold
@@ -503,181 +507,120 @@ class Excel extends PHPExcel
 				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
 			)
 		);
+		$style_href = array(
+			'font' => array('bold' => true, 'size' => 10),
+			'alignment' => array(
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER, // Set text jadi di tengah secara vertical (middle)
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+			),
+			'borders' => array(
+				'top' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border top dengan garis tipis
+				'right' => array('style'  => PHPExcel_Style_Border::BORDER_THIN),  // Set border right dengan garis tipis
+				'bottom' => array('style'  => PHPExcel_Style_Border::BORDER_THIN), // Set border bottom dengan garis tipis
+				'left' => array('style'  => PHPExcel_Style_Border::BORDER_THIN) // Set border left dengan garis tipis
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'FF0000')
+			)
+		);
 		
-		$active_sheet = 0;
-		foreach ($data_jadwal as $key_jdw => $value_jdw) {
-			$check_isi_absen = false;
-			$col_bnyk_absen = 0;
-			$nim = [];
-			$nama_mahasiswa = [];
-			foreach ($data_absen as $key_abs => $value_abs) {
-				if ($value_abs['id_jadwal'] == $value_jdw['id']) {
-					$check_isi_absen = true;
-					foreach ($data_isi_absen as $key_isi => $value_isi) {
-						if ($value_isi['id_absen'] == $value_abs['id'] && !in_array($value_isi['nim'], $nim)) {
-							array_push($nim, $value_isi['nim']);
-							array_push($nama_mahasiswa, $value_isi['nama_mahasiswa']);
-						}
-					}
-					$col_bnyk_absen++;
-				}
-			}
-			if (!$check_isi_absen) {
-				continue;
-			}
-			$this->createSheet();
-
-			//TITLE
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 1, "DAFTAR HADIR"); // Set Title paling atas column 0 = A, baris 1
-			$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 1, 2+$col_bnyk_absen, 1); // Set Merge Cell pada kolom 1 sampai Sesuai panjang Col
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setBold(TRUE); // Set bold kolom 1
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getFont()->setSize(14); // Set font size 15 untuk kolom 1
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 1)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER); // Set text center untuk kolom 1
-			
-			//DATA JADWAL
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 2, "Program Studi");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 2, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 2)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 2, "D3 Manajemen Informatika (57401)");//DEFAULT PRODI DISINI
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 2)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 3, "Tahun Akademik");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 3)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 3)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 3)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 3, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 3)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 3)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 3, "2024/2025 (Genap)");//DEFAULT TAHUN AKADEMIK DISINI
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 3)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 3)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 4, "Mata Kuliah");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 4)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 4)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 4)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 4, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 4)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 4)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 4, $value_jdw['kode_mk']." - ".$value_jdw['nama_mk']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 4)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 4)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 5, "Kelas");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 5)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 5)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 5)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 5, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 5)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 5)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 5, $value_jdw['kode_kelas']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 5)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 5)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 6, "Dosen");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 6)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 6)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 6)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 6, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 6)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 6)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 6, $value_jdw['nama_dosen']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 6)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 6)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 7, $value_jdw['nama_dosen2']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 7)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 7)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 8, $value_jdw['nama_dosen3']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 8)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 8)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 9, "Jadwal Hari");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 9)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 9)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 9)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 9, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 9)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 9)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 9, $value_jdw['hari']);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 9)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 9)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 10, "Jadwal Jam");
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 10)->getFont()->setBold(TRUE);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 10)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 10)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 10, ":");
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 10)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 10)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 10, $value_jdw['jam_mulai'].' - '.$value_jdw['jam_selesai'].' WIB');
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 10)->getFont()->setSize(11);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 10)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-
-			//HEADER TABEL
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 12, "NO");
-			$this->getActiveSheet()->mergeCellsByColumnAndRow(0, 12, 0, 13);
-			$this->getActiveSheet()->getStyleByColumnAndRow(0, 12, 0, 13)->applyFromArray($style_head);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 12, "NIM");
-			$this->getActiveSheet()->mergeCellsByColumnAndRow(1, 12, 1, 13);
-			$this->getActiveSheet()->getStyleByColumnAndRow(1, 12, 1, 13)->applyFromArray($style_head);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 12, "NAMA");
-			$this->getActiveSheet()->mergeCellsByColumnAndRow(2, 12, 2, 13);
-			$this->getActiveSheet()->getStyleByColumnAndRow(2, 12, 2, 13)->applyFromArray($style_head);
-			
-			$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(3, 12, "TANDA TANGAN");
-			$this->getActiveSheet()->mergeCellsByColumnAndRow(3, 12, 2+$col_bnyk_absen, 12);
-			$this->getActiveSheet()->getStyleByColumnAndRow(3, 12, 2+$col_bnyk_absen, 12)->applyFromArray($style_head);
-
-			//DATA ABSEN
-			foreach ($data_absen as $key_abs => $value_abs) {
-				if ($value_abs['id_jadwal'] == $value_jdw['id']) {
-					$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(3+$key_abs, 13, $value_abs['tanggal']);
-					$this->getActiveSheet()->getStyleByColumnAndRow(3+$key_abs, 13)->applyFromArray($style_head);
-				}
-			}
-
-			//BODY TABLE
-			$no = 1;
-			foreach ($nim as $key_mhs => $value_mhs) {
-				$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(0, 14+$key_mhs, $no);
-				$this->getActiveSheet()->getStyleByColumnAndRow(0, 14+$key_mhs)->applyFromArray($style_body);
-				$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(1, 14+$key_mhs, $value_mhs);
-				$this->getActiveSheet()->getStyleByColumnAndRow(1, 14+$key_mhs)->applyFromArray($style_body);
-				$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(2, 14+$key_mhs, $nama_mahasiswa[$key_mhs]);
-				$this->getActiveSheet()->getStyleByColumnAndRow(2, 14+$key_mhs)->applyFromArray($style_body);
-				
-				//DATA ISI ABSEN
-				foreach ($data_absen as $key_abs => $value_abs) {
-					$keterangan = '';
-					foreach ($data_isi_absen as $key_isi => $value_isi) {
-						if ($value_mhs == $value_isi['nim'] && $value_isi['id_absen'] == $value_abs['id']) {
-							$keterangan = $value_isi['keterangan'];
-							break;
-						}
-					}
-					$this->setActiveSheetIndex($active_sheet)->setCellValueByColumnAndRow(3+$key_abs, 14+$key_mhs, $keterangan);
-					$this->getActiveSheet()->getStyleByColumnAndRow(3+$key_abs, 14+$key_mhs)->applyFromArray($style_body2);
-				}
-				$no++;
-			}
-			
-			for ($i = 0; $i <= 2+$col_bnyk_absen; $i++) {
-				$this->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
-			}
-			// Set orientasi kertas jadi LANDSCAPE
-			$this->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
-			// Set judul file nya
-			$this->getActiveSheet($active_sheet)->setTitle($value_jdw['kode_mk']."".$key_jdw);
-			$this->setActiveSheetIndex($active_sheet);
-			$active_sheet++;
+		//SHEET KODE MK
+		$active_sheet = $this->getActiveSheet();
+		$active_sheet->setTitle('Kode MK');
+		//TITLE
+		$active_sheet->setCellValue("A1", "PRODI MANAJEMEN INFORMATIKA (D3) - Semester Ganjil 2024/2025");
+		$active_sheet->mergeCells("A1:F1");
+		$active_sheet->getStyle("A1")->getFont()->setBold(true);
+		$active_sheet->getStyle("A1")->getFont()->setSize(12);
+		$active_sheet->getStyle("A1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$active_sheet->getStyle("A1")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		$active_sheet->getStyle("A1")->applyFromArray(array('fill' => array("type" => PHPExcel_Style_Fill::FILL_SOLID, "color" => array("rgb" => "808080"))));
+		//HEAD TABLE
+		$active_sheet->setCellValue("A2", "No");
+		$active_sheet->getStyle("A2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("B2", "Kode");
+		$active_sheet->getStyle("B2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("C2", "Kode MK");
+		$active_sheet->getStyle("C2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("D2", "Nama Mata Kuliah");
+		$active_sheet->getStyle("D2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("E2", "Jumlah Ruang");
+		$active_sheet->getStyle("E2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("F2", "Keterangan");
+		$active_sheet->getStyle("F2")->applyFromArray($style_head);
+		//BODY TABLE
+		foreach ($data_mk as $key => $value) {
+			$active_sheet->setCellValue("A".(String)($key+3), $key+1);
+			$active_sheet->getStyle("A".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("B".(String)($key+3), $kode_mk[$key]);
+			$active_sheet->getStyle("B".(String)($key+3))->applyFromArray($style_href);
+			$active_sheet->setCellValue("C".(String)($key+3), $value['kode_mk']);
+			$active_sheet->getStyle("C".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("D".(String)($key+3), $value['nama_mk']);
+			$active_sheet->getStyle("D".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("E".(String)($key+3), '');
+			$active_sheet->getStyle("E".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("F".(String)($key+3), '');
+			$active_sheet->getStyle("F".(String)($key+3))->applyFromArray($style_body2);
 		}
+		$highest_column = $active_sheet->getHighestColumn();
+		$highest_row = $active_sheet->getHighestRow();
+		foreach (range("A", $highest_column) as $key => $value) {
+			$active_sheet->getColumnDimensionByColumn($key)->setAutoSize(true);
+		}
+		for ($i=1; $i <=$highest_row ; $i++) { 
+			$active_sheet->getRowDimension($i)->setZeroHeight(true);
+		}
+
+		//SHEET Rekap Dosen
+		$active_sheet = $this->createSheet();
+		$active_sheet->setTitle('Rekap Dosen');
+		//TITLE
+		$active_sheet->setCellValue("A1", "PRODI MANAJEMEN INFORMATIKA (D3)");
+		$active_sheet->mergeCells("A1:D1");
+		$active_sheet->getStyle("A1")->getFont()->setBold(true);
+		$active_sheet->getStyle("A1")->getFont()->setSize(12);
+		$active_sheet->getStyle("A1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$active_sheet->getStyle("A1")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		$active_sheet->getStyle("A1")->applyFromArray(array('fill' => array("type" => PHPExcel_Style_Fill::FILL_SOLID, "color" => array("rgb" => "808080"))));
+		//HEAD TABLE
+		$active_sheet->setCellValue("A2", "No");
+		$active_sheet->mergeCells("A2:A4");
+		$active_sheet->getStyleByColumnAndRow(0, 2, 0, 4)->applyFromArray($style_head);
+		// $active_sheet->getStyle("A2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("B2", "Kode");
+		$active_sheet->mergeCells("B2:B4");
+		$active_sheet->getStyleByColumnAndRow(1, 2, 1, 4)->applyFromArray($style_head);
+		// $active_sheet->getStyle("B2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("C2", "Nama Dosen");
+		$active_sheet->mergeCells("C2:C4");
+		$active_sheet->getStyleByColumnAndRow(2, 2, 2, 4)->applyFromArray($style_head);
+		// $active_sheet->getStyle("C2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("D2", "Total Masuk");
+		$active_sheet->mergeCells("D2:D4");
+		$active_sheet->getStyleByColumnAndRow(3, 2, 3, 4)->applyFromArray($style_head);
+		// $active_sheet->getStyle("D2")->applyFromArray($style_head);
+		//BODY TABLE
+		foreach ($data_dosen as $key => $value) {
+			$active_sheet->setCellValue("A".(String)($key+5), $key+1);
+			$active_sheet->getStyle("A".(String)($key+5))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("B".(String)($key+5), $value['nip']);
+			$active_sheet->getStyle("B".(String)($key+5))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("C".(String)($key+5), $value['dosen']);
+			$active_sheet->getStyle("C".(String)($key+5))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("D".(String)($key+5), $value['jumlah_hadir']);
+			$active_sheet->getStyle("D".(String)($key+5))->applyFromArray($style_body);
+		}
+		$highest_column = $active_sheet->getHighestColumn();
+		$highest_row = $active_sheet->getHighestRow();
+		foreach (range("A", $highest_column) as $key => $value) {
+			$active_sheet->getColumnDimensionByColumn($key)->setAutoSize(true);
+		}
+		for ($i=1; $i <=$highest_row ; $i++) { 
+			$active_sheet->getRowDimension($i)->setZeroHeight(true);
+		}
+
 		// Proses file 
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment; filename="absen_mahasiswa.xlsx"'); // Set nama file

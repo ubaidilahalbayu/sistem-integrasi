@@ -304,23 +304,22 @@ class Main extends CI_Controller
 					unset($where[$key]);
 				}
 				if ($menu == 'rekap_absensi') {
-					$pilihan_rekap = $this->input->post('type_absen');
-					if ($pilihan_rekap == 'mhs') {
-						$where['mhs'] = 1;
-					} else if ($pilihan_rekap == 'dsn') {
-						$where['dosen'] = 1;
-					}
-					$data['data_isi_absen'] = $this->MainModel->get_table($menu, false, true, $where);
-					unset($where['mhs'], $where['dosen']);
-					$data['data_absen'] = $this->MainModel->get_table($menu, false, true, $where);
-					$data['data_jadwal'] = $this->MainModel->get_table('jadwal_kuliah', false, true, $where);
+					$data = $this->MainModel->get_table_rekap_absensi($where);
+					// echo json_encode($data);die;
 					$title = ucwords(str_replace('_', ' ', $menu));
-					if (count($data['data_absen']) > 0 && count($data['data_jadwal']) > 0) {
-						$this->excel->exportAbsensi($data, $pilihan_rekap);
-						$dataAlert = [
-							'status' => 'success',
-							'message' => 'Berhasil Export'
-						];
+					if (count($data['data_jadwal']) > 0) {
+						if (count($data['data_absen'][0]) > 0) {
+							$this->excel->exportAbsensi($data);
+							$dataAlert = [
+								'status' => 'success',
+								'message' => 'Berhasil Export'
+							];
+						} else {
+							$dataAlert = [
+								'status' => 'warning',
+								'message' => 'Data Tidak Ada'
+							];
+						}
 					} else {
 						$dataAlert = [
 							'status' => 'warning',
