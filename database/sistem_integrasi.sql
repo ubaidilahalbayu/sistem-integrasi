@@ -1,318 +1,206 @@
--- phpMyAdmin SQL Dump
--- version 4.8.5
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Apr 30, 2025 at 04:18 PM
--- Server version: 10.1.38-MariaDB
--- PHP Version: 7.3.2
+/*
+ Navicat Premium Data Transfer
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
-SET time_zone = "+00:00";
+ Source Server         : mysql
+ Source Server Type    : MySQL
+ Source Server Version : 100138 (10.1.38-MariaDB)
+ Source Host           : localhost:3306
+ Source Schema         : sistem_integrasi
 
+ Target Server Type    : MySQL
+ Target Server Version : 100138 (10.1.38-MariaDB)
+ File Encoding         : 65001
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+ Date: 06/05/2025 18:18:44
+*/
 
---
--- Database: `sistem_integrasi`
---
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Table structure for data_dosen
+-- ----------------------------
+DROP TABLE IF EXISTS `data_dosen`;
+CREATE TABLE `data_dosen`  (
+  `nip` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nama_gelar_depan` varchar(15) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT '-',
+  `nama_dosen` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nama_gelar_belakang` varchar(15) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT '-',
+  PRIMARY KEY (`nip`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
---
--- Table structure for table `absensi`
---
+-- ----------------------------
+-- Records of data_dosen
+-- ----------------------------
 
-CREATE TABLE `absensi` (
-  `id` int(11) NOT NULL,
-  `id_jadwal` int(11) NOT NULL,
-  `tanggal` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Table structure for data_kelas
+-- ----------------------------
+DROP TABLE IF EXISTS `data_kelas`;
+CREATE TABLE `data_kelas`  (
+  `kode_kelas` varchar(6) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nama_kelas` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  PRIMARY KEY (`kode_kelas`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Records of data_kelas
+-- ----------------------------
 
---
--- Table structure for table `data_dosen`
---
+-- ----------------------------
+-- Table structure for data_mahasiswa
+-- ----------------------------
+DROP TABLE IF EXISTS `data_mahasiswa`;
+CREATE TABLE `data_mahasiswa`  (
+  `nim` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nama_mahasiswa` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `angkatan` year NOT NULL,
+  PRIMARY KEY (`nim`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
-CREATE TABLE `data_dosen` (
-  `nip` varchar(16) NOT NULL,
-  `nama_gelar_depan` varchar(15) DEFAULT '-',
-  `nama_dosen` varchar(128) NOT NULL,
-  `nama_gelar_belakang` varchar(15) DEFAULT '-'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Records of data_mahasiswa
+-- ----------------------------
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Table structure for data_mk
+-- ----------------------------
+DROP TABLE IF EXISTS `data_mk`;
+CREATE TABLE `data_mk`  (
+  `kode_mk` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nama_mk` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `sks` int NOT NULL,
+  `semester` tinyint(1) NOT NULL,
+  PRIMARY KEY (`kode_mk`) USING BTREE,
+  INDEX `fk_semester`(`semester` ASC) USING BTREE,
+  CONSTRAINT `fk_semester_mk` FOREIGN KEY (`semester`) REFERENCES `data_semester` (`semester`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
---
--- Table structure for table `data_kelas`
---
+-- ----------------------------
+-- Records of data_mk
+-- ----------------------------
 
-CREATE TABLE `data_kelas` (
-  `kode_kelas` varchar(6) NOT NULL,
-  `nama_kelas` varchar(128) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Table structure for data_semester
+-- ----------------------------
+DROP TABLE IF EXISTS `data_semester`;
+CREATE TABLE `data_semester`  (
+  `tahun_1` year NOT NULL,
+  `tahun_2` year NOT NULL,
+  `semester` tinyint(1) NOT NULL,
+  PRIMARY KEY (`semester`, `tahun_1`, `tahun_2`) USING BTREE,
+  INDEX `tahun_1`(`tahun_1` ASC) USING BTREE,
+  INDEX `semester`(`semester` ASC) USING BTREE,
+  INDEX `tahun_2`(`tahun_2` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Records of data_semester
+-- ----------------------------
+INSERT INTO `data_semester` VALUES (2024, 2025, 1);
+INSERT INTO `data_semester` VALUES (2024, 2025, 2);
 
---
--- Table structure for table `data_mahasiswa`
---
+-- ----------------------------
+-- Table structure for isi_absen_dosen
+-- ----------------------------
+DROP TABLE IF EXISTS `isi_absen_dosen`;
+CREATE TABLE `isi_absen_dosen`  (
+  `nip` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `id_jadwal` int NOT NULL,
+  `tanggal` date NOT NULL,
+  PRIMARY KEY (`id_jadwal`, `tanggal`) USING BTREE,
+  INDEX `fk_isi_dosen`(`nip` ASC) USING BTREE,
+  CONSTRAINT `fk_isi_dosen` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_isi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kuliah` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
-CREATE TABLE `data_mahasiswa` (
-  `nim` varchar(16) NOT NULL,
-  `nama_mahasiswa` varchar(128) NOT NULL,
-  `angkatan` year(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Records of isi_absen_dosen
+-- ----------------------------
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Table structure for isi_absen_mhs
+-- ----------------------------
+DROP TABLE IF EXISTS `isi_absen_mhs`;
+CREATE TABLE `isi_absen_mhs`  (
+  `id_mhs` int NOT NULL,
+  `tanggal` date NOT NULL,
+  `keterangan` char(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  PRIMARY KEY (`id_mhs`, `tanggal`) USING BTREE,
+  INDEX `fk_id_mhs`(`id_mhs` ASC) USING BTREE,
+  CONSTRAINT `fk_id_mhs` FOREIGN KEY (`id_mhs`) REFERENCES `mhs_ambil_jadwal` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
---
--- Table structure for table `data_mk`
---
+-- ----------------------------
+-- Records of isi_absen_mhs
+-- ----------------------------
 
-CREATE TABLE `data_mk` (
-  `kode_mk` varchar(10) NOT NULL,
-  `nama_mk` varchar(128) NOT NULL,
-  `sks` smallint(2) NOT NULL,
-  `semester` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `data_semester`
---
-
-CREATE TABLE `data_semester` (
-  `tahun_1` year(4) NOT NULL,
-  `tahun_2` year(4) NOT NULL,
-  `semester` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `data_semester`
---
-
-INSERT INTO `data_semester` (`tahun_1`, `tahun_2`, `semester`) VALUES
-(2024, 2025, 1),
-(2024, 2025, 2);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `isi_absen_dosen`
---
-
-CREATE TABLE `isi_absen_dosen` (
-  `id` int(11) NOT NULL,
-  `nip` varchar(16) NOT NULL,
-  `id_jadwal` int(11) NOT NULL,
-  `jumlah_hadir` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `isi_absen_mhs`
---
-
-CREATE TABLE `isi_absen_mhs` (
-  `id` int(11) NOT NULL,
-  `nim` varchar(16) NOT NULL,
-  `id_absen` int(11) NOT NULL,
-  `keterangan` char(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `jadwal_kuliah`
---
-
-CREATE TABLE `jadwal_kuliah` (
-  `id` int(11) NOT NULL,
-  `kode_mk` varchar(10) NOT NULL,
-  `kode_kelas` varchar(6) NOT NULL,
-  `nip` varchar(16) NOT NULL,
-  `nip2` varchar(16) NOT NULL,
-  `nip3` varchar(16) NOT NULL,
-  `hari` varchar(6) NOT NULL,
+-- ----------------------------
+-- Table structure for jadwal_kuliah
+-- ----------------------------
+DROP TABLE IF EXISTS `jadwal_kuliah`;
+CREATE TABLE `jadwal_kuliah`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `kode_mk` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `kode_kelas` varchar(6) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nip` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nip2` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `nip3` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `hari` varchar(6) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `jam_mulai` time NOT NULL,
-  `jam_selesai` time NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `jam_selesai` time NOT NULL,
+  `ruang` varchar(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT '',
+  `semester_char` varchar(9) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `fk_mk`(`kode_mk` ASC) USING BTREE,
+  INDEX `fk_kelas`(`kode_kelas` ASC) USING BTREE,
+  INDEX `fk_nip`(`nip` ASC) USING BTREE,
+  INDEX `fk_nip2`(`nip2` ASC) USING BTREE,
+  INDEX `fk_nip3`(`nip3` ASC) USING BTREE,
+  CONSTRAINT `fk_kelas` FOREIGN KEY (`kode_kelas`) REFERENCES `data_kelas` (`kode_kelas`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_mk` FOREIGN KEY (`kode_mk`) REFERENCES `data_mk` (`kode_mk`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_nip` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_nip2` FOREIGN KEY (`nip2`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_nip3` FOREIGN KEY (`nip3`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
--- --------------------------------------------------------
+-- ----------------------------
+-- Records of jadwal_kuliah
+-- ----------------------------
 
---
--- Table structure for table `user`
---
+-- ----------------------------
+-- Table structure for mhs_ambil_jadwal
+-- ----------------------------
+DROP TABLE IF EXISTS `mhs_ambil_jadwal`;
+CREATE TABLE `mhs_ambil_jadwal`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nim` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `id_jadwal` int NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `fk_nim_mhs`(`nim` ASC) USING BTREE,
+  INDEX `fk_jadwal_mhs`(`id_jadwal` ASC) USING BTREE,
+  CONSTRAINT `fk_nim_mhs` FOREIGN KEY (`nim`) REFERENCES `data_mahasiswa` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_jadwal_mhs` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kuliah` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
-CREATE TABLE `user` (
-  `username` varchar(16) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `level` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Records of mhs_ambil_jadwal
+-- ----------------------------
 
---
--- Dumping data for table `user`
---
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`  (
+  `username` varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `level` tinyint(1) NOT NULL,
+  PRIMARY KEY (`username`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
-INSERT INTO `user` (`username`, `password`, `level`) VALUES
-('admin', '0192023a7bbd73250516f069df18b500', 1);
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES ('admin', '0192023a7bbd73250516f069df18b500', 1);
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `absensi`
---
-ALTER TABLE `absensi`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_jadwal` (`id_jadwal`);
-
---
--- Indexes for table `data_dosen`
---
-ALTER TABLE `data_dosen`
-  ADD PRIMARY KEY (`nip`);
-
---
--- Indexes for table `data_kelas`
---
-ALTER TABLE `data_kelas`
-  ADD PRIMARY KEY (`kode_kelas`);
-
---
--- Indexes for table `data_mahasiswa`
---
-ALTER TABLE `data_mahasiswa`
-  ADD PRIMARY KEY (`nim`);
-
---
--- Indexes for table `data_mk`
---
-ALTER TABLE `data_mk`
-  ADD PRIMARY KEY (`kode_mk`),
-  ADD KEY `fk_semester` (`semester`);
-
---
--- Indexes for table `data_semester`
---
-ALTER TABLE `data_semester`
-  ADD PRIMARY KEY (`semester`,`tahun_1`,`tahun_2`) USING BTREE,
-  ADD KEY `tahun_1` (`tahun_1`) USING BTREE,
-  ADD KEY `semester` (`semester`) USING BTREE,
-  ADD KEY `tahun_2` (`tahun_2`) USING BTREE;
-
---
--- Indexes for table `isi_absen_dosen`
---
-ALTER TABLE `isi_absen_dosen`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_isi_dosen` (`nip`),
-  ADD KEY `fk_isi_jadwal` (`id_jadwal`) USING BTREE;
-
---
--- Indexes for table `isi_absen_mhs`
---
-ALTER TABLE `isi_absen_mhs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_absen_mhs` (`id_absen`),
-  ADD KEY `fk_isi_mhs` (`nim`);
-
---
--- Indexes for table `jadwal_kuliah`
---
-ALTER TABLE `jadwal_kuliah`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_mk` (`kode_mk`),
-  ADD KEY `fk_kelas` (`kode_kelas`),
-  ADD KEY `fk_nip` (`nip`),
-  ADD KEY `fk_nip2` (`nip2`),
-  ADD KEY `fk_nip3` (`nip3`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`username`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `absensi`
---
-ALTER TABLE `absensi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `isi_absen_dosen`
---
-ALTER TABLE `isi_absen_dosen`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `isi_absen_mhs`
---
-ALTER TABLE `isi_absen_mhs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `jadwal_kuliah`
---
-ALTER TABLE `jadwal_kuliah`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `absensi`
---
-ALTER TABLE `absensi`
-  ADD CONSTRAINT `fk_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kuliah` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `data_mk`
---
-ALTER TABLE `data_mk`
-  ADD CONSTRAINT `fk_semester_mk` FOREIGN KEY (`semester`) REFERENCES `data_semester` (`semester`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `isi_absen_dosen`
---
-ALTER TABLE `isi_absen_dosen`
-  ADD CONSTRAINT `fk_isi_dosen` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_isi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kuliah` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `isi_absen_mhs`
---
-ALTER TABLE `isi_absen_mhs`
-  ADD CONSTRAINT `fk_absen_mhs` FOREIGN KEY (`id_absen`) REFERENCES `absensi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_isi_mhs` FOREIGN KEY (`nim`) REFERENCES `data_mahasiswa` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `jadwal_kuliah`
---
-ALTER TABLE `jadwal_kuliah`
-  ADD CONSTRAINT `fk_kelas` FOREIGN KEY (`kode_kelas`) REFERENCES `data_kelas` (`kode_kelas`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_mk` FOREIGN KEY (`kode_mk`) REFERENCES `data_mk` (`kode_mk`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_nip` FOREIGN KEY (`nip`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_nip2` FOREIGN KEY (`nip2`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_nip3` FOREIGN KEY (`nip3`) REFERENCES `data_dosen` (`nip`) ON DELETE CASCADE ON UPDATE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+SET FOREIGN_KEY_CHECKS = 1;
