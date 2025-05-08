@@ -27,13 +27,53 @@ view('components/modal/modal_confirm');
             </select>
         </div>
     <?php
+    }elseif ($title_header == "Jadwal Kuliah") {
+    ?>
+        <div class="col-lg-12 mb-3">
+            <h5 class="text-center"><?=$semester_print?></h5>
+        </div>
+        <div class="col-lg-3 mb-3">
+            <label for="ganti_semester">Pilih Semester</label>
+            <select id="ganti_semester" class="form-select">
+                <?php
+                    foreach ($smt as $key => $value) {
+                ?>
+                    <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
+                <?php
+                    }
+                ?>
+            </select>
+        </div>
+        <div class="col-lg-3 mb-3">
+            <label for="ganti_hari">Pilih Hari</label>
+            <select id="ganti_hari" class="form-select">
+                <?php
+                    foreach ($hr as $key => $value) {
+                ?>
+                    <option value="<?= $value ?>" <?= $selected_hari == $value ? 'selected' : '' ?>><?= $value ?></option>
+                <?php
+                    }
+                ?>
+            </select>
+        </div>
+    <?php
     }
     ?>
     <div class="col-lg-12 mb-3">
         <div class="table-responsive">
             <table id="myTable" class="table table-info table-striped">
+                
                 <?php
-                if (empty($header_table)) {
+                if ($title_header == "Rekap Absensi") {
+                ?>
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                    </tr>
+                </thead>
+                <?php
+                }else{
+                    if (empty($header_table)) {
                 ?>
                     <thead></thead>
                     <tbody></tbody>
@@ -60,9 +100,15 @@ view('components/modal/modal_confirm');
                                 <tr>
                                     <?php
                                     foreach ($header_table as $key2 => $value) {
+                                        if ($value == "id" && $title_header == "Jadwal Kuliah") {
                                     ?>
-                                        <td><?= $dt[$value] ?></td>
+                                            <td><a href="#"><?= "MK-".$dt[$value] ?></a></td>
                                     <?php
+                                        }else{
+                                    ?>
+                                            <td><?= $dt[$value] ?></td>
+                                    <?php
+                                        }
                                     }
                                     ?>
                                     <td><button type="button" class="btn btn-warning"
@@ -80,6 +126,7 @@ view('components/modal/modal_confirm');
                         ?>
                     </tbody>
                 <?php
+                    }
                 }
                 ?>
             </table>
@@ -268,6 +315,20 @@ view('components/modal/modal_confirm');
                 };
                 appendContentMenu('rekap_absensi', data_tambahan);
             }
+        });
+        $('#ganti_semester').on('change', function() {
+            let data_tambahan = {
+                param_smt: $(this).val(),
+                param_hr: $("#ganti_hari").val(),
+            };
+            appendContentMenu('jadwal_kuliah', data_tambahan);
+        });
+        $('#ganti_hari').on('change', function() {
+            let data_tambahan = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $(this).val(),
+            };
+            appendContentMenu('jadwal_kuliah', data_tambahan);
         });
     });
 </script>

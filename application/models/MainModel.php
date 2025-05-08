@@ -77,7 +77,7 @@ class MainModel extends CI_Model
         $data_mk = $data['data_mk'];
         $data_kelas = $data['data_kelas'];
         $data_mahasiswa = $data['data_mahasiswa'];
-        $data_absen = $data['data_absen'];
+        $data_mhs_ambil_jadwal = $data['data_mhs_ambil_jadwal'];
         $data_isi_absen_dsn = $data['data_isi_absen_dsn'];
         $data_isi_absen_mhs = $data['data_isi_absen_mhs'];
 
@@ -202,26 +202,26 @@ class MainModel extends CI_Model
                 }
             }
 
-            $id_absen = [];
+            $id_mhs_ambil_jadwal = [];
             if ($lanjut) {
-                //SIMPAN DATA ABSEN
-                foreach ($data_absen as $key => $value) {
-                    $push_absen = [];
+                //SIMPAN DATA MHS AMBIL JADWAL
+                foreach ($data_mhs_ambil_jadwal as $key => $value) {
+                    $push_mhs_ambil_jadwal = [];
                     foreach ($value as $key2 => $value2) {
                         $where = [];
                         $where['id_jadwal'] = $id_jadwal[$key];
-                        $where['tanggal'] = $value2['tanggal'];
-                        $check = $this->get_table('absensi', false, true, $where);
+                        $where['nim'] = $value2;
+                        $check = $this->get_table('mhs_ambil_jadwal', false, true, $where);
                         if (count($check) > 0) {
                             continue;
                         } else {
                             $insert = array(
                                 'id_jadwal' => $id_jadwal[$key],
-                                'tanggal' => $value2['tanggal']
+                                'nim' => $value2
                             );
-                            $this->db->insert('absensi', $insert);
+                            $this->db->insert('mhs_ambil_jadwal', $insert);
                             $id = $this->db->insert_id();
-                            $push_absen[] = $id;
+                            $push_mhs_ambil_jadwal[] = $id;
                             if ($this->db->trans_status() === FALSE) {
                                 $this->db->trans_rollback();
                                 $error = $this->db->error();
@@ -235,7 +235,7 @@ class MainModel extends CI_Model
                     if (!$lanjut) {
                         break;
                     }
-                    $id_absen[$key] = $push_absen;
+                    $id_mhs_ambil_jadwal[$key] = $push_mhs_ambil_jadwal;
                 }
             }
             
@@ -245,7 +245,7 @@ class MainModel extends CI_Model
                     foreach ($value as $key2 => $value2) {
                         $where = [];
                         $where['id_jadwal'] = $id_jadwal[$key];
-                        $where['nip'] = $value2['nip'];
+                        $where['tanggal'] = $value2['tanggal'];
                         $check = $this->get_table('isi_absen_dosen', false, true, $where);
                         if (count($check) > 0) {
                             continue;
@@ -253,7 +253,7 @@ class MainModel extends CI_Model
                             $insert = array(
                                 'nip' => $value2['nip'],
                                 'id_jadwal' => $id_jadwal[$key],
-                                'jumlah_hadir' => $value2['jumlah_hadir']
+                                'tanggal' => $value2['tanggal']
                             );
                             $this->db->insert('isi_absen_dosen', $insert);
                             if ($this->db->trans_status() === FALSE) {
@@ -271,22 +271,27 @@ class MainModel extends CI_Model
                     }
                 }
             }
-
+            // for ($i=0; $i < count($data_isi_absen_mhs); $i++) { 
+            //     echo json_encode(count($id_mhs_ambil_jadwal[$i]))."<==>";
+            //     echo "\n";
+            //     echo json_encode(count($data_isi_absen_mhs[$i]))."<==>";
+            // }
+            // die;
             if ($lanjut) {
                 //SIMPAN DATA ISI ABSEN MAHASISWA
                 foreach ($data_isi_absen_mhs as $key => $value) {
                     foreach ($value as $key2 => $value2) {
                         foreach ($value2 as $key3 => $value3) {
                             $where = [];
-                            $where['id_absen'] = $id_absen[$key][$key3];
-                            $where['nim'] = $value3['nim'];
+                            $where['id_mhs'] = $id_mhs_ambil_jadwal[$key][$key2];
+                            $where['tanggal'] = $value3['tanggal'];
                             $check = $this->get_table('isi_absen_mhs', false, true, $where);
                             if (count($check) > 0) {
                                 continue;
                             } else {
                                 $insert = array(
-                                    'nim' => $value3['nim'],
-                                    'id_absen' => $id_absen[$key][$key3],
+                                    'tanggal' => $value3['tanggal'],
+                                    'id_mhs' => $id_mhs_ambil_jadwal[$key][$key2],
                                     'keterangan' => $value3['keterangan']
                                 );
                                 $this->db->insert('isi_absen_mhs', $insert);
@@ -901,33 +906,12 @@ class MainModel extends CI_Model
             $query = $this->db->get();
             $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'pengampu_1', 'pengampu_2', 'pengampu_3', 'hari', 'jam_mulai', 'jam_selesai'];
         } elseif ($table == 'rekap_absensi') {
-            if (!empty($where['dosen'])) {
-                $this->db->select('isi_absen_dosen.id, data_dosen.nip, data_dosen.nama_dosen, jadwal_kuliah.hari, data_mk.nama_mk, data_mk.semester, isi_absen_dosen.jumlah_hadir, jadwal_kuliah.id AS id_jadwal');
-                $this->db->from('jadwal_kuliah');
-                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
-                $this->db->join('isi_absen_dosen', 'isi_absen_dosen.id_jadwal = jadwal_kuliah.id');
-                $this->db->join('data_dosen', 'isi_absen_dosen.nip = data_dosen.nip');
-                unset($where['dosen']);
-                $header = ['id', 'nip', 'nama_dosen', 'hari', 'nama_mk', 'semester', 'jumlah_hadir'];
-            } elseif (!empty($where['mhs'])) {
-                $this->db->select('isi_absen_mhs.id, data_mahasiswa.nim, data_mahasiswa.nama_mahasiswa, jadwal_kuliah.hari, absensi.tanggal, data_mk.nama_mk, data_mk.semester, isi_absen_mhs.keterangan, absensi.id AS id_absen, absensi.id_jadwal');
-                $this->db->from('absensi');
-                $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
-                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
-                $this->db->join('isi_absen_mhs', 'isi_absen_mhs.id_absen = absensi.id');
-                $this->db->join('data_mahasiswa', 'isi_absen_mhs.nim = data_mahasiswa.nim');
-                unset($where['mhs']);
-                $header = ['id', 'nim', 'nama_mahasiswa', 'hari',  'tanggal', 'nama_mk', 'semester', 'keterangan'];
-            } else {
-                $this->db->select('absensi.id, jadwal_kuliah.hari, absensi.tanggal, data_mk.nama_mk, data_mk.semester, jadwal_kuliah.kode_kelas, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, absensi.id_jadwal');
-                $this->db->from('absensi');
-                $this->db->join('jadwal_kuliah', 'absensi.id_jadwal = jadwal_kuliah.id');
-                $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
-                $header = ['id', 'tanggal', 'hari', 'nama_mk', 'semester'];
-            }
+            $this->db->select('*');
+            $this->db->from('jadwal_kuliah');
             if (!empty($where)) {
                 $this->db->where($where);
             }
+            $header = ['No'];
             $query = $this->db->get();
         } else {
             // Mengambil data dari tabel $table

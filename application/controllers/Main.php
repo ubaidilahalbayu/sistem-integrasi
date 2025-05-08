@@ -3,11 +3,30 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Main extends CI_Controller
 {
+	private $semester_now, $tahun_1, $tahun_2;
+	private $hari_indonesia;
 	public function __construct()
 	{
 		parent::__construct();
 		$this->load->model('MainModel');
 		$this->load->library('excel');
+		$this->semester_now = 1;
+		$this->tahun_1 = date('Y');
+		$this->tahun_2 = date('Y', strtotime('+1 year'));
+		if (strtotime('Y-m-d') < strtotime(date("Y")."-08-01")) {
+			$this->semester_now = 2;
+			$this->tahun_1 = date('Y', strtotime('-1 year'));
+			$this->tahun_2 = date('Y');
+		}
+		$this->hari_indonesia = array(
+			'Sunday'    => 'Minggu',
+			'Monday'    => 'Senin',
+			'Tuesday'   => 'Selasa',
+			'Wednesday' => 'Rabu',
+			'Thursday'  => 'Kamis',
+			'Friday'    => 'Jumat',
+			'Saturday'  => 'Sabtu',
+		);
 	}
 
 	public function index()
@@ -97,13 +116,27 @@ class Main extends CI_Controller
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
 		} else if ($nama_content == 'jadwal_kuliah') {
+			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
+			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
+			if (!empty($this->input->post('param_smt')) && !empty($this->input->post('param_hr'))) {
+				$semester_char = $this->input->post('param_smt');
+				$hari_pilihan = $this->input->post('param_hr');
+			}
+			$where = [];
+			$where['hari'] = $hari_pilihan;
+			$where['semester_char'] = $semester_char;
+			$data['semester_print'] = "Semester ".($semester_char[8] == 1 ? "Ganjil" : "Genap")." ".$semester_char[0].$semester_char[1].$semester_char[2].$semester_char[3]."/".$semester_char[4].$semester_char[5].$semester_char[6].$semester_char[7];
 			$data['title_header'] = 'Jadwal Kuliah';
-			$getData = $this->MainModel->get_table('jadwal_kuliah');
+			$getData = $this->MainModel->get_table('jadwal_kuliah', true, true, $where);
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['kls'] = $this->MainModel->get_table('data_kelas')['data'];
+			$data['smt'] = $this->MainModel->get_table('data_semester')['data'];
+			$data['hr'] = $this->hari_indonesia;
+			$data['selected_smt'] = $semester_char;
+			$data['selected_hari'] = $hari_pilihan;
 		} else if ($nama_content == 'data_mk') {
 			$data['title_header'] = 'Data MK';
 			$getData = $this->MainModel->get_table('data_mk');
@@ -153,7 +186,11 @@ class Main extends CI_Controller
 					if ($menu == "rekap_absensi") {
 						$pilihan_rekap = $this->input->post('pilihan_rekap');
 						$data_extract = $this->excel->getExtractAbsenV2($path);
-						// echo json_encode($data_extract);
+						// for ($i=0; $i < count($data_extract['data_mhs_ambil_jadwal']); $i++) {
+						// 	echo json_encode(count($data_extract['data_mhs_ambil_jadwal'][$i]))."<=>";
+						// 	echo json_encode(count($data_extract['data_isi_absen_mhs'][$i]))."<=>";
+						// 	echo "\n";
+						// }
 						// die;
 						$dataAlert = $this->MainModel->create_absen_by_file_v2($data_extract);
 					} elseif ($menu == "jadwal_kuliah") {

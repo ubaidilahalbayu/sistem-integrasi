@@ -20,7 +20,7 @@ class Excel extends PHPExcel
 		$data_mahasiswa['nim'] = [];
 		$data_mahasiswa['nama_mahasiswa'] = [];
 		$data_mahasiswa['angkatan'] = [];
-		$data_absen = [];
+		$data_mhs_ambil_jadwal = [];
 		$data_isi_absen_mhs = [];
 		$data_isi_absen_dsn = [];
 		//BUAT DOSEN KOSONG
@@ -30,6 +30,7 @@ class Excel extends PHPExcel
 			'nama_dosen' => '-',
 			'nama_gelar_belakang' => '-',
 		);
+		$semester_char = '';
 		foreach ($object->getWorksheetIterator() as $worksheet) {
 			$highestRow = $worksheet->getHighestRow();
 			$highestColumn = $worksheet->getHighestColumn();
@@ -41,6 +42,8 @@ class Excel extends PHPExcel
 				if (stripos($title[1], "Genap") !== false) {
 					$semester = 2;
 				}
+				$th = explode(' ', $title[1]);
+				$semester_char = str_replace('/', '', $th[2]).(string)$semester;
 				//DATA MK
 				for ($i=3; $i < $highestRow; $i++) { 
 					$data_mk[] = array(
@@ -109,6 +112,7 @@ class Excel extends PHPExcel
 				$nip2 = !empty($worksheet->getCellByColumnAndRow(3, 4)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 4)->getValue() : '-';
 				$nip3 = !empty($worksheet->getCellByColumnAndRow(3, 5)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 5)->getValue() : '-';
 				$jadwal = $worksheet->getCellByColumnAndRow(1, 7)->getValue();
+				$ruang = !empty($worksheet->getCellByColumnAndRow(1, 6)->getValue()) ? $worksheet->getCellByColumnAndRow(1, 6)->getValue() : '-';
 				if (empty($kode_mk) || empty($kode_kelas) || empty($jadwal)) {
 					continue;
 				}
@@ -134,38 +138,23 @@ class Excel extends PHPExcel
 					'hari' => $hari,
 					'jam_mulai' => $jam_mulai,
 					'jam_selesai' => $jam_selesai,
+					'ruang' => $ruang,
+					'semester_char' => $semester_char,
 				);
 
 				//DATA ISI ABSEN DOSEN
 				$isi_absen_dsn = [];
-				$isi_absen_dsn[] = array(
-					'nip' => $nip,
-					'jumlah_hadir' => $worksheet->getCellByColumnAndRow(4, 3)->getFormattedValue(),
-				);
-				if ($nip2 != '-') {
-					$isi_absen_dsn[] = array(
-						'nip' => $nip2,
-						'jumlah_hadir' => $worksheet->getCellByColumnAndRow(4, 4)->getFormattedValue(),
-					);
-				}
-				if ($nip3 != '-') {
-					$isi_absen_dsn[] = array(
-						'nip' => $nip3,
-						'jumlah_hadir' => $worksheet->getCellByColumnAndRow(4, 5)->getFormattedValue(),
-					);
-				}
-				$data_isi_absen_dsn[] = $isi_absen_dsn;
-
-				//DATA ABSEN
-				$absen = [];
-				
 				foreach (range("D", chr(ord($highestColumn) - 2)) as $value) {
 					$tanggal = $worksheet->getCell($value."11")->getCalculatedValue();
 					$tanggal = PHPExcel_Shared_Date::ExcelToPHP($tanggal);
-					$absen[] = array('tanggal' => date('Y-m-d', $tanggal));
+					$isi_absen_dsn[] = array(
+						'nip' => $worksheet->getCell($value."12")->getValue(),
+						'tanggal' => date('Y-m-d', $tanggal),
+					);
 				};
-				$data_absen[] = $absen;
+				$data_isi_absen_dsn[] = $isi_absen_dsn;
 
+				$mhs_ambil_jadwal = [];
 				$isi_absen_mhs = [];
 				for ($i=13; $i < $highestRow; $i++) { 
 					//DATA MAHASISWA
@@ -181,13 +170,19 @@ class Excel extends PHPExcel
 						$data_mahasiswa['angkatan'][] = $angkatan;
 					}
 
+					//DATA MAHASISWA AMBIL JADWAL
+					$mhs_ambil_jadwal[] = $nim;
+
 					//DATA ISI ABSEN MAHASISWA
 					$push_absen = [];
 					foreach (range("D", chr(ord($highestColumn) - 2)) as $value) {
-						$push_absen[] = array('nim' => $nim, 'keterangan' => $worksheet->getCell($value.$i)->getValue());
+						$tanggal = $worksheet->getCell($value."11")->getCalculatedValue();
+						$tanggal = PHPExcel_Shared_Date::ExcelToPHP($tanggal);
+						$push_absen[] = array('tanggal' => date('Y-m-d', $tanggal), 'keterangan' => $worksheet->getCell($value.$i)->getValue());
 					}
 					$isi_absen_mhs[] = $push_absen;
 				}
+				$data_mhs_ambil_jadwal[] = $mhs_ambil_jadwal;
 				$data_isi_absen_mhs[] = $isi_absen_mhs;
 			}
 		}
@@ -197,7 +192,7 @@ class Excel extends PHPExcel
 			'data_mk' => $data_mk,
 			'data_jadwal' => $data_jadwal,
 			'data_mahasiswa' => $data_mahasiswa,
-			'data_absen' => $data_absen,
+			'data_mhs_ambil_jadwal' => $data_mhs_ambil_jadwal,
 			'data_isi_absen_dsn' => $data_isi_absen_dsn,
 			'data_isi_absen_mhs' => $data_isi_absen_mhs,
 		);
