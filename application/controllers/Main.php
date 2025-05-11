@@ -97,24 +97,40 @@ class Main extends CI_Controller
 			$data['title_header'] = 'Dashboard';
 		} else if ($nama_content == 'rekap_absensi') {
 			$where = [];
-			if (!empty($this->input->post('param_dosen'))) {
-				$where['dosen'] = 1;
-				$this->session->set_flashdata('selected_rekap', 2);
-			} elseif (($this->input->post('param_mhs'))) {
-				$where['mhs'] = 1;
-				$this->session->set_flashdata('selected_rekap', 3);
-			} else {
-				$this->session->set_flashdata('selected_rekap', 1);
+			$index_jadwal = 0;
+			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
+			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
+			if (!empty($this->input->post('param_smt')) && !empty($this->input->post('param_hr')) && !empty($this->input->post('param_idx_jdw'))) {
+				$semester_char = $this->input->post('param_smt');
+				$hari_pilihan = $this->input->post('param_hr');
+				$index_jadwal = $this->input->post('param_idx_jdw');
+				$index_jadwal = explode('_@_', $index_jadwal);
+				if ($index_jadwal[0] == "DJ") {
+					$index_jadwal = $index_jadwal[1];
+				}else{
+					show_404();
+				}
 			}
+			$where['hari'] = $hari_pilihan;
+			$where['semester_char'] = $semester_char;
+			if (!empty($this->input->post('param_id'))) {
+				$id =  $this->input->post('param_id');
+				$id = explode('-', $id)[1];
+				$where['jadwal_kuliah.id'] = $id; 
+			}
+			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
+			$data = $getData;
 			$data['title_header'] = 'Rekap Absensi';
-			$getData = $this->MainModel->get_table('rekap_absensi', true, true, $where);
-			$data['header_table'] = $getData['header'];
-			$data['data'] = $getData['data'];
-			$data['abs'] = $this->MainModel->get_table('rekap_absensi')['data'];
 			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
+			$data['smt'] = $this->MainModel->get_table('data_semester')['data'];
+			$data['hr'] = $this->hari_indonesia;
+			$data['index_jadwal'] = $index_jadwal;
+			$data['selected_smt'] = $semester_char;
+			$data['selected_hari'] = $hari_pilihan;
+			$data['selected_idx'] = "DJ_@_".$index_jadwal;
 		} else if ($nama_content == 'jadwal_kuliah') {
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
 			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI

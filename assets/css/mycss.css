@@ -53,21 +53,22 @@
 }
 
 .navbar {
-	margin-left: 250px;
+	margin-left: 15%;
 	height: 80px;
 }
 
 .mysidebar {
-	width: 250px;
+	width: 15%;
 	height: 100vh;
 	position: fixed;
+	z-index: 5;
 }
 
 .mycontent {
-	margin-left: 250px;
+	margin-left: 15%;
 	margin-top: 56px;
 	padding: 20px;
-	width: 100%;
+	width: 85%;
 }
 
 footer {

@@ -802,98 +802,71 @@ class MainModel extends CI_Model
     }
 
     // Mengambil semua pengguna beserta nama kolom
-    public function get_table_rekap_absensi($where = [])
+    public function get_table_rekap_absensi($where = [], $index_jadwal = 0)
     {
-        // GET DATA MK
-        $this->db->select('*');
-        $this->db->from('data_mk');
-        if (count($where) > 0) {
-            $this->db->where($where);
-        }
-        $this->db->order_by('nama_mk', 'ASC');
-        $data_mk = $this->db->get()->result_array();
-        
-        //GET DATA DOSEN
-        $this->db->select('data_dosen.nip, (CONCAT(data_dosen.nama_dosen, ", ", data_dosen.nama_gelar_depan, data_dosen.nama_gelar_belakang)) AS dosen, SUM(isi_absen_dosen.jumlah_hadir) AS jumlah_hadir');
-        $this->db->from('data_dosen');
-        $this->db->join('isi_absen_dosen', 'isi_absen_dosen.nip = data_dosen.nip');
-        $this->db->order_by('data_dosen.nama_dosen', 'ASC');
-        $this->db->group_by('isi_absen_dosen.nip');
-        $data_dosen = $this->db->get()->result_array();
-
-        $kode_mk = [];
-        $kode_mk_jadwal = [];
-        $data_jadwal = [];
-        // GET DATA JADWAL KULIAH
-        $no = 1;
-        foreach ($data_mk as $key => $value) {
-            $kd_mk = $value['kode_mk'];
-            $push_kd_mk = $no < 10 ? "MK-0".$no : "MK-".$no;
-            $kode_mk[] = $push_kd_mk;
-            $this->db->select('jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, jadwal_kuliah.kode_kelas, "'.$push_kd_mk.'" AS no_mk, CONCAT(jadwal_kuliah.hari, "/", DATE_FORMAT(jadwal_kuliah.jam_mulai, "%H:%i"), " - ", DATE_FORMAT(jadwal_kuliah.jam_selesai, "%H:%i"), " WIB") AS hari_jam, jadwal_kuliah.nip, CONCAT(data_dosen.nama_dosen, ", ", data_dosen.nama_gelar_depan, data_dosen.nama_gelar_belakang) AS dosen1, jadwal_kuliah.nip2, CONCAT(data_dosen2.nama_dosen, ", ", data_dosen2.nama_gelar_depan, data_dosen2.nama_gelar_belakang) AS dosen2, jadwal_kuliah.nip3, CONCAT(data_dosen3.nama_dosen, ", ", data_dosen3.nama_gelar_depan, data_dosen3.nama_gelar_belakang) AS dosen3, isi_absen_dosen.jumlah_hadir, isi_absen_dosen2.jumlah_hadir AS jumlah_hadir2, isi_absen_dosen3.jumlah_hadir AS jumlah_hadir3');
-            $this->db->from('jadwal_kuliah');
-            $this->db->join('data_mk', 'data_mk.kode_mk = jadwal_kuliah.kode_mk');
-            $this->db->join('data_dosen', 'data_dosen.nip = jadwal_kuliah.nip');
-            $this->db->join('data_dosen AS data_dosen2', 'data_dosen2.nip = jadwal_kuliah.nip2');
-            $this->db->join('data_dosen AS data_dosen3', 'data_dosen3.nip = jadwal_kuliah.nip3');
-            $this->db->join('isi_absen_dosen', 'isi_absen_dosen.nip = jadwal_kuliah.nip AND isi_absen_dosen.id_jadwal = jadwal_kuliah.id');
-            $this->db->join('isi_absen_dosen AS isi_absen_dosen2', 'isi_absen_dosen2.nip = jadwal_kuliah.nip2 AND isi_absen_dosen.id_jadwal = jadwal_kuliah.id', 'left');
-            $this->db->join('isi_absen_dosen AS isi_absen_dosen3', 'isi_absen_dosen3.nip = jadwal_kuliah.nip3 AND isi_absen_dosen.id_jadwal = jadwal_kuliah.id', 'left');
-            $this->db->where('jadwal_kuliah.kode_mk', $kd_mk);
-            $this->db->order_by('jadwal_kuliah.kode_kelas', 'ASC');
-            $this->db->group_by('isi_absen_dosen.id_jadwal');
-            $jadwal_kuliah = $this->db->get()->result_array();
-            foreach ($jadwal_kuliah as $key2 => $value2) {
-                $kelas = $value2['kode_kelas'];
-                $kelas = explode('-', $kelas);
-                $kode_mk_jadwal[] = $push_kd_mk."-".$kelas[1];
-                $data_jadwal[] = $value2;
-            }
-            $no++;
-        }
-
-        $data_absen = [];
+        //GET TABLE JADWAL KULIAH
+        $data_jadwal = $this->get_table('jadwal_kuliah', false, true, $where);
         $data_isi_absen_mhs = [];
-        foreach ($data_jadwal as $key => $value) {
-            //GET DATA ABSEN
-            $id_jadwal = $value['id'];
-            $this->db->select('*');
-            $this->db->from('absensi');
-            $this->db->where('id_jadwal', $id_jadwal);
-            $this->db->order_by('tanggal', 'ASC');
-            $absen = $this->db->get()->result_array();
-            $data_absen[] = $absen;
-            $isi_absen_mhs = [];
-            // GET DATA ISI ABSEN MAHASISWA
-            foreach ($absen as $key2 => $value2) {
-                $id_absen = $value2['id'];
-                $this->db->select('isi_absen_mhs.id, isi_absen_mhs.nim, isi_absen_mhs.id_absen, isi_absen_mhs.keterangan, data_mahasiswa.nama_mahasiswa');
-                $this->db->from('isi_absen_mhs');
-                $this->db->join('data_mahasiswa', 'isi_absen_mhs.nim = data_mahasiswa.nim');
-                $this->db->where('isi_absen_mhs.id_absen', $id_absen);
-                $this->db->order_by('isi_absen_mhs.nim', 'ASC');
-                $isi_absen_mhs[] = $this->db->get()->result_array();
-            }
-            $data_isi_absen_mhs[] = $isi_absen_mhs;
-        }
+        $data_tanggal_jadwal = [];
+        $data_mhs_ambil_jadwal = [];
+        $data_isi_absen_dsn = [];
 
-        
+        // foreach ($data_jadwal as $key => $value) {
+            //GET MAHASISWA AMBIL JADWAL
+        if (count($data_jadwal) > 0) {
+            $this->db->select('mhs_ambil_jadwal.id, mhs_ambil_jadwal.nim, mhs_ambil_jadwal.id_jadwal, data_mahasiswa.nama_mahasiswa, data_mahasiswa.angkatan');
+            $this->db->from('mhs_ambil_jadwal');
+            $this->db->join('data_mahasiswa', 'mhs_ambil_jadwal.nim = data_mahasiswa.nim');
+            $this->db->where('mhs_ambil_jadwal.id_jadwal', $data_jadwal[$index_jadwal]['id']);
+            $mhs_ambil_jadwal = $this->db->get()->result_array();
+            $data_mhs_ambil_jadwal = $mhs_ambil_jadwal;
+            // $isi_absen_mhs = [];
+            // $tanggal_jadwal = [];
+            foreach ($mhs_ambil_jadwal as $key2 => $value2) {
+                //GET ISI ABSEN MAHASISWA
+                $this->db->select('*');
+                $this->db->from('isi_absen_mhs');
+                $this->db->where('id_mhs', $value2['id']);
+                $this->db->order_by('tanggal', 'ASC');
+                $absen_mhs = $this->db->get()->result_array();
+                $data_isi_absen_mhs[] = $absen_mhs;
+                foreach ($absen_mhs as $key3 => $value3) {
+                    //GET TANGGAL JADWAL KULIAH YANG BERJALAN
+                    if (!in_array($value3['tanggal'], $data_tanggal_jadwal)) {
+                        $data_tanggal_jadwal[] = $value3['tanggal'];
+                    }
+                }
+            }
+            // $data_isi_absen_mhs[] = $isi_absen_mhs;
+            // $data_tanggal_jadwal[] = $tanggal_jadwal;
+            //GET DATA ISI ABSEN DOSEN
+            foreach ($data_tanggal_jadwal as $key2 => $value2) {
+                $this->db->select('nip');
+                $this->db->from('isi_absen_dosen');
+                $this->db->where(array('id_jadwal' => $data_jadwal[$index_jadwal]['id'], 'tanggal' => $value2));
+                $isi_absen_dsn = $this->db->get()->result_array();
+                if (count($isi_absen_dsn) > 0) {
+                    $data_isi_absen_dsn[] = $isi_absen_dsn[0]['nip'];
+                }else{
+                    $data_isi_absen_dsn[] = '-';
+                }
+            }
+        }
+        // }
         return array(
-            'data_mk' => $data_mk,
-            'data_dosen' => $data_dosen,
-            'kode_mk' => $kode_mk,
-            'kode_mk_jadwal' => $kode_mk_jadwal,
             'data_jadwal' => $data_jadwal,
-            'data_absen' => $data_absen,
+            'data_jadwal_selected' => count($data_jadwal) > 0 ? $data_jadwal[$index_jadwal] : [],
+            'data_mhs_ambil_jadwal' => $data_mhs_ambil_jadwal,
+            'data_tanggal_jadwal' => $data_tanggal_jadwal,
+            'data_isi_absen_dsn' => $data_isi_absen_dsn,
             'data_isi_absen_mhs' => $data_isi_absen_mhs,
         );
-
     }
     // Mengambil semua pengguna beserta nama kolom
     public function get_table($table, $get_header = true, $get_data = true, $where = [])
     {
         if ($table == 'jadwal_kuliah') {
-            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3");
+            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3, jadwal_kuliah.ruang, jadwal_kuliah.semester_char");
             $this->db->from($table);
             $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
             $this->db->join('data_dosen', 'jadwal_kuliah.nip = data_dosen.nip');
@@ -904,15 +877,7 @@ class MainModel extends CI_Model
                 $this->db->where($where);
             }
             $query = $this->db->get();
-            $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'pengampu_1', 'pengampu_2', 'pengampu_3', 'hari', 'jam_mulai', 'jam_selesai'];
-        } elseif ($table == 'rekap_absensi') {
-            $this->db->select('*');
-            $this->db->from('jadwal_kuliah');
-            if (!empty($where)) {
-                $this->db->where($where);
-            }
-            $header = ['No'];
-            $query = $this->db->get();
+            $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'pengampu_1', 'pengampu_2', 'pengampu_3', 'hari', 'jam_mulai', 'jam_selesai', 'ruang'];
         } else {
             // Mengambil data dari tabel $table
             if (!empty($where)) {

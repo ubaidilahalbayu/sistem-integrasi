@@ -19,22 +19,11 @@ view('components/modal/modal_confirm');
     <?php
     if ($title_header == "Rekap Absensi") {
     ?>
-        <div class="col-lg-3 mb-3">
-            <select id="ganti_rekap" class="form-select">
-                <option value="1">Daftar Absen</option>
-                <option value="2" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 2 ? 'selected' : '') : '' ?>>Absen Dosen</option>
-                <option value="3" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 3 ? 'selected' : '') : '' ?>>Absen Mahasiswa</option>
-            </select>
-        </div>
-    <?php
-    }elseif ($title_header == "Jadwal Kuliah") {
-    ?>
         <div class="col-lg-12 mb-3">
-            <h5 class="text-center"><?=$semester_print?></h5>
         </div>
         <div class="col-lg-3 mb-3">
             <label for="ganti_semester">Pilih Semester</label>
-            <select id="ganti_semester" class="form-select">
+            <select id="ganti_semester" menu="absen" class="form-select">
                 <?php
                     foreach ($smt as $key => $value) {
                 ?>
@@ -46,7 +35,107 @@ view('components/modal/modal_confirm');
         </div>
         <div class="col-lg-3 mb-3">
             <label for="ganti_hari">Pilih Hari</label>
-            <select id="ganti_hari" class="form-select">
+            <select id="ganti_hari" menu="absen" class="form-select">
+                <?php
+                    foreach ($hr as $key => $value) {
+                ?>
+                    <option value="<?= $value ?>" <?= $selected_hari == $value ? 'selected' : '' ?>><?= $value ?></option>
+                <?php
+                    }
+                ?>
+            </select>
+        </div>
+        <?php
+        if (count($data_jadwal) > 0) {
+        ?>
+            <div class="col-lg-12 mb-3">
+        <?php
+                foreach ($data_jadwal as $key => $value) {
+        ?>
+                    <input type="radio" name="pilih-mk-abs" value="<?= "DJ_@_".$key ?>" class="btn-check btn-pilih-mk-abs" id="btn-check-outlined-<?=$key?>" autocomplete="off" <?= $selected_idx == "DJ_@_".$key ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-danger" for="btn-check-outlined-<?=$key?>">MK-<?= $value['id'] ?></label>
+        <?php
+            }
+        ?>
+            </div>
+            <div class="col-lg-1 d-grid gap-2 mb-3">
+                <a href="#jadwal_kuliah" class="btn btn-danger" id="btn-back-abs">Back</a>
+            </div>
+            <div class="col-lg-12 mb-3">
+                <div class="table-responsive">
+                    <table class="table table-info table-striped">
+                        <tr>
+                            <th>Tanggal</th>
+                            <th><?= !empty($index_tanggal) ? $index_tanggal : date('Y-m-d') ?></th>
+                        </tr>
+                        <tr>
+                            <th>No. MK</th>
+                            <td>MK-<?=$data_jadwal[$index_jadwal]['id']?></td>
+                            <th>Dosen Yang Masuk</th>
+                            <th>Kode</th>
+                            <th>Jml.</th>
+                        </tr>
+                        <tr>
+                            <th>Kode MK</th>
+                            <td><?= $data_jadwal[$index_jadwal]['kode_mk'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['pengampu_1'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
+                        </tr>
+                        <tr>
+                            <th>Nama MK</th>
+                            <td><?= $data_jadwal[$index_jadwal]['nama_mk'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['pengampu_2'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip2'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip2'] ?></td>
+                        </tr>
+                        <tr>
+                            <th>Kelas</th>
+                            <td><?= $data_jadwal[$index_jadwal]['kode_kelas'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['pengampu_3'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip3'] ?></td>
+                            <td><?= $data_jadwal[$index_jadwal]['nip3'] ?></td>
+                        </tr>
+                        <tr>
+                            <th>Ruang</th>
+                            <td><?= $data_jadwal[$index_jadwal]['ruang'] ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Hari/Jam</th>
+                            <td><?= $data_jadwal[$index_jadwal]['hari'].'/'.$data_jadwal[$index_jadwal]['jam_mulai'].'-'.$data_jadwal[$index_jadwal]['jam_selesai'] ?></td>
+                            <td colspan="2">Total Pertemuan</td>
+                            <td><?= count($data_tanggal_jadwal) ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        <?php
+        }
+        ?>
+    <?php
+    }elseif ($title_header == "Jadwal Kuliah") {
+    ?>
+        <div class="col-lg-12 mb-3">
+            <h5 class="text-center"><?=$semester_print?></h5>
+        </div>
+        <div class="col-lg-3 mb-3">
+            <label for="ganti_semester">Pilih Semester</label>
+            <select id="ganti_semester" menu="jadwal" class="form-select">
+                <?php
+                    foreach ($smt as $key => $value) {
+                ?>
+                    <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
+                <?php
+                    }
+                ?>
+            </select>
+        </div>
+        <div class="col-lg-3 mb-3">
+            <label for="ganti_hari">Pilih Hari</label>
+            <select id="ganti_hari" menu="jadwal" class="form-select">
                 <?php
                     foreach ($hr as $key => $value) {
                 ?>
@@ -65,13 +154,7 @@ view('components/modal/modal_confirm');
                 
                 <?php
                 if ($title_header == "Rekap Absensi") {
-                ?>
-                <thead>
-                    <tr>
-                        <th>NO</th>
-                    </tr>
-                </thead>
-                <?php
+                    view('components/table/rekap_absensi');
                 }else{
                     if (empty($header_table)) {
                 ?>
@@ -102,7 +185,7 @@ view('components/modal/modal_confirm');
                                     foreach ($header_table as $key2 => $value) {
                                         if ($value == "id" && $title_header == "Jadwal Kuliah") {
                                     ?>
-                                            <td><a href="#"><?= "MK-".$dt[$value] ?></a></td>
+                                            <td><a href="#mk-<?= $dt[$value] ?>" class="btn-href-abs"><?= "MK-".$dt[$value] ?></a></td>
                                     <?php
                                         }else{
                                     ?>
@@ -201,11 +284,11 @@ view('components/modal/modal_confirm');
                 $("#edit_form #nip").val(nip);
                 $("#edit_form #nip2").val(nip2);
                 $("#edit_form #nip3").val(nip3);
-                $("#edit_form #kode_mk").val(previousTdValues[9]);
-                $("#edit_form #kode_kelas").val(previousTdValues[6]);
-                $("#edit_form #hari").val(previousTdValues[2]);
-                $("#edit_form #jam_mulai").val(previousTdValues[1]);
-                $("#edit_form #jam_selesai").val(previousTdValues[0]);
+                $("#edit_form #kode_mk").val(previousTdValues[10]);
+                $("#edit_form #kode_kelas").val(previousTdValues[7]);
+                $("#edit_form #hari").val(previousTdValues[3]);
+                $("#edit_form #jam_mulai").val(previousTdValues[2]);
+                $("#edit_form #jam_selesai").val(previousTdValues[1]);
             } else {
                 $('#edit_form textarea').each(function() {
                     $(this).val(previousTdValues[index_td]);
@@ -242,6 +325,17 @@ view('components/modal/modal_confirm');
             $("#selected_rekap_delete").val(selected_rekap);
             $("#modalConfirm").modal('show');
         });
+
+        $('#myTable').on('click', '.btn-href-abs', function() {
+            let data_tambahan = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_id: $(this).attr("href"),
+            };
+            appendContentMenu('rekap_absensi', data_tambahan);
+        });
+
         $('#hapusSemua').on('click', function() {
             $("#title_name_delete").html("Semua");
             $(".hapus-satu").attr('style', 'display: none;');
@@ -257,6 +351,13 @@ view('components/modal/modal_confirm');
             $('#loadingModal').modal('hide');
         });
 
+        $('#btn-back-abs').on('click', function() {
+            let data_tambahan = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+            };
+            appendContentMenu('jadwal_kuliah', data_tambahan);
+        });
 
         $("#import_form").on('change', '.check_pilihan_rekap', function() {
             if ($(this).val() == 1) {
@@ -317,18 +418,48 @@ view('components/modal/modal_confirm');
             }
         });
         $('#ganti_semester').on('change', function() {
-            let data_tambahan = {
-                param_smt: $(this).val(),
-                param_hr: $("#ganti_hari").val(),
-            };
-            appendContentMenu('jadwal_kuliah', data_tambahan);
+            if ($(this).attr('menu') == "jadwal") {
+                let data_tambahan = {
+                    param_smt: $(this).val(),
+                    param_hr: $("#ganti_hari").val(),
+                };
+                appendContentMenu('jadwal_kuliah', data_tambahan);
+            }else if($(this).attr('menu') == "absen"){
+                let data_tambahan = {
+                    param_smt: $(this).val(),
+                    param_hr: $("#ganti_hari").val(),
+                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                };
+                appendContentMenu('rekap_absensi', data_tambahan);
+            }
         });
         $('#ganti_hari').on('change', function() {
+            if ($(this).attr('menu') == "jadwal") {
+                let data_tambahan = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: $(this).val(),
+                };
+                appendContentMenu('jadwal_kuliah', data_tambahan);
+            }else if($(this).attr('menu') == "absen"){
+                let data_tambahan = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: $(this).val(),
+                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                };
+                console.log(data_tambahan);
+                
+                appendContentMenu('rekap_absensi', data_tambahan);
+            }
+        });
+        $("input[name='pilih-mk-abs']").on("change", function () {
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
-                param_hr: $(this).val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $(this).val(),
             };
-            appendContentMenu('jadwal_kuliah', data_tambahan);
+            console.log(data_tambahan);
+            
+            appendContentMenu('rekap_absensi', data_tambahan);
         });
     });
 </script>
