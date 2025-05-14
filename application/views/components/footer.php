@@ -74,6 +74,28 @@
             }
         });
     }
+
+    function updateAbsensi(dataSend)
+    {
+        ajaxRequest('ngisi_absen', dataSend, 'post', function(data) {
+            if (data) {
+                if (data.status) {
+                    // alert(data.message);
+                    let data_tambahan = {
+                        param_smt: data.data.param_smt,
+                        param_hr: data.data.param_hr,
+                        param_idx_jdw: data.data.param_idx_jdw,
+                        param_tgl: data.data.param_tgl,
+                    };
+                    appendContentMenu('rekap_absensi', data_tambahan);
+                }else{
+                    alert(data.message);
+                }
+            } else {
+                alert("No data received or an error occurred.");
+            }
+        }, false);
+    }
 </script>
 <?php
 if (!empty($this->session->flashdata('alert'))) {

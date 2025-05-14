@@ -17,106 +17,7 @@ view('components/modal/modal_confirm');
         <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
     </div>
     <?php
-    if ($title_header == "Rekap Absensi") {
-    ?>
-        <div class="col-lg-12 mb-3">
-        </div>
-        <div class="col-lg-3 mb-3">
-            <label for="ganti_semester">Pilih Semester</label>
-            <select id="ganti_semester" menu="absen" class="form-select">
-                <?php
-                    foreach ($smt as $key => $value) {
-                ?>
-                    <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
-                <?php
-                    }
-                ?>
-            </select>
-        </div>
-        <div class="col-lg-3 mb-3">
-            <label for="ganti_hari">Pilih Hari</label>
-            <select id="ganti_hari" menu="absen" class="form-select">
-                <?php
-                    foreach ($hr as $key => $value) {
-                ?>
-                    <option value="<?= $value ?>" <?= $selected_hari == $value ? 'selected' : '' ?>><?= $value ?></option>
-                <?php
-                    }
-                ?>
-            </select>
-        </div>
-        <?php
-        if (count($data_jadwal) > 0) {
-        ?>
-            <div class="col-lg-12 mb-3">
-        <?php
-                foreach ($data_jadwal as $key => $value) {
-        ?>
-                    <input type="radio" name="pilih-mk-abs" value="<?= "DJ_@_".$key ?>" class="btn-check btn-pilih-mk-abs" id="btn-check-outlined-<?=$key?>" autocomplete="off" <?= $selected_idx == "DJ_@_".$key ? 'checked' : '' ?>>
-                    <label class="btn btn-outline-danger" for="btn-check-outlined-<?=$key?>">MK-<?= $value['id'] ?></label>
-        <?php
-            }
-        ?>
-            </div>
-            <div class="col-lg-1 d-grid gap-2 mb-3">
-                <a href="#jadwal_kuliah" class="btn btn-danger" id="btn-back-abs">Back</a>
-            </div>
-            <div class="col-lg-12 mb-3">
-                <div class="table-responsive">
-                    <table class="table table-info table-striped">
-                        <tr>
-                            <th>Tanggal</th>
-                            <th><?= !empty($index_tanggal) ? $index_tanggal : date('Y-m-d') ?></th>
-                        </tr>
-                        <tr>
-                            <th>No. MK</th>
-                            <td>MK-<?=$data_jadwal[$index_jadwal]['id']?></td>
-                            <th>Dosen Yang Masuk</th>
-                            <th>Kode</th>
-                            <th>Jml.</th>
-                        </tr>
-                        <tr>
-                            <th>Kode MK</th>
-                            <td><?= $data_jadwal[$index_jadwal]['kode_mk'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['pengampu_1'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
-                        </tr>
-                        <tr>
-                            <th>Nama MK</th>
-                            <td><?= $data_jadwal[$index_jadwal]['nama_mk'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['pengampu_2'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip2'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip2'] ?></td>
-                        </tr>
-                        <tr>
-                            <th>Kelas</th>
-                            <td><?= $data_jadwal[$index_jadwal]['kode_kelas'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['pengampu_3'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip3'] ?></td>
-                            <td><?= $data_jadwal[$index_jadwal]['nip3'] ?></td>
-                        </tr>
-                        <tr>
-                            <th>Ruang</th>
-                            <td><?= $data_jadwal[$index_jadwal]['ruang'] ?></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th>Hari/Jam</th>
-                            <td><?= $data_jadwal[$index_jadwal]['hari'].'/'.$data_jadwal[$index_jadwal]['jam_mulai'].'-'.$data_jadwal[$index_jadwal]['jam_selesai'] ?></td>
-                            <td colspan="2">Total Pertemuan</td>
-                            <td><?= count($data_tanggal_jadwal) ?></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        <?php
-        }
-        ?>
-    <?php
-    }elseif ($title_header == "Jadwal Kuliah") {
+    if ($title_header == "Jadwal Kuliah") {
     ?>
         <div class="col-lg-12 mb-3">
             <h5 class="text-center"><?=$semester_print?></h5>
@@ -148,14 +49,16 @@ view('components/modal/modal_confirm');
     <?php
     }
     ?>
+    
+    <?php
+    if ($title_header == "Rekap Absensi") {
+        view('components/table/rekap_absensi');
+    }else{
+    ?>
     <div class="col-lg-12 mb-3">
         <div class="table-responsive">
             <table id="myTable" class="table table-info table-striped">
-                
                 <?php
-                if ($title_header == "Rekap Absensi") {
-                    view('components/table/rekap_absensi');
-                }else{
                     if (empty($header_table)) {
                 ?>
                     <thead></thead>
@@ -210,17 +113,19 @@ view('components/modal/modal_confirm');
                     </tbody>
                 <?php
                     }
-                }
                 ?>
             </table>
         </div>
     </div>
+    <?php
+        }
+    ?>
 </div>
 <script>
     $(document).ready(function() {
         $('#myTable').DataTable({
             columnDefs: [{
-                className: 'text-center',
+                className: 'text-center align-middle',
                 targets: '_all'
             }, {
                 className: 'border border-secondary',
@@ -446,8 +351,6 @@ view('components/modal/modal_confirm');
                     param_hr: $(this).val(),
                     param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
                 };
-                console.log(data_tambahan);
-                
                 appendContentMenu('rekap_absensi', data_tambahan);
             }
         });
@@ -457,9 +360,69 @@ view('components/modal/modal_confirm');
                 param_hr: $("#ganti_hari").val(),
                 param_idx_jdw: $(this).val(),
             };
-            console.log(data_tambahan);
             
             appendContentMenu('rekap_absensi', data_tambahan);
+        });
+
+        $('.dropdown').hover(
+            function() {
+                $(this).addClass('show');
+                $(this).find('.dropdown-menu').addClass('show');
+            },
+            function() {
+                $(this).removeClass('show');
+                $(this).find('.dropdown-menu').removeClass('show');
+            }
+        );
+
+        $('.select-tanggal').on('click', function () {
+            let data_tambahan = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_tgl: $(this).attr('href'),
+            };
+
+            appendContentMenu('rekap_absensi', data_tambahan);
+            
+        });
+        
+        //CHECK SUDAH DICEK ATAU BELUM DOSEN MASUKNYA
+        let is_absen_ready = $("input[name='nip_masuk']").is(':checked');
+        $("input[name='nip_masuk']").on("change", function () {
+            let dataSend = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_value: $(this).val(),
+            };
+            if (is_absen_ready) {
+                updateAbsensi(dataSend);
+            }else{
+                if (confirm('Absen Belum Dibuat! Apakah ingin dibuat?')) {
+                    is_absen_ready = true;
+                    updateAbsensi(dataSend);
+                }else{
+                    $(this).prop('checked', false);
+                }
+            }
+        });
+        $("input[name*='mhs_masuk']").on("change", function () {
+            let dataSend = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_value: $(this).val(),
+                param_mhs: 1
+            };
+            if (!$(this).prop('checked')) {
+                let valValue = $(this).val();
+                valValue = valValue.split('_@_');
+                valValue[0] = '0';
+                valValue = valValue.join('_@_');
+                dataSend.param_value = valValue;
+            }
+            updateAbsensi(dataSend);
         });
     });
 </script>

@@ -801,6 +801,58 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function update_or_create_absen($data, $where, $is_mhs = false)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        try{
+            $table = 'isi_absen_dosen';
+            $message = array(
+                'update' => 'Berhasil Update Dosen Masuk',
+                'insert' => 'Berhasil Memilih Dosen Masuk'
+            );
+            if ($is_mhs) {
+                $table = 'isi_absen_mhs';
+                $message = array(
+                    'update' => 'Berhasil Update Kehadiran',
+                    'insert' => 'Berhasil Simpan Kehadiran'
+                );
+            }
+            $this->db->where($where);
+            $count = count($this->db->get($table)->result_array());
+            if ($count > 0) {
+                $this->db->update($table, $data, $where);
+                if ($this->db->trans_status() === FALSE) {
+                    $this->db->trans_rollback();
+                    $error = $this->db->error();
+                    $return['status'] = false;
+                    $return['message'] = 'Gagal :: ' . $error['message'];
+                }else{
+                    $this->db->trans_commit();
+                    $return['status'] = true;
+                    $return['message'] = $message['update'];
+                }
+            }else{
+                $this->db->insert($table, $data);
+                if ($this->db->trans_status() === FALSE) {
+                    $this->db->trans_rollback();
+                    $error = $this->db->error();
+                    $return['status'] = false;
+                    $return['message'] = 'Gagal :: ' . $error['message'];
+                }else{
+                    $this->db->trans_commit();
+                    $return['status'] = true;
+                    $return['message'] = $message['insert'];
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = false;
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
+
     // Mengambil semua pengguna beserta nama kolom
     public function get_table_rekap_absensi($where = [], $index_jadwal = 0)
     {
@@ -829,28 +881,33 @@ class MainModel extends CI_Model
                 $this->db->where('id_mhs', $value2['id']);
                 $this->db->order_by('tanggal', 'ASC');
                 $absen_mhs = $this->db->get()->result_array();
-                $data_isi_absen_mhs[] = $absen_mhs;
+                $absen_mhs_fix = [];
                 foreach ($absen_mhs as $key3 => $value3) {
                     //GET TANGGAL JADWAL KULIAH YANG BERJALAN
                     if (!in_array($value3['tanggal'], $data_tanggal_jadwal)) {
                         $data_tanggal_jadwal[] = $value3['tanggal'];
                     }
+                    $absen_mhs_fix[$value3['tanggal']] = $value3;
                 }
+                $data_isi_absen_mhs[] = $absen_mhs_fix;
             }
             // $data_isi_absen_mhs[] = $isi_absen_mhs;
             // $data_tanggal_jadwal[] = $tanggal_jadwal;
             //GET DATA ISI ABSEN DOSEN
-            foreach ($data_tanggal_jadwal as $key2 => $value2) {
-                $this->db->select('nip');
-                $this->db->from('isi_absen_dosen');
-                $this->db->where(array('id_jadwal' => $data_jadwal[$index_jadwal]['id'], 'tanggal' => $value2));
-                $isi_absen_dsn = $this->db->get()->result_array();
-                if (count($isi_absen_dsn) > 0) {
-                    $data_isi_absen_dsn[] = $isi_absen_dsn[0]['nip'];
-                }else{
-                    $data_isi_absen_dsn[] = '-';
+            // foreach ($data_tanggal_jadwal as $key2 => $value2) {
+            $this->db->select('nip, tanggal');
+            $this->db->from('isi_absen_dosen');
+            $this->db->where(array('id_jadwal' => $data_jadwal[$index_jadwal]['id']));
+            $this->db->order_by('tanggal', 'ASC');
+            $isi_absen_dsn = $this->db->get()->result_array();
+            $isi_absen_dsn_fix = [];
+            foreach ($isi_absen_dsn as $key => $value2) {
+                if (!in_array($value2['tanggal'], $data_tanggal_jadwal)) {
+                    $data_tanggal_jadwal[] = $value2['tanggal'];
                 }
+                $data_isi_absen_dsn[$value2['tanggal']] = $value2['nip'];
             }
+            // }
         }
         // }
         return array(
@@ -866,7 +923,7 @@ class MainModel extends CI_Model
     public function get_table($table, $get_header = true, $get_data = true, $where = [])
     {
         if ($table == 'jadwal_kuliah') {
-            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3, jadwal_kuliah.ruang, jadwal_kuliah.semester_char");
+            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3, jadwal_kuliah.ruang, jadwal_kuliah.semester_char, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip) AS jml, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip2) AS jml2, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip3) AS jml3");
             $this->db->from($table);
             $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
             $this->db->join('data_dosen', 'jadwal_kuliah.nip = data_dosen.nip');

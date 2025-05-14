@@ -131,6 +131,14 @@ class Main extends CI_Controller
 			$data['selected_smt'] = $semester_char;
 			$data['selected_hari'] = $hari_pilihan;
 			$data['selected_idx'] = "DJ_@_".$index_jadwal;
+			$data['pilih_tanggal'] = date('Y-m-d');
+			if (!empty($this->input->post('param_tgl'))) {
+				$pilih_tanggal = $this->input->post('param_tgl');
+				$pilih_tanggal = explode('_@_', $pilih_tanggal);
+				if ($pilih_tanggal[0] == '#rekap_absensi') {
+					$data['pilih_tanggal'] = $pilih_tanggal[1];
+				}
+			}
 		} else if ($nama_content == 'jadwal_kuliah') {
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
 			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
@@ -186,6 +194,56 @@ class Main extends CI_Controller
 		}
 		view("menu/" . ($nama_content != 'dashboard' ? 'tampil_data' : $nama_content), $data, true);
 	}
+
+	public function ngisi_absen()
+	{
+		$data_response = array(
+			'status' => false,
+			'message' => "Error Not Found"
+		);
+		if (!empty($this->input->post())) {
+			try{
+				$semester_char = $this->input->post('param_smt');
+				$hari_pilihan = $this->input->post('param_hr');
+				$index_jadwal = $this->input->post('param_idx_jdw');
+				$value = $this->input->post('param_value');
+				$value = explode('_@_', $value);
+				$data_menu = array(
+					'param_smt' => $semester_char,
+					'param_hr' => $hari_pilihan,
+					'param_idx_jdw' => $index_jadwal,
+					'param_tgl' => "#rekap_absensi_@_".$value[2]
+				);
+				$index_jadwal = explode('_@_', $index_jadwal);
+				$index_jadwal = $index_jadwal[1];
+				if (empty($this->input->post('param_mhs'))) {
+					$data = [];
+					$data['nip'] = $value[0];
+					$data['id_jadwal'] = $value[1];
+					$data['tanggal'] = $value[2];
+					$where = [];
+					$where['id_jadwal'] = $value[1];
+					$where['tanggal'] = $value[2];
+					$data_response = $this->MainModel->update_or_create_absen($data, $where);
+				}else{
+					$data = [];
+					$data['keterangan'] = $value[0];
+					$data['id_mhs'] = $value[1];
+					$data['tanggal'] = $value[2];
+					$where = [];
+					$where['id_mhs'] = $value[1];
+					$where['tanggal'] = $value[2];
+					$data_response = $this->MainModel->update_or_create_absen($data, $where, true);
+				}
+				$data_response['data'] = $data_menu;
+			} catch (Exception $e) {
+				$data_response['message'] = $e->getMessage();
+        	}
+				
+		}
+        header('Content-Type: application/json');
+		echo json_encode($data_response);
+	}
 	public function proses()
 	{
 		if (!empty($this->input->post())) {
@@ -222,17 +280,7 @@ class Main extends CI_Controller
 			} else {
 				$data = $this->input->post();
 				if ($menu == "rekap_absensi") {
-					$pilihan_rekap = $this->input->post('pilihan_rekap');
-					if ($pilihan_rekap == 2) {
-						$dataAlert = $this->MainModel->create('isi_absen_dosen', $data);
-						$this->session->set_flashdata('selected_rekap', 2);
-					} elseif ($pilihan_rekap == 3) {
-						$dataAlert = $this->MainModel->create('isi_absen_mhs', $data);
-						$this->session->set_flashdata('selected_rekap', 3);
-					} else {
-						$dataAlert = $this->MainModel->create('absensi', $data);
-						$this->session->set_flashdata('selected_rekap', 1);
-					}
+					$dataAlert = $this->MainModel->create('mhs_ambil_jadwal', $data);
 				} else {
 					$dataAlert = $this->MainModel->create($menu, $data);
 				}
@@ -268,17 +316,6 @@ class Main extends CI_Controller
 			}
 			$data = $this->input->post();
 			if ($menu == "rekap_absensi") {
-				$pilihan_rekap = $this->input->post('pilihan_rekap');
-				if ($pilihan_rekap == 2) {
-					$dataAlert = $this->MainModel->update('isi_absen_dosen', $data, $where);
-					$this->session->set_flashdata('selected_rekap', 2);
-				} elseif ($pilihan_rekap == 3) {
-					$dataAlert = $this->MainModel->update('isi_absen_mhs', $data, $where);
-					$this->session->set_flashdata('selected_rekap', 3);
-				} else {
-					$dataAlert = $this->MainModel->update('absensi', $data, $where);
-					$this->session->set_flashdata('selected_rekap', 1);
-				}
 			} else {
 				$dataAlert = $this->MainModel->update($menu, $data, $where);
 			}
@@ -315,17 +352,7 @@ class Main extends CI_Controller
 					}
 				}
 				if ($menu == "rekap_absensi") {
-					$pilihan_rekap = $this->input->post('selected_rekap_delete');
-					if ($pilihan_rekap == 2) {
-						$dataAlert = $this->MainModel->delete('isi_absen_dosen', $where);
-						$this->session->set_flashdata('selected_rekap', 2);
-					} elseif ($pilihan_rekap == 3) {
-						$dataAlert = $this->MainModel->delete('isi_absen_mhs', $where);
-						$this->session->set_flashdata('selected_rekap', 3);
-					} else {
-						$dataAlert = $this->MainModel->delete('absensi', $where);
-						$this->session->set_flashdata('selected_rekap', 1);
-					}
+					$dataAlert = $this->MainModel->delete('mhs_ambil_jadwal', $where);
 				} else {
 					$dataAlert = $this->MainModel->delete($menu, $where);
 				}

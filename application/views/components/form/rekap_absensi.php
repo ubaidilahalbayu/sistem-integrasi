@@ -2,81 +2,12 @@
 if (empty($export)) {
 ?>
 <div class="row justify-content-start">
-    <div class="col-lg-3 mb-3">
-        <label for="">Opsi Rekap Absensi:</label>
+    <div class="col-lg-12 mb-3 text-center">
+        <label for=""><b>Tambah Mahasiswa Untuk Kode Jadwal MK-<?= $data_jadwal[$index_jadwal]['id'] ?>:</b></label>
+        <input type="hidden" name="id_jadwal" id="id_jadwal" value="<?= $data_jadwal[$index_jadwal]['id'] ?>">
     </div>
-    <div class="col-lg-6 mb-3">
-        <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option1" autocomplete="off" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 1 ? 'checked' : (!empty($edit) ? 'disabled' : '')) : (!empty($edit) ? 'disabled' : '') ?> value="1">
-        <label class="btn btn-outline-primary" for="option1">New Absen</label>
-        <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option2" autocomplete="off" value="2" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 2 ? 'checked' : (!empty($edit) ? 'disabled' : '')) : (!empty($edit) ? 'disabled' : '') ?>>
-        <label class="btn btn-outline-primary" for="option2">Dosen</label>
-        <input type="radio" class="btn-check check_pilihan_rekap" name="pilihan_rekap" id="option3" autocomplete="off" value="3" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') == 3 ? 'checked' : (!empty($edit) ? 'disabled' : '')) : (!empty($edit) ? 'disabled' : '') ?>>
-        <label class="btn btn-outline-primary" for="option3">Mahasiswa</label>
-    </div>
-</div>
-<div class="row justify-content-start" id="pilihan_rekap_1" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 1 ? 'style="display: none"' : '') : '' ?>>
-    <div class="col-lg-6 mb-3">
-        <label for="id_jadwal">Jadwal Kuliah</label>
-        <select class="form-select" id="id_jadwal" name="id_jadwal">
-            <?php
-            foreach ($jdw as $key => $value) {
-            ?>
-                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['semester'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['hari'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <label for="tanggal">Tanggal</label>
-        <input type="date" name="tanggal" id="tanggal" class="form-control">
-    </div>
-</div>
-<div class="row justify-content-start" id="pilihan_rekap_2" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 2 ? 'style="display: none"' : '') : '' ?>>
-    <div class="col-lg-6 mb-3">
-        <label for="id_jadwal">Pilih Jadwal Kuliah</label>
-        <select class="form-select" id="id_jadwal" name="id_jadwal">
-            <?php
-            foreach ($jdw as $key => $value) {
-            ?>
-                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['semester'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['hari'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <label for="nip">Dosen</label>
-        <select class="form-select" id="nip" name="nip">
-            <?php
-            foreach ($dsn as $key => $value) {
-            ?>
-                <option value="<?= $value['nip'] ?>"><?= $value['nama_gelar_depan'] ?> <?= $value['nama_dosen'] ?>, <?= $value['nama_gelar_belakang'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <label for="jumlah_hadir">Jumlah Hadir</label>
-        <input type="number" name="jumlah_hadir" id="jumlah_hadir" value="1" class="form-control">
-    </div>
-</div>
-<div class="row justify-content-start" id="pilihan_rekap_3" <?= !empty($this->session->flashdata('selected_rekap')) ? ($this->session->flashdata('selected_rekap') != 3 ? 'style="display: none"' : '') : '' ?>>
-    <div class="col-lg-6 mb-3">
-        <label for="id_absen">Pilih Absen</label>
-        <select class="form-select" id="id_absen" name="id_absen">
-            <?php
-            foreach ($abs as $key => $value) {
-            ?>
-                <option value="<?= $value['id'] ?>"><?= $value['nama_mk'] ?>-<?= $value['kode_kelas'] ?>-<?= $value['tanggal'] ?>-<?= $value['jam_mulai'] ?>-<?= $value['jam_selesai'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <label for="nim">Mahasiswa</label>
+    <div class="col-lg-12 mb-3">
+        <label for="nim">Pilih Mahasiswa</label>
         <select class="form-select" id="nim" name="nim">
             <?php
             foreach ($mhs as $key => $value) {
@@ -85,15 +16,6 @@ if (empty($export)) {
             <?php
             }
             ?>
-        </select>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <label for="keterangan">Keterangan</label>
-        <select class="form-select" id="keterangan" name="keterangan">
-            <option value="1">Hadir</option>
-            <option value="I">Izin</option>
-            <option value="S">Sakit</option>
-            <option value="0">Tidak Hadir</option>
         </select>
     </div>
 </div>
