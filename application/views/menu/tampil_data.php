@@ -53,6 +53,10 @@ view('components/modal/modal_confirm');
     <?php
     if ($title_header == "Rekap Absensi") {
         view('components/table/rekap_absensi');
+    }elseif ($title_header == "Rekap Absensi Dosen") {
+        view('components/table/rekap_absensi_dosen');
+    }elseif ($title_header == "Rekap Absensi Mahasiswa") {
+        view('components/table/rekap_absensi_mhs');
     }else{
     ?>
     <div class="col-lg-12 mb-3">
@@ -264,64 +268,6 @@ view('components/modal/modal_confirm');
             appendContentMenu('jadwal_kuliah', data_tambahan);
         });
 
-        $("#import_form").on('change', '.check_pilihan_rekap', function() {
-            if ($(this).val() == 1) {
-                $('#pilihan_rekap_1').removeAttr('style');
-                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
-                    $(this).attr('disabled', false);
-                });
-                $('#pilihan_rekap_2').attr('style', 'display: none;');
-                $('#pilihan_rekap_2 select').each(function() {
-                    $(this).attr('disabled', true);
-                });
-                $('#pilihan_rekap_3').attr('style', 'display: none;');
-                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
-                    $(this).attr('disabled', true);
-                });
-            } else if ($(this).val() == 2) {
-                $('#pilihan_rekap_2').removeAttr('style');
-                $('#pilihan_rekap_2 select').each(function() {
-                    $(this).attr('disabled', false);
-                });
-                $('#pilihan_rekap_1').attr('style', 'display: none;');
-                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
-                    $(this).attr('disabled', true);
-                });
-                $('#pilihan_rekap_3').attr('style', 'display: none;');
-                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
-                    $(this).attr('disabled', true);
-                });
-            } else if ($(this).val() == 3) {
-                $('#pilihan_rekap_3').removeAttr('style');
-                $('#pilihan_rekap_3 select', 'pilihan_rekap_3 input').each(function() {
-                    $(this).attr('disabled', false);
-                });
-                $('#pilihan_rekap_2').attr('style', 'display: none;');
-                $('#pilihan_rekap_2 select').each(function() {
-                    $(this).attr('disabled', true);
-                });
-                $('#pilihan_rekap_1').attr('style', 'display: none;');
-                $('#pilihan_rekap_1 select', 'pilihan_rekap_1 input').each(function() {
-                    $(this).attr('disabled', true);
-                });
-            }
-        });
-
-        $('#ganti_rekap').on('change', function() {
-            if ($(this).val() == 1) {
-                appendContentMenu('rekap_absensi');
-            } else if ($(this).val() == 2) {
-                let data_tambahan = {
-                    param_dosen: 1
-                };
-                appendContentMenu('rekap_absensi', data_tambahan);
-            } else if ($(this).val() == 3) {
-                let data_tambahan = {
-                    param_mhs: 1
-                };
-                appendContentMenu('rekap_absensi', data_tambahan);
-            }
-        });
         $('#ganti_semester').on('change', function() {
             if ($(this).attr('menu') == "jadwal") {
                 let data_tambahan = {
@@ -330,12 +276,33 @@ view('components/modal/modal_confirm');
                 };
                 appendContentMenu('jadwal_kuliah', data_tambahan);
             }else if($(this).attr('menu') == "absen"){
+                let menu_absen = 'rekap_absensi';
                 let data_tambahan = {
                     param_smt: $(this).val(),
                     param_hr: $("#ganti_hari").val(),
                     param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
                 };
-                appendContentMenu('rekap_absensi', data_tambahan);
+                if ($(this).attr('prm_dsn') != undefined) {
+                    menu_absen = 'rekap_absensi_dosen';
+                    data_tambahan = {
+                        param_smt: $(this).val(),
+                        param_hr: $("#ganti_hari").val(),
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_dsn: 1,
+                    };  
+                }
+                else if ($(this).attr('prm_mhs') != undefined) {
+                    menu_absen = 'rekap_absensi_mhs';
+                    data_tambahan = {
+                        param_smt: $(this).val(),
+                        param_hr: $("#ganti_hari").val(),
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_mhs: 1,
+                    };  
+                }
+                console.log(data_tambahan);
+                
+                appendContentMenu(menu_absen, data_tambahan);
             }
         });
         $('#ganti_hari').on('change', function() {
@@ -346,22 +313,60 @@ view('components/modal/modal_confirm');
                 };
                 appendContentMenu('jadwal_kuliah', data_tambahan);
             }else if($(this).attr('menu') == "absen"){
+                let menu_absen = 'rekap_absensi';
                 let data_tambahan = {
                     param_smt: $("#ganti_semester").val(),
                     param_hr: $(this).val(),
                     param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
                 };
-                appendContentMenu('rekap_absensi', data_tambahan);
+                if ($(this).attr('prm_dsn') != undefined) {
+                    menu_absen = 'rekap_absensi_dosen';
+                    data_tambahan = {
+                        param_smt: $("#ganti_semester").val(),
+                        param_hr: $(this).val(),
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_dsn: 1,
+                    };  
+                }
+                else if ($(this).attr('prm_mhs') != undefined) {
+                    menu_absen = 'rekap_absensi_mhs';
+                    data_tambahan = {
+                        param_smt: $("#ganti_semester").val(),
+                        param_hr: $(this).val(),
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_mhs: 1,
+                    };  
+                }
+                appendContentMenu(menu_absen, data_tambahan);
             }
         });
         $("input[name='pilih-mk-abs']").on("change", function () {
+            let menu_absen = 'rekap_absensi';
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
                 param_idx_jdw: $(this).val(),
             };
+            if ($(this).attr('prm_dsn') != undefined) {
+                menu_absen = 'rekap_absensi_dosen';
+                data_tambahan = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: $("#ganti_hari").val(),
+                    param_idx_jdw: $(this).val(),
+                    param_dsn: 1,
+                };  
+            }
+            else if ($(this).attr('prm_mhs') != undefined) {
+                menu_absen = 'rekap_absensi_mhs';
+                data_tambahan = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: $("#ganti_hari").val(),
+                    param_idx_jdw: $(this).val(),
+                    param_mhs: 1,
+                };
+            }
             
-            appendContentMenu('rekap_absensi', data_tambahan);
+            appendContentMenu(menu_absen, data_tambahan);
         });
 
         $('.dropdown').hover(
@@ -423,6 +428,21 @@ view('components/modal/modal_confirm');
                 dataSend.param_value = valValue;
             }
             updateAbsensi(dataSend);
+        });
+        
+        $('.delete-tanggal').on('click', function() {
+            $(".hapus-semua").attr('style', 'display: none;');
+            $(".hapus-satu").removeAttr('style');
+            let name = $(this).attr('name');
+            let param = $(this).attr('param');
+            let head = $(this).attr('head');
+            let name_table = $(this).attr('table');
+            $("#title_name_delete").html(name);
+            $("#konfir_name_delete").html(name);
+            $("#head_delete").html(head);
+            $("#title_head_delete").html(name_table);
+            $("#param_delete").val(param);
+            $("#modalConfirm").modal('show');
         });
     });
 </script>

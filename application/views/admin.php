@@ -51,6 +51,12 @@ view('components/header', $data_header);
                 <a class="nav-link mybtn-1" href="#rekap_absensi" id="rekap_absensi">Rekap Absensi</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#rekap_absensi_dosen" id="rekap_absensi_dosen">Rekap Absensi Dosen</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#rekap_absensi_mhs" id="rekap_absensi_mhs">Rekap Absensi Mahasiswa</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link mybtn-1" href="#data_semester" id="data_semester">Data Semester</a>
             </li>
             <li class="nav-item">
@@ -95,6 +101,12 @@ $(document).ready(function() {
     });
     $('#rekap_absensi').on('click', function() {
         appendContentMenu('rekap_absensi');
+    });
+    $('#rekap_absensi_dosen').on('click', function() {
+        appendContentMenu('rekap_absensi_dosen');
+    });
+    $('#rekap_absensi_mhs').on('click', function() {
+        appendContentMenu('rekap_absensi_mhs');
     });
     $('#data_mk').on('click', function() {
         appendContentMenu('data_mk');

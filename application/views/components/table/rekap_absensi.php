@@ -46,20 +46,6 @@ if (count($data_jadwal) > 0) {
                 <tr>
                     <th>Tanggal</th>
                     <th>
-                        <!-- <select id="pilih-tanggal-abs" class="form-select bg-secondary">
-                            <?php
-                            if (!in_array(date('Y-m-d'), $data_tanggal_jadwal)) {
-                            ?>
-                                <option value="<?= date('Y-m-d') ?>"><?= date('Y-m-d') ?></option>
-                            <?php
-                            }
-                            foreach ($data_tanggal_jadwal as $key => $value) {
-                            ?>
-                                <option value="<?= $value ?>"><?= $value ?></option>
-                            <?php
-                            }
-                            ?>
-                        </select> -->
                         <?= !empty($pilih_tanggal) ? $pilih_tanggal : date('Y-m-d') ?>
                     </th>
                 </tr>
@@ -125,16 +111,27 @@ if (count($data_jadwal) > 0) {
     <div class="table-responsive">
         <table id="myTable" class="table table-info table-striped" rekap="1">
             <?php
+            $data_tanggal_jadwal = count($data_tanggal_jadwal) > 0 ? $data_tanggal_jadwal : [date('Y-m-d')];
             if (count($data_jadwal) > 0) {
                 if (count($data_mhs_ambil_jadwal) > 0) {
             ?>
                 <thead style="z-index: ;">
                     <tr>
-                        <th rowspan="3" scope="col" style="width: 150px;">NIM</th>
-                        <th rowspan="3" scope="col">Nama Mahasiswa</th>
-                        <th colspan="<?= count($data_tanggal_jadwal) ?>" class="text-center" scope="colgroup">Tanggal</th>
-                        <th rowspan="3" scope="col">Action</th>
+                        <th rowspan="4" scope="col" style="width: 150px;">NIM</th>
+                        <th rowspan="4" scope="col">Nama Mahasiswa</th>
+                        <th colspan="<?= count($data_tanggal_jadwal) ?>" class="text-center" scope="colgroup">Pertemuan Ke-</th>
+                        <th rowspan="4" scope="col">Action</th>
                     </tr>
+                    <tr>
+                        <?php
+                        foreach ($data_tanggal_jadwal as $key => $value) {
+                        ?>
+                            <th>
+                                <?= $key+1 ?>
+                            </th>
+                        <?php
+                        }
+                        ?>
                     </tr>
                     <tr>
                         <?php
@@ -145,7 +142,7 @@ if (count($data_jadwal) > 0) {
                                     <button class="btn <?= $value==$pilih_tanggal ? 'btn-secondary': 'btn-outline-secondary'?> dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $value ?></button>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item <?= $value==$pilih_tanggal ? 'active' : '' ?> select-tanggal" href="#rekap_absensi_@_<?= $value ?>">Select</a></li>
-                                        <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $value ?>">Delete</a></li>
+                                        <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $value ?>"  name="<?= $value ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Tanggal" param="tanggal;_@_;<?= $value ?>;_@_;id_jadwal;_@_;<?= $data_jadwal[$index_jadwal]['id'] ?>">Delete</a></li>
                                         <li><a class="dropdown-item ubah-tanggal" href="#rekap_absensi_@_<?= $value ?>">Ubah Tanggal:<br><input type="date" id="date_li" class="form-control" value="<?= $value ?>"></a></li>
                                     </ul>
                                 </div>
@@ -158,7 +155,7 @@ if (count($data_jadwal) > 0) {
                         <?php
                         foreach ($data_tanggal_jadwal as $key => $value) {
                         ?>
-                            <th><?= $data_isi_absen_dsn[$value] ?></th>
+                            <th><?= isset($data_isi_absen_dsn[$value]) ? $data_isi_absen_dsn[$value] : '-' ?></th>
                         <?php
                         }
                         ?>

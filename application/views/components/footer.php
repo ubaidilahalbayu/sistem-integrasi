@@ -44,6 +44,8 @@
         // Remove 'mybtn-2' and add 'mybtn-1' to all buttons
         $("#dashboard").removeClass("mybtn-2").addClass("mybtn-1");
         $("#rekap_absensi").removeClass("mybtn-2").addClass("mybtn-1");
+        $("#rekap_absensi_dosen").removeClass("mybtn-2").addClass("mybtn-1");
+        $("#rekap_absensi_mhs").removeClass("mybtn-2").addClass("mybtn-1");
         $("#data_mk").removeClass("mybtn-2").addClass("mybtn-1");
         $("#data_mahasiswa").removeClass("mybtn-2").addClass("mybtn-1");
         $("#data_dosen").removeClass("mybtn-2").addClass("mybtn-1");

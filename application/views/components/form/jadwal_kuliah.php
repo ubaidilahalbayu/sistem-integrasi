@@ -112,6 +112,22 @@ if (empty($export)) {
         <label for="jam_selesai">Jam Selesai</label>
         <input type="time" id="jam_selesai" name="jam_selesai" class="form-control">
     </div>
+    <div class="col-lg-6 mb-3">
+        <label for="ruang">Ruang</label>
+        <input type="text" id="ruang" name="ruang" class="form-control">
+    </div>
+    <div class="col-lg-6 mb-3">
+    <label for="semester_char">Semester</label>
+    <select id="semester_char" name="semester_char" class="form-select">
+        <?php
+            foreach ($smt as $key => $value) {
+        ?>
+            <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
+        <?php
+            }
+        ?>
+    </select>
+    </div>
 <?php
 }
 ?>

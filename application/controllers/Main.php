@@ -139,6 +139,94 @@ class Main extends CI_Controller
 					$data['pilih_tanggal'] = $pilih_tanggal[1];
 				}
 			}
+		} else if ($nama_content == 'rekap_absensi_dosen') {
+			$where = [];
+			$index_jadwal = 0;
+			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
+			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
+			if (!empty($this->input->post('param_smt')) && !empty($this->input->post('param_hr')) && !empty($this->input->post('param_idx_jdw'))) {
+				$semester_char = $this->input->post('param_smt');
+				$hari_pilihan = $this->input->post('param_hr');
+				$index_jadwal = $this->input->post('param_idx_jdw');
+				$index_jadwal = explode('_@_', $index_jadwal);
+				if ($index_jadwal[0] == "DJ") {
+					$index_jadwal = $index_jadwal[1];
+				}else{
+					show_404();
+				}
+			}
+			$where['hari'] = $hari_pilihan;
+			$where['semester_char'] = $semester_char;
+			if (!empty($this->input->post('param_id'))) {
+				$id =  $this->input->post('param_id');
+				$id = explode('-', $id)[1];
+				$where['jadwal_kuliah.id'] = $id; 
+			}
+			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
+			$data = $getData;
+			$data['title_header'] = 'Rekap Absensi Dosen';
+			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
+			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
+			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
+			$data['smt'] = $this->MainModel->get_table('data_semester')['data'];
+			$data['hr'] = $this->hari_indonesia;
+			$data['index_jadwal'] = $index_jadwal;
+			$data['selected_smt'] = $semester_char;
+			$data['selected_hari'] = $hari_pilihan;
+			$data['selected_idx'] = "DJ_@_".$index_jadwal;
+			$data['pilih_tanggal'] = date('Y-m-d');
+			if (!empty($this->input->post('param_tgl'))) {
+				$pilih_tanggal = $this->input->post('param_tgl');
+				$pilih_tanggal = explode('_@_', $pilih_tanggal);
+				if ($pilih_tanggal[0] == '#rekap_absensi') {
+					$data['pilih_tanggal'] = $pilih_tanggal[1];
+				}
+			}
+		} else if ($nama_content == 'rekap_absensi_mhs') {
+			$where = [];
+			$index_jadwal = 0;
+			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
+			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
+			if (!empty($this->input->post('param_smt')) && !empty($this->input->post('param_hr')) && !empty($this->input->post('param_idx_jdw'))) {
+				$semester_char = $this->input->post('param_smt');
+				$hari_pilihan = $this->input->post('param_hr');
+				$index_jadwal = $this->input->post('param_idx_jdw');
+				$index_jadwal = explode('_@_', $index_jadwal);
+				if ($index_jadwal[0] == "DJ") {
+					$index_jadwal = $index_jadwal[1];
+				}else{
+					show_404();
+				}
+			}
+			$where['hari'] = $hari_pilihan;
+			$where['semester_char'] = $semester_char;
+			if (!empty($this->input->post('param_id'))) {
+				$id =  $this->input->post('param_id');
+				$id = explode('-', $id)[1];
+				$where['jadwal_kuliah.id'] = $id; 
+			}
+			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
+			$data = $getData;
+			$data['title_header'] = 'Rekap Absensi Mahasiswa';
+			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
+			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
+			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
+			$data['smt'] = $this->MainModel->get_table('data_semester')['data'];
+			$data['hr'] = $this->hari_indonesia;
+			$data['index_jadwal'] = $index_jadwal;
+			$data['selected_smt'] = $semester_char;
+			$data['selected_hari'] = $hari_pilihan;
+			$data['selected_idx'] = "DJ_@_".$index_jadwal;
+			$data['pilih_tanggal'] = date('Y-m-d');
+			if (!empty($this->input->post('param_tgl'))) {
+				$pilih_tanggal = $this->input->post('param_tgl');
+				$pilih_tanggal = explode('_@_', $pilih_tanggal);
+				if ($pilih_tanggal[0] == '#rekap_absensi') {
+					$data['pilih_tanggal'] = $pilih_tanggal[1];
+				}
+			}
 		} else if ($nama_content == 'jadwal_kuliah') {
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
 			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
@@ -352,7 +440,15 @@ class Main extends CI_Controller
 					}
 				}
 				if ($menu == "rekap_absensi") {
-					$dataAlert = $this->MainModel->delete('mhs_ambil_jadwal', $where);
+					if (!empty($where['tanggal'])) {
+						unset($where['id_jadwal']);
+						$dataAlert = $this->MainModel->delete('isi_absen_mhs', $where);
+						if ($dataAlert['status'] == 'success') {
+							$dataAlert = $this->MainModel->delete('isi_absen_dosen', $where);
+						}
+					}else{
+						$dataAlert = $this->MainModel->delete('mhs_ambil_jadwal', $where);
+					}
 				} else {
 					$dataAlert = $this->MainModel->delete($menu, $where);
 				}
