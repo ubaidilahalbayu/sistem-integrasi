@@ -84,18 +84,12 @@ view('components/header', $data_header);
 <?php
 $menu_now = !empty($this->session->flashdata('menu_now')) ? $this->session->flashdata('menu_now') : 'dashboard';
 $selected_rekap = !empty($this->session->flashdata('selected_rekap')) ? $this->session->flashdata('selected_rekap') : 0;
-$data_tambahan = "{}";
-if ($selected_rekap == 2) {
-    $data_tambahan = "{param_dosen: 1}";
-} elseif ($selected_rekap == 3) {
-    $data_tambahan = "{param_mhs: 1}";
-}
+
 $data_footer['script'] = [
     "
 <script type='text/javascript'>
 $(document).ready(function() {
-    const data_tambahans = " . $data_tambahan . ";
-    appendContentMenu('" . $menu_now . "', data_tambahans);
+    appendContentMenu('" . $menu_now . "');
     $('#dashboard').on('click', function() {
         appendContentMenu('dashboard');
     });

@@ -121,32 +121,54 @@ if (count($data_jadwal) > 0) {
     <div class="table-responsive">
         <table id="myTable" class="table table-info table-striped" rekap="1">
             <?php
-            $pertemuan = in_array($pilih_tanggal, $data_tanggal_jadwal) ? count($data_tanggal_jadwal) : count($data_tanggal_jadwal)+1;
+            $data_tanggal_jadwal = count($data_tanggal_jadwal) > 0 ? $data_tanggal_jadwal : [date('Y-m-d')];
             if (count($data_jadwal) > 0) {
                 if (count($data_mhs_ambil_jadwal) > 0) {
             ?>
                 <thead style="z-index: ;">
                     <tr>
-                        <th rowspan="3" scope="col" style="width: 150px;">NIM</th>
-                        <th rowspan="3" scope="col">Nama Mahasiswa</th>
-                        <th class="text-center" scope="colgroup">Pertemuan Ke-</th>
-                        <th rowspan="3" scope="col">Action</th>
+                        <th rowspan="4" scope="col" style="width: 150px;">NIM</th>
+                        <th rowspan="4" scope="col">Nama Mahasiswa</th>
+                        <th colspan="<?= count($data_tanggal_jadwal) ?>" class="text-center" scope="colgroup">Pertemuan Ke-</th>
+                        <th rowspan="4" scope="col">Action</th>
                     </tr>
                     <tr>
-                        <th>
-                            <?= $pertemuan ?>
-                        </th>
+                        <?php
+                        foreach ($data_tanggal_jadwal as $key => $value) {
+                        ?>
+                            <th>
+                                <?= $key+1 ?>
+                            </th>
+                        <?php
+                        }
+                        ?>
                     </tr>
                     <tr>
-                        <th >
-                            <div class="dropdown">
-                                <button class="btn <?= $pilih_tanggal==$pilih_tanggal ? 'btn-secondary': 'btn-outline-secondary'?> dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $pilih_tanggal ?></button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item <?= $pilih_tanggal==$pilih_tanggal ? 'active' : '' ?> select-tanggal" href="#rekap_absensi_@_<?= $pilih_tanggal ?>">Select</a></li>
-                                    <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $pilih_tanggal ?>"  name="<?= $pilih_tanggal ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Tanggal" param="tanggal;_@_;<?= $pilih_tanggal ?>;_@_;id_jadwal;_@_;<?= $data_jadwal[$index_jadwal]['id'] ?>">Delete</a></li>
-                                </ul>
-                            </div>
-                        </th>
+                        <?php
+                        foreach ($data_tanggal_jadwal as $key => $value) {
+                        ?>
+                            <th >
+                                <div class="dropdown">
+                                    <button class="btn <?= $value==$pilih_tanggal ? 'btn-secondary': 'btn-outline-secondary'?> dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $value ?></button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item <?= $value==$pilih_tanggal ? 'active' : '' ?> select-tanggal" href="#rekap_absensi_@_<?= $value ?>">Select</a></li>
+                                        <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $value ?>"  name="<?= $value ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Tanggal" param="tanggal;_@_;<?= $value ?>;_@_;id_jadwal;_@_;<?= $data_jadwal[$index_jadwal]['id'] ?>">Delete</a></li>
+                                        <li><a class="dropdown-item ubah-tanggal" href="#rekap_absensi_@_<?= $value ?>">Ubah Tanggal:<br><input type="date" id="date_li" class="form-control" value="<?= $value ?>"></a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                        <?php
+                        }
+                        ?>
+                    </tr>
+                    <tr>
+                        <?php
+                        foreach ($data_tanggal_jadwal as $key => $value) {
+                        ?>
+                            <th><?= isset($data_isi_absen_dsn[$value]) ? $data_isi_absen_dsn[$value] : '-' ?></th>
+                        <?php
+                        }
+                        ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,14 +178,26 @@ if (count($data_jadwal) > 0) {
                     <tr>
                         <td><?= $value['nim'] ?></td>
                         <td><?= $value['nama_mahasiswa'] ?></td>
-                        <td>
-                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk1<?= $key ?>" autocomplete="off" value="<?= '1_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? ($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan'] == '1' ? 'checked' : '' ): '' ?>>
-                            <label class="btn btn-sm btn-outline-primary mb-1" for="mhsk1<?= $key ?>">Hadir</label><br>
-                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk2<?= $key ?>" autocomplete="off" value="<?= 'i_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == 'i' ? 'checked' : '' ): '' ?>>
-                            <label class="btn btn-sm btn-outline-warning mb-1" for="mhsk2<?= $key ?>">Izin</label><br>
-                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk3<?= $key ?>" autocomplete="off" value="<?= 's_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == 's' ? 'checked' : '' ): '' ?>>
-                            <label class="btn btn-sm btn-outline-warning" for="mhsk3<?= $key ?>">Sakit</label>
-                        </td>
+                        <?php
+                            foreach ($data_tanggal_jadwal as $key2 => $value2) {
+                                if ($value2 == $pilih_tanggal) {
+                        ?>
+                                    <td>
+                                        <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key.$key2 ?>" id="mhsk1<?= $key.$key2 ?>" autocomplete="off" value="<?= '1_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? ($data_isi_absen_mhs[$key][$value2]['keterangan'] == '1' ? 'checked' : '' ): '' ?>>
+                                        <label class="btn btn-sm btn-outline-primary mb-1" for="mhsk1<?= $key.$key2 ?>">Hadir</label><br>
+                                        <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key.$key2 ?>" id="mhsk2<?= $key.$key2 ?>" autocomplete="off" value="<?= 'i_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$value2]['keterangan']) == 'i' ? 'checked' : '' ): '' ?>>
+                                        <label class="btn btn-sm btn-outline-warning mb-1" for="mhsk2<?= $key.$key2 ?>">Izin</label><br>
+                                        <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key.$key2 ?>" id="mhsk3<?= $key.$key2 ?>" autocomplete="off" value="<?= 's_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$value2]['keterangan']) == 's' ? 'checked' : '' ): '' ?>>
+                                        <label class="btn btn-sm btn-outline-warning" for="mhsk3<?= $key.$key2 ?>">Sakit</label>
+                                    </td>
+                        <?php
+                                } else{
+                        ?>
+                                    <td><?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? $data_isi_absen_mhs[$key][$value2]['keterangan'] : '0' ?></td>
+                        <?php
+                                }
+                            }
+                        ?>
                         <td>
                             <button type="button" class="btn btn-sm btn-danger" name="<?= $value['nim'] ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Rekap Absensi Mahasiswa" param="id;_@_;<?= $value['id'] ?>;_@_;nim;_@_;<?= $value['nim'] ?>">Hapus</button>
                         </td>

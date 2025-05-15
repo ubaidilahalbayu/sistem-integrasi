@@ -14,6 +14,8 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
             <div class="modal-body">
                 <form id="import_form" action="<?= base_url('proses') ?>" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
+                    <?php if ($title_header != "Rekap Absensi") {
+                    ?>
                     <div class="row justify-content-start">
                         <div class="col-lg-4 mb-3">
                             <input type="checkbox" class="btn-check" id="dari_file" autocomplete="off">
@@ -24,23 +26,19 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                                 </svg>Dari File</label><br>
                         </div>
                     </div>
-                    <?php if ($title_header == "Rekap Absensi") {
-                    ?>
                     <?php
                     }
                     ?>
-                    <div class="row justify-content-start" id="import_dari_file" style="display: none;">
+                    <div class="row justify-content-start" id="import_dari_file" <?= $title_header != "Rekap Absensi" ? 'style="display: none;"' : '' ?>>
                         <div class="col-lg-12 mb-3">
                             <label for="formFile" class="form-label">File Excel</label>
                             <input class="form-control" id="formFile" name="formFile" type="file"
-                                accept=".xls,.xlsx,.csv" disabled>
+                                accept=".xls,.xlsx,.csv" <?= $title_header == 'Rekap Absensi' ? '' : 'disabled' ?>>
                         </div>
                     </div>
-                    <div class="row justify-content-start" id="import_tidak_dari_file">
+                    <div class="row justify-content-start" id="import_tidak_dari_file" <?= $title_header != "Rekap Absensi" ? '' : 'style="display: none;"' ?>>
                         <?php
-                        if ($title_header == "Rekap Absensi") {
-                            view('components/form/rekap_absensi');
-                        } elseif ($title_header == "Jadwal Kuliah") {
+                        if ($title_header == "Jadwal Kuliah") {
                             view('components/form/jadwal_kuliah');
                         } else {
                             if (!empty($header_table)) {

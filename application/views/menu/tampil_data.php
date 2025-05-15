@@ -3,8 +3,39 @@ view('components/modal/modal_import');
 view('components/modal/modal_export');
 view('components/modal/modal_form');
 view('components/modal/modal_confirm');
+if ($title_header == "Rekap Absensi") {
+    if (count($data_jadwal) > 0) {
+        $paramTambah['export'] = 0;
+?>
+<div class="modal fade" id="modalTambahMhs" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Mahasiswa</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="tambah_mhs_form" action="<?= base_url('proses') ?>" method="post">
+                    <input type="hidden" name="menu" value="<?= str_replace(' ', '_', strtolower($title_header)) ?>">
+                    <?php 
+                        view('components/form/rekap_absensi', $paramTambah); 
+                    ?>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="tambah_mhs_submit">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+    }
+}
 ?>
 <div class="row justify-content-start mt-5">
+    <?php if ($title_header != "Rekap Absensi Dosen" && $title_header != "Rekap Absensi Mahasiswa") { ?>
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-success" data-bs-toggle="modal"
             data-bs-target="#modalExport">Export</button>
@@ -16,6 +47,7 @@ view('components/modal/modal_confirm');
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
     </div>
+    <?php } ?>
     <?php
     if ($title_header == "Jadwal Kuliah") {
     ?>
@@ -159,6 +191,12 @@ view('components/modal/modal_confirm');
             $('#loadingModal').modal('show');
             $('#modalExport').modal('hide');
             $('#export_form').submit();
+            $('#loadingModal').modal('hide');
+        });
+        $('#tambah_mhs_submit').on('click', function() {
+            $('#loadingModal').modal('show');
+            $('#modalTambahMhs').modal('hide');
+            $('#tambah_mhs_form').submit();
             $('#loadingModal').modal('hide');
         });
 
@@ -393,7 +431,7 @@ view('components/modal/modal_confirm');
         });
         
         //CHECK SUDAH DICEK ATAU BELUM DOSEN MASUKNYA
-        let is_absen_ready = $("input[name='nip_masuk']").is(':checked');
+        // let is_absen_ready = $("input[name='nip_masuk']").is(':checked');
         $("input[name='nip_masuk']").on("change", function () {
             let dataSend = {
                 param_smt: $("#ganti_semester").val(),
@@ -401,16 +439,16 @@ view('components/modal/modal_confirm');
                 param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
                 param_value: $(this).val(),
             };
-            if (is_absen_ready) {
+            // if (is_absen_ready) {
                 updateAbsensi(dataSend);
-            }else{
-                if (confirm('Absen Belum Dibuat! Apakah ingin dibuat?')) {
-                    is_absen_ready = true;
-                    updateAbsensi(dataSend);
-                }else{
-                    $(this).prop('checked', false);
-                }
-            }
+            // }else{
+            //     if (confirm('Absen Belum Dibuat! Apakah ingin dibuat?')) {
+            //         is_absen_ready = true;
+            //         updateAbsensi(dataSend);
+            //     }else{
+            //         $(this).prop('checked', false);
+            //     }
+            // }
         });
         $("input[name*='mhs_masuk']").on("change", function () {
             let dataSend = {
