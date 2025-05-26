@@ -44,10 +44,14 @@ if ($title_header == "Rekap Absensi") {
         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
             data-bs-target="#modalImport">Import</button>
     </div>
-    <div class="col-lg-2 d-grid gap-2 mb-3">
-        <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
-    </div>
-    <?php } ?>
+    <?php
+		if ($this->session->userdata('level') == 1) {
+    ?>
+        <div class="col-lg-2 d-grid gap-2 mb-3">
+            <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
+        </div>
+    <?php }
+    } ?>
     <?php
     if ($title_header == "Jadwal Kuliah") {
     ?>
@@ -132,12 +136,16 @@ if ($title_header == "Rekap Absensi") {
                                     <?php
                                         }
                                     }
+                                    $paramPost = $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]];
+                                    if ($title_header=="Data Dosen") {
+                                        $paramPost = $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[2] . ';_@_;' . $dt[$header_table[2]];
+                                    }
                                     ?>
                                     <td><button type="button" class="btn btn-warning"
-                                            param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
-                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 || $this->session->flashdata('selected_rekap') == 2 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "'" : '' ?>>Edit</button> <button type="button"
-                                            class="btn btn-danger"
-                                            param="<?= $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[1] . ';_@_;' . $dt[$header_table[1]] ?>"
+                                            param="<?= $paramPost ?>"
+                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 || $this->session->flashdata('selected_rekap') == 2 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "' semester_char='" . $dt['semester_char'] . "'" : '' ?>>Edit</button> <button type="button"
+                                            class="btn btn-danger btn-hapus"
+                                            param="<?= $paramPost ?>"
                                             name="<?= $dt[$header_table[0]] ?>"
                                             head="<?= ucwords(str_replace('_', ' ', $header_table[0])) ?>"
                                             table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?>>Hapus</button></td>
@@ -227,6 +235,7 @@ if ($title_header == "Rekap Absensi") {
                 let nip = $(this).attr("nip");
                 let nip2 = $(this).attr("nip2");
                 let nip3 = $(this).attr("nip3");
+                let semester_char = $(this).attr("semester_char");
 
                 $("#edit_form #nip").val(nip);
                 $("#edit_form #nip2").val(nip2);
@@ -236,6 +245,8 @@ if ($title_header == "Rekap Absensi") {
                 $("#edit_form #hari").val(previousTdValues[3]);
                 $("#edit_form #jam_mulai").val(previousTdValues[2]);
                 $("#edit_form #jam_selesai").val(previousTdValues[1]);
+                $("#edit_form #ruang").val(previousTdValues[0]);
+                $("#edit_form #semester_char").val(semester_char);
             } else {
                 $('#edit_form textarea').each(function() {
                     $(this).val(previousTdValues[index_td]);
@@ -256,7 +267,7 @@ if ($title_header == "Rekap Absensi") {
             $('#loadingModal').modal('hide');
         });
 
-        $('#myTable').on('click', '.btn-danger', function() {
+        $('#myTable').on('click', '.btn-hapus', function() {
             $(".hapus-semua").attr('style', 'display: none;');
             $(".hapus-satu").removeAttr('style');
             let name = $(this).attr('name');
@@ -277,7 +288,7 @@ if ($title_header == "Rekap Absensi") {
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
-                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_id: $(this).attr("href"),
             };
             appendContentMenu('rekap_absensi', data_tambahan);
@@ -318,14 +329,14 @@ if ($title_header == "Rekap Absensi") {
                 let data_tambahan = {
                     param_smt: $(this).val(),
                     param_hr: $("#ganti_hari").val(),
-                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 };
                 if ($(this).attr('prm_dsn') != undefined) {
                     menu_absen = 'rekap_absensi_dosen';
                     data_tambahan = {
                         param_smt: $(this).val(),
                         param_hr: $("#ganti_hari").val(),
-                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                         param_dsn: 1,
                     };  
                 }
@@ -334,11 +345,10 @@ if ($title_header == "Rekap Absensi") {
                     data_tambahan = {
                         param_smt: $(this).val(),
                         param_hr: $("#ganti_hari").val(),
-                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                         param_mhs: 1,
                     };  
                 }
-                console.log(data_tambahan);
                 
                 appendContentMenu(menu_absen, data_tambahan);
             }
@@ -355,14 +365,14 @@ if ($title_header == "Rekap Absensi") {
                 let data_tambahan = {
                     param_smt: $("#ganti_semester").val(),
                     param_hr: $(this).val(),
-                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 };
                 if ($(this).attr('prm_dsn') != undefined) {
                     menu_absen = 'rekap_absensi_dosen';
                     data_tambahan = {
                         param_smt: $("#ganti_semester").val(),
                         param_hr: $(this).val(),
-                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                         param_dsn: 1,
                     };  
                 }
@@ -371,7 +381,7 @@ if ($title_header == "Rekap Absensi") {
                     data_tambahan = {
                         param_smt: $("#ganti_semester").val(),
                         param_hr: $(this).val(),
-                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                        param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                         param_mhs: 1,
                     };  
                 }
@@ -422,7 +432,7 @@ if ($title_header == "Rekap Absensi") {
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
-                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_tgl: $(this).attr('href'),
             };
 
@@ -436,9 +446,15 @@ if ($title_header == "Rekap Absensi") {
             let dataSend = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
-                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_value: $(this).val(),
             };
+            let tgl = dataSend.param_value.split('_@_');
+            if (!$(this).prop('checked')) {
+                dataSend.param_value = "-_@_"+tgl[1]+"_@_"+tgl[2];
+            }
+            console.log(dataSend);
+            
             // if (is_absen_ready) {
                 updateAbsensi(dataSend);
             // }else{
@@ -454,7 +470,7 @@ if ($title_header == "Rekap Absensi") {
             let dataSend = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
-                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']").val() : "DJ_@_0",
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_value: $(this).val(),
                 param_mhs: 1
             };

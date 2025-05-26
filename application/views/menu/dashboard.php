@@ -1,2 +1,2 @@
 <h1 class="py-5 text-center">WELCOME
-    <?= !empty($this->session->userdata('username')) ? strtoupper($this->session->userdata('username')) : 'USER' ?></h1>
+    <?= !empty($this->session->userdata('dosen')) ? strtoupper($this->session->userdata('dosen')) : (!empty($this->session->userdata('username')) ? strtoupper($this->session->userdata('username')) : 'USER') ?></h1>

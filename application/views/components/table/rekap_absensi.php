@@ -70,7 +70,7 @@ if (count($data_jadwal) > 0) {
                     <th>Kode MK</th>
                     <td><?= $data_jadwal[$index_jadwal]['kode_mk'] ?></td>
                     <td>
-                        <input type="radio" class="btn-check" name="nip_masuk" id="nip1" autocomplete="off" value="<?= $data_jadwal[$index_jadwal]['nip'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>" <?= !empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip'] ? 'checked' : '' ): '' ?>>
+                        <input type="checkbox" class="btn-check" name="nip_masuk" id="nip1" autocomplete="off" value="<?= $data_jadwal[$index_jadwal]['nip'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>" <?= !empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip'] ? 'checked' : '' ): '' ?>>
                         <label class="btn btn-outline-primary" for="nip1"><?= $data_jadwal[$index_jadwal]['pengampu_1'] ?></label>
                     </td>
                     <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
@@ -81,7 +81,7 @@ if (count($data_jadwal) > 0) {
                     <td><?= $data_jadwal[$index_jadwal]['nama_mk'] ?></td>
                     <td>
                         <?php if ($data_jadwal[$index_jadwal]['nip2'] != '-'){ ?>
-                            <input type="radio" class="btn-check" name="nip_masuk" id="nip2" autocomplete="off" value="<?=$data_jadwal[$index_jadwal]['nip2'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>"<?= !empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip2'] ? 'checked' : '' ): '' ?>>
+                            <input type="checkbox" class="btn-check" name="nip_masuk" id="nip2" autocomplete="off" value="<?=$data_jadwal[$index_jadwal]['nip2'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>"<?= !empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip2'] ? 'checked' : '' ): '' ?>>
                             <label class="btn btn-outline-primary" for="nip2"><?= $data_jadwal[$index_jadwal]['pengampu_2'] ?></label></td>
                         <?php } ?>
                     <td><?= $data_jadwal[$index_jadwal]['nip2'] == '-' ? '' : $data_jadwal[$index_jadwal]['nip2'] ?></td>
@@ -91,7 +91,7 @@ if (count($data_jadwal) > 0) {
                     <th>Kelas</th>
                     <td><?= $data_jadwal[$index_jadwal]['kode_kelas'] ?></td>
                     <td><?php if ($data_jadwal[$index_jadwal]['nip3'] != '-') { ?>
-                            <input type="radio" class="btn-check" name="nip_masuk" id="nip3" autocomplete="off" value="<?=$data_jadwal[$index_jadwal]['nip3'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>" <?=!empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip3'] ? 'checked' : '' ): '' ?>>
+                            <input type="checkbox" class="btn-check" name="nip_masuk" id="nip3" autocomplete="off" value="<?=$data_jadwal[$index_jadwal]['nip3'].'_@_'.$data_jadwal[$index_jadwal]['id'].'_@_'.$pilih_tanggal ?>" <?=!empty($data_isi_absen_dsn[$pilih_tanggal]) ? ($data_isi_absen_dsn[$pilih_tanggal] == $data_jadwal[$index_jadwal]['nip3'] ? 'checked' : '' ): '' ?>>
                             <label class="btn btn-outline-primary" for="nip3"><?= $data_jadwal[$index_jadwal]['pengampu_3'] ?></label>
                         <?php } ?>
                     </td>
@@ -159,10 +159,10 @@ if (count($data_jadwal) > 0) {
                         <td>
                             <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk1<?= $key ?>" autocomplete="off" value="<?= '1_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? ($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan'] == '1' ? 'checked' : '' ): '' ?>>
                             <label class="btn btn-sm btn-outline-primary mb-1" for="mhsk1<?= $key ?>">Hadir</label><br>
-                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk2<?= $key ?>" autocomplete="off" value="<?= 'i_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == 'i' ? 'checked' : '' ): '' ?>>
+                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk2<?= $key ?>" autocomplete="off" value="<?= '2_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == '2' ? 'checked' : '' ): '' ?>>
                             <label class="btn btn-sm btn-outline-warning mb-1" for="mhsk2<?= $key ?>">Izin</label><br>
-                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk3<?= $key ?>" autocomplete="off" value="<?= 's_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == 's' ? 'checked' : '' ): '' ?>>
-                            <label class="btn btn-sm btn-outline-warning" for="mhsk3<?= $key ?>">Sakit</label>
+                            <input type="checkbox" class="btn-check" name="mhs_masuk<?= $key ?>" id="mhsk3<?= $key ?>" autocomplete="off" value="<?= '0_@_'.$value['id'].'_@_'.$pilih_tanggal ?>" <?=isset($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) ? (strtolower($data_isi_absen_mhs[$key][$pilih_tanggal]['keterangan']) == '0' ? 'checked' : '' ): '' ?>>
+                            <label class="btn btn-sm btn-outline-danger" for="mhsk3<?= $key ?>">Alpa</label>
                         </td>
                         <td>
                             <button type="button" class="btn btn-sm btn-danger" name="<?= $value['nim'] ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Rekap Absensi Mahasiswa" param="id;_@_;<?= $value['id'] ?>;_@_;nim;_@_;<?= $value['nim'] ?>">Hapus</button>

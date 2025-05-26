@@ -9,16 +9,16 @@ view('components/header', $data_header);
             <span class="navbar-toggler-icon"></span>
         </button> -->
     <!-- <div class="container row"> -->
-    <div class="col-lg-11 d-grid gap-3">
+    <div class="col-lg-10 d-grid gap-3">
         <h4 class="text-center" id="title_header"><?= !empty($title_header) ? $title_header : '' ?></h4>
     </div>
-    <div class="col-lg-1 d-grid gap-3">
+    <div class="col-lg-2 d-grid gap-3">
         <ul class="navbar-nav">
             <li class="nav-item">
                 <div class="text-center">
                     <img src="<?= base_url('assets/image/user_default.png') ?>" alt="User" height="50px" width="50px">
                     <div>
-                        <?= !empty($this->session->userdata('username')) ? $this->session->userdata('username') : 'user' ?>
+                        <?= !empty($this->session->userdata('dosen')) ? $this->session->userdata('dosen') : (!empty($this->session->userdata('username')) ? $this->session->userdata('username') : 'user') ?>
                     </div>
                 </div>
             </li>
@@ -38,33 +38,45 @@ view('components/header', $data_header);
             <li class="nav-item">
                 <a class="nav-link mybtn-1" href="#dashboard" id="dashboard">Dashboard</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_dosen" id="data_dosen">Data Dosen</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_mahasiswa" id="data_mahasiswa">Data Mahasiswa</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#jadwal_kuliah" id="jadwal_kuliah">Jadwal Kuliah</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#rekap_absensi" id="rekap_absensi">Rekap Absensi</a>
-            </li>
+            <?php        
+    		if ($this->session->userdata('level') != 3) {
+            ?>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#data_dosen" id="data_dosen">Data Dosen</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#data_mahasiswa" id="data_mahasiswa">Data Mahasiswa</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#jadwal_kuliah" id="jadwal_kuliah">Jadwal Kuliah</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#rekap_absensi" id="rekap_absensi">Rekap Absensi</a>
+                </li>
+            <?php
+            }
+            ?>
             <li class="nav-item">
                 <a class="nav-link mybtn-1" href="#rekap_absensi_dosen" id="rekap_absensi_dosen">Rekap Absensi Dosen</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#rekap_absensi_mhs" id="rekap_absensi_mhs">Rekap Absensi Mahasiswa</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_semester" id="data_semester">Data Semester</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_mk" id="data_mk">Data MK</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link mybtn-1" href="#data_kelas" id="data_kelas">Data Kelas</a>
-            </li>
+            <?php
+		    if ($this->session->userdata('level') != 3) {
+            ?>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#rekap_absensi_mhs" id="rekap_absensi_mhs">Rekap Absensi Mahasiswa</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#data_semester" id="data_semester">Data Semester</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#data_mk" id="data_mk">Data MK</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link mybtn-1" href="#data_kelas" id="data_kelas">Data Kelas</a>
+                </li>
+            <?php
+            }
+            ?>
             <li class="nav-item">
                 <a class="nav-link mybtn-1" href="<?= base_url('logout') ?>">Logout</a>
             </li>

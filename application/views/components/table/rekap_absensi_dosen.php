@@ -12,138 +12,97 @@
         ?>
     </select>
 </div>
-<div class="col-lg-3 mb-3">
-    <label for="ganti_hari">Pilih Hari</label>
-    <select id="ganti_hari" menu="absen" prm_dsn="1" class="form-select">
-        <?php
-            foreach ($hr as $key => $value) {
-        ?>
-            <option value="<?= $value ?>" <?= $selected_hari == $value ? 'selected' : '' ?>><?= $value ?></option>
-        <?php
-            }
-        ?>
-    </select>
-</div>
-<?php
-if (count($data_jadwal) > 0) {
-?>
-    <div class="col-lg-12 mb-3">
-<?php
-        foreach ($data_jadwal as $key => $value) {
-?>
-            <input type="radio" name="pilih-mk-abs" prm_dsn="1" value="<?= "DJ_@_".$key ?>" class="btn-check btn-pilih-mk-abs" id="btn-check-outlined-<?=$key?>" autocomplete="off" <?= $selected_idx == "DJ_@_".$key ? 'checked' : '' ?>>
-            <label class="btn btn-outline-danger" for="btn-check-outlined-<?=$key?>">MK-<?= $value['id'] ?></label>
-<?php
-    }
-?>
-    </div>
-    <div class="col-lg-12 mb-3">
-        <div class="table-responsive">
-            <table class="table table-info table-striped">
-                <tr>
-                    <th>No. MK</th>
-                    <td>MK-<?=$data_jadwal[$index_jadwal]['id']?></td>
-                    <th>Dosen</th>
-                    <th>Kode</th>
-                    <th>Jml.</th>
-                </tr>
-                <tr>
-                    <th>Kode MK</th>
-                    <td><?= $data_jadwal[$index_jadwal]['kode_mk'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['pengampu_1'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['jml'] ?></td>
-                </tr>
-                <tr>
-                    <th>Nama MK</th>
-                    <td><?= $data_jadwal[$index_jadwal]['nama_mk'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip2'] == '-' ? '' : $data_jadwal[$index_jadwal]['pengampu_2'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip2'] == '-' ? '' : $data_jadwal[$index_jadwal]['nip2'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip2'] == '-' ? '' : $data_jadwal[$index_jadwal]['jml2'] ?></td>
-                </tr>
-                <tr>
-                    <th>Kelas</th>
-                    <td><?= $data_jadwal[$index_jadwal]['kode_kelas'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip3'] == '-' ? '' : $data_jadwal[$index_jadwal]['pengampu_3'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip3'] == '-' ? '' : $data_jadwal[$index_jadwal]['nip3'] ?></td>
-                    <td><?= $data_jadwal[$index_jadwal]['nip3'] == '-' ? '' : $data_jadwal[$index_jadwal]['jml3'] ?></td>
-                </tr>
-                <tr>
-                    <th>Ruang</th>
-                    <td><?= $data_jadwal[$index_jadwal]['ruang'] ?></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th>Hari/Jam</th>
-                    <td><?= $data_jadwal[$index_jadwal]['hari'].'/'.$data_jadwal[$index_jadwal]['jam_mulai'].'-'.$data_jadwal[$index_jadwal]['jam_selesai'] ?></td>
-                    <td colspan="2">Total Pertemuan</td>
-                    <td><?= $data_jadwal[$index_jadwal]['jml']+$data_jadwal[$index_jadwal]['jml2']+$data_jadwal[$index_jadwal]['jml3'] ?></td>
-                </tr>
-            </table>
-        </div>
-    </div>
-<?php
-}
-?>
 <div class="col-lg-12 mb-3">
     <div class="table-responsive">
         <table id="myTable" class="table table-info table-striped" rekap="1">
-            <?php
-            $data_tanggal_jadwal = count($data_tanggal_jadwal) > 0 ? $data_tanggal_jadwal : [date('Y-m-d')];
-            if (count($data_jadwal) > 0) {
-                if (count($data_mhs_ambil_jadwal) > 0) {
-            ?>
-                <thead style="z-index: ;">
-                    <tr>
-                        <th scope="col">Pertemuan Ke-</th>
-                        <th scope="col">Kode</th>
-                        <th scope="col">Dosen Masuk</th>
-                        <th scope="col">Tanggal</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <thead>
+                <tr>
+                    <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">No</th>
+                    <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">Kode</th>
+                    <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">Nama Dosen</th>
+                    <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">Total Masuk</th>
+                <?php
+                if (count($data_jadwal) > 0) {
+                ?>
+                    <th colspan="<?= count($data_jadwal) ?>" class="text-start">Rekapitulasi Kehadiran Dosen</th>
+                </tr>
+                <tr>
                     <?php
-                    foreach ($data_tanggal_jadwal as $key => $value) {
+                    foreach ($data_jadwal as $key => $value) {
                     ?>
-                    <tr>
-                        <?php
-                        $nip = isset($data_isi_absen_dsn[$value]) ? $data_isi_absen_dsn[$value] : '-';
-                        $dosen_masuk = '-';
-                        if ($nip == $data_jadwal[$index_jadwal]['nip']) {
-                            $dosen_masuk = $data_jadwal[$index_jadwal]['pengampu_1'];
-                        }
-                        else if ($nip == $data_jadwal[$index_jadwal]['nip2']) {
-                            $dosen_masuk = $data_jadwal[$index_jadwal]['pengampu_2'];
-                        }
-                        else if ($nip == $data_jadwal[$index_jadwal]['nip3']) {
-                            $dosen_masuk = $data_jadwal[$index_jadwal]['pengampu_3'];
-                        }
-                        ?>
-                        <th><?= $key+1 ?></th>
-                        <th><?= $nip ?></th>
-                        <th><?= $dosen_masuk ?></th>
-                        <th><?= $value ?></th>
-                    </tr>
+                        <th>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= "MK-".$value['id'] ?></button>
+                                <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item active" href="#rekap_absensi_dosen"><?= $value['nama_mk'] ?></a></li>
+                                        <li><a class="dropdown-item" href="#rekap_absensi_dosen"><?= "Kelas ".$value['kode_kelas'] ?></a></li>
+                                        <li><a class="dropdown-item" href="#rekap_absensi_dosen"><?= $value['hari']."/".$value['jam_mulai']."-".$value['jam_selesai'] ?></a></li>
+                                    </ul>
+                            </div>
+                        </th>
                     <?php
                     }
                     ?>
-                </tbody>
-            <?php
+                </tr>
+                <tr>
+                    <?php
+                    foreach ($data_jadwal as $key => $value) {
+                    ?>
+                        <th><?= $key+1 ?></th>
+                    <?php
+                    }
+                    ?>
+                </tr>
+                <?php
                 }else{
-            ?>
-                <thead></thead>
-                <tbody></tbody>
-            <?php
+                ?>
+                </tr>
+                <?php
                 }
-            }else{
-            ?>
-                <thead></thead>
-                <tbody></tbody>
-            <?php
-            }
-            ?>
+                ?>
+            </thead>
+            <tbody>
+                <?php
+                $no = 1; 
+                foreach ($dsn as $key => $value) {
+                    if ($value['nip'] == "-") {
+                        continue;
+                    }
+                    if ($this->session->userdata('level') == 3 && $value['nip'] != $this->session->userdata('username')) {
+                        continue;
+                    }
+                    $nama_dosen = $value['nama_dosen'];
+                    $nama_dosen .= !empty($value['nama_gelar_depan']) ? ($value['nama_gelar_depan'] != "-" ? ", ".$value['nama_gelar_depan'] : "") : "";
+                    $nama_dosen .= !empty($value['nama_gelar_belakang']) ? ($value['nama_gelar_belakang'] != "-" ? $value['nama_gelar_belakang'] : "") : "";
+                    $data_absen = [];
+                    $total_masuk = 0;
+                    foreach ($data_jadwal as $key2 => $value2) {
+                        $this->db->select("COUNT(*) AS count");
+                        $this->db->from("isi_absen_dosen");
+                        $this->db->where(array("nip" => $value['nip'], "id_jadwal" => $value2['id']));
+                        $kehadiran_dosen = $this->db->get()->row_array()['count'];
+                        $total_masuk += $kehadiran_dosen;
+                        if ($value2['nip'] != $value['nip'] && $value2['nip2'] != $value['nip'] && $value2['nip3'] != $value['nip']) {
+                            $kehadiran_dosen = "-";
+                        }
+                        $data_absen[] = $kehadiran_dosen;
+                    }
+                ?>
+                    <tr>
+                        <td><?= $no++ ?></td>
+                        <td><?= $value['nip'] ?></td>
+                        <td><?= $nama_dosen ?></td>
+                        <td><?= $total_masuk ?></td>
+                        <?php
+                        foreach ($data_absen as $key2 => $value2) {
+                        ?>
+                            <td><?= $value2 ?></td>
+                        <?php
+                        }
+                        ?>
+                    </tr>
+                <?php } ?>
+            </tbody>
         </table>
     </div>
 </div>

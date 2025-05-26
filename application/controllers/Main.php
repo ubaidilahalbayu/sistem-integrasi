@@ -39,14 +39,14 @@ class Main extends CI_Controller
 			$this->session->set_flashdata('alert', $dataAlert);
 			redirect('/login');
 		}
-		if ($this->session->userdata('level') != 1) {
-			$dataAlert = [
-				'status' => 'warning',
-				'message' => 'Akses Ditolak!'
-			];
-			$this->session->set_flashdata('alert', $dataAlert);
-			redirect('/login');
-		}
+		// if ($this->session->userdata('level') != 1) {
+		// 	$dataAlert = [
+		// 		'status' => 'warning',
+		// 		'message' => 'Akses Ditolak!'
+		// 	];
+		// 	$this->session->set_flashdata('alert', $dataAlert);
+		// 	redirect('/login');
+		// }
 		view('admin');
 	}
 	public function login()
@@ -55,7 +55,7 @@ class Main extends CI_Controller
 			$username = $this->input->post('username');
 			$password = $this->input->post('password');
 			$where = [
-				'user.username' => $username,
+				'username' => $username,
 			];
 			$get_user = $this->MainModel->get_table('user', $where)['data'];
 			$dataAlert = [
@@ -66,6 +66,11 @@ class Main extends CI_Controller
 				if (md5($password) == $get_user[0]['password']) {
 					$this->session->set_userdata('username', $get_user[0]['username']);
 					$this->session->set_userdata('level', $get_user[0]['level']);
+					if ($get_user[0]['level'] == 3) {
+						$where = ['nip' => $get_user[0]['username']];
+						$get_dosen = $this->MainModel->get_table('data_dosen', $where)['data'];
+						$this->session->set_userdata('dosen', $get_dosen[0]['nama_dosen']);
+					}
 					$dataAlert = [
 						'status' => 'success',
 						'message' => 'Berhasil Login ' . $get_user[0]['username']
@@ -93,6 +98,17 @@ class Main extends CI_Controller
 	{
 		$nama_content = !empty($this->input->post('nama_content')) ? $this->input->post('nama_content') : '';
 		$data = [];
+		if ($this->session->userdata('level') == 3) {
+			$nama_content_arr = ['dashboard', 'rekap_absensi_dosen'];
+			if (!in_array($nama_content, $nama_content_arr)) {
+				$dataAlert = [
+					'status' => 'warning',
+					'message' => 'Akses Ditolak!'
+				];
+				$this->session->set_flashdata('alert', $dataAlert);
+				$nama_content = 'dashboard';
+			}
+		}
 		if ($nama_content == 'dashboard') {
 			$data['title_header'] = 'Dashboard';
 		} else if ($nama_content == 'rekap_absensi') {
@@ -144,7 +160,7 @@ class Main extends CI_Controller
 			$index_jadwal = 0;
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
 			$hari_pilihan = $this->hari_indonesia[date('l')];//DEFAULT HARI INI
-			if (!empty($this->input->post('param_smt')) && !empty($this->input->post('param_hr')) && !empty($this->input->post('param_idx_jdw'))) {
+			if (!empty($this->input->post('param_smt'))) {
 				$semester_char = $this->input->post('param_smt');
 				$hari_pilihan = $this->input->post('param_hr');
 				$index_jadwal = $this->input->post('param_idx_jdw');
@@ -155,7 +171,7 @@ class Main extends CI_Controller
 					show_404();
 				}
 			}
-			$where['hari'] = $hari_pilihan;
+			// $where['hari'] = $hari_pilihan;
 			$where['semester_char'] = $semester_char;
 			if (!empty($this->input->post('param_id'))) {
 				$id =  $this->input->post('param_id');
@@ -543,6 +559,28 @@ class Main extends CI_Controller
 			redirect('/');
 		} else {
 			show_404();
+		}
+	}
+	public function update_user_dosen()
+	{
+		$where = ['level' => 3];
+		$delete_user = $this->MainModel->delete('user', $where);
+		if ($delete_user['status'] == 'success') {
+			$this->db->where('nip !=', '-');
+			$data_dosen = $this->db->get('data_dosen')->result_array();
+			foreach ($data_dosen as $key => $value) {
+				$nip = $value['nip'];
+				$insert = array(
+					'username' => $nip,
+					'password' => md5($nip),
+					'level' => 3,
+				);
+				$insert = $this->MainModel->create('user', $insert);
+				if ($insert['status'] != 'success') {
+					break;
+				}
+			}
+			echo $insert['message'];
 		}
 	}
 }
