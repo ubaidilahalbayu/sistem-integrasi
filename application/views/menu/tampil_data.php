@@ -475,7 +475,7 @@ if ($title_header == "Rekap Absensi") {
             if (!$(this).prop('checked')) {
                 let valValue = $(this).val();
                 valValue = valValue.split('_@_');
-                valValue[0] = '0';
+                valValue[0] = '-';
                 valValue = valValue.join('_@_');
                 dataSend.param_value = valValue;
             }
@@ -495,6 +495,26 @@ if ($title_header == "Rekap Absensi") {
             $("#title_head_delete").html(name_table);
             $("#param_delete").val(param);
             $("#modalConfirm").modal('show');
+        });
+
+        $(".ubah-tanggal").on("change", function () {
+            let tgl = $(this).val();
+            let tgl_before = $(this).attr("tgl");
+            let cek = $(this).attr("cek");
+            let value = tgl+"_@_"+tgl_before;
+            if (cek == "1") {
+                $(this).val(tgl_before);
+                alert("Silahkan Pilih Terlebih dahulu Dosen Masuk atau Kehadiran Mahasiswa dibawah!");
+            }else{
+                let dataSend = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: $("#ganti_hari").val(),
+                    param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
+                    param_value: value,
+                    param_tgl: 1
+                };
+                updateAbsensi(dataSend);
+            }
         });
     });
 </script>

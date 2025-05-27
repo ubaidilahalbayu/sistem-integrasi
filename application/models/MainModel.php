@@ -975,6 +975,59 @@ class MainModel extends CI_Model
         return $query->row();
     }
 
+    public function update_tgl_absen($data, $where)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        try{
+            $cek_tgl = array('tanggal' => $data['tanggal'], 'id_jadwal' => $where['id_jadwal']);
+            $cek_tgl = $this->db->get_where('isi_absen_dosen', $cek_tgl)->result_array();
+            if (count($cek_tgl) > 0) {
+                $this->db->trans_rollback();
+                $return['status'] = false;
+                $return['message'] = 'Gagal :: Tanggal Yang dipilih sudah ada, Silahkan Pilih Tanggal Yang Lain!';
+            }else{
+                $cek_tgl = $this->db->get_where('isi_absen_dosen', $where)->result_array();
+                if (count($cek_tgl) > 0) {
+                    $this->db->update('isi_absen_dosen', $data, $where);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = false;
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                    }else{
+                        $get_mhs_ambil_jadwal = array('id_jadwal'=>$where['id_jadwal']);
+                        $get_mhs_ambil_jadwal = $this->db->get_where('mhs_ambil_jadwal', $get_mhs_ambil_jadwal)->result_array();
+                        foreach ($get_mhs_ambil_jadwal as $key => $value) {
+                            $this->db->update('isi_absen_mhs', $data, array('id_mhs' => $value['id'], 'tanggal '=> $where['tanggal']));
+                            if ($this->db->trans_status() === FALSE) {
+                                break;
+                            }
+                        }
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = false;
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                        }else{
+                            $this->db->trans_commit();
+                            $return['status'] = true;
+                            $return['message'] = "Berhasil Update Tanggal Pertemuan";
+                        }
+                    }
+                }else{
+                    $this->db->trans_rollback();
+                    $return['status'] = false;
+                    $return['message'] = 'Gagal :: Pertemuan Belum Dibuat!';
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = false;
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
     public function update($table, $data, $where)
     {
         $this->db->trans_begin();

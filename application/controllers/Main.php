@@ -137,7 +137,7 @@ class Main extends CI_Controller
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
 			$data['title_header'] = 'Rekap Absensi';
-			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
@@ -181,7 +181,7 @@ class Main extends CI_Controller
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
 			$data['title_header'] = 'Rekap Absensi Dosen';
-			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
@@ -225,7 +225,7 @@ class Main extends CI_Controller
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
 			$data['title_header'] = 'Rekap Absensi Mahasiswa';
-			$data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
+			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
 			$data['mk'] = $this->MainModel->get_table('data_mk')['data'];
@@ -312,32 +312,60 @@ class Main extends CI_Controller
 				$index_jadwal = $this->input->post('param_idx_jdw');
 				$value = $this->input->post('param_value');
 				$value = explode('_@_', $value);
-				$data_menu = array(
-					'param_smt' => $semester_char,
-					'param_hr' => $hari_pilihan,
-					'param_idx_jdw' => $index_jadwal,
-					'param_tgl' => "#rekap_absensi_@_".$value[2]
-				);
-				$index_jadwal = explode('_@_', $index_jadwal);
-				$index_jadwal = $index_jadwal[1];
-				if (empty($this->input->post('param_mhs'))) {
-					$data = [];
-					$data['nip'] = $value[0];
-					$data['id_jadwal'] = $value[1];
-					$data['tanggal'] = $value[2];
-					$where = [];
-					$where['id_jadwal'] = $value[1];
-					$where['tanggal'] = $value[2];
-					$data_response = $this->MainModel->update_or_create_absen($data, $where);
+				if (empty($this->input->post('param_tgl'))) {
+					$data_menu = array(
+						'param_smt' => $semester_char,
+						'param_hr' => $hari_pilihan,
+						'param_idx_jdw' => $index_jadwal,
+						'param_tgl' => "#rekap_absensi_@_".$value[2]
+					);
+					$index_jadwal = explode('_@_', $index_jadwal);
+					$index_jadwal = $index_jadwal[1];
+					if (empty($this->input->post('param_mhs'))) {
+						$data = [];
+						$data['nip'] = $value[0];
+						$data['id_jadwal'] = $value[1];
+						$data['tanggal'] = $value[2];
+						$where = [];
+						$where['id_jadwal'] = $value[1];
+						$where['tanggal'] = $value[2];
+						$data_response = $this->MainModel->update_or_create_absen($data, $where);
+					}else{
+						$data = [];
+						$data['keterangan'] = $value[0];
+						$data['id_mhs'] = $value[1];
+						$data['tanggal'] = $value[2];
+						$where = [];
+						$where['id_mhs'] = $value[1];
+						$where['tanggal'] = $value[2];
+						$data_response = $this->MainModel->update_or_create_absen($data, $where, true);
+					}
 				}else{
-					$data = [];
-					$data['keterangan'] = $value[0];
-					$data['id_mhs'] = $value[1];
-					$data['tanggal'] = $value[2];
-					$where = [];
-					$where['id_mhs'] = $value[1];
-					$where['tanggal'] = $value[2];
-					$data_response = $this->MainModel->update_or_create_absen($data, $where, true);
+					$data_menu = array(
+						'param_smt' => $semester_char,
+						'param_hr' => $hari_pilihan,
+						'param_idx_jdw' => $index_jadwal,
+						'param_tgl' => "#rekap_absensi_@_".$value[0]
+					);
+					//GET ID JADWAL
+					$where['hari'] = $hari_pilihan;
+					$where['semester_char'] = $semester_char;
+					$index_jadwal = explode('_@_', $index_jadwal);
+					if ($index_jadwal[0] == "DJ") {
+						$index_jadwal = $index_jadwal[1];
+					}else{
+						show_404();
+					}
+					$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
+					$data_jadwal = $getData['data_jadwal_selected'];
+					$data_update = [];
+					$data_update['tanggal'] = $value[0];
+					$where_update['tanggal'] = $value[1];
+					$where_update['id_jadwal'] = $data_jadwal['id'];
+					$data_response = $this->MainModel->update_tgl_absen($data_update, $where_update);
+					if (!$data_response['status']) {
+						$data_menu['param_tgl'] = "#rekap_absensi_@_".$value[1];
+					}
 				}
 				$data_response['data'] = $data_menu;
 			} catch (Exception $e) {
