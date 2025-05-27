@@ -1,5 +1,6 @@
 <script src="<?= base_url('assets/bootstrap-5.3.3/js/bootstrap.js') ?>"></script>
 <script src='<?= base_url('assets/data-tables/datatables.js') ?>'></script>
+<script src='<?= base_url('assets/select2/js/select.min.js') ?>'></script>
 <script>
     function base_url(nextUrl = '') {
         let pathparts = location.pathname.split('/');

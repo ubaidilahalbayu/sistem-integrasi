@@ -428,16 +428,14 @@ if ($title_header == "Rekap Absensi") {
             }
         );
 
-        $('.select-tanggal').on('click', function () {
+        $("#pilih-tanggal-pertemuan").on("change", function () {
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
                 param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
-                param_tgl: $(this).attr('href'),
+                param_tgl: $(this).val(),
             };
-
-            appendContentMenu('rekap_absensi', data_tambahan);
-            
+            appendContentMenu('rekap_absensi', data_tambahan);  
         });
         
         //CHECK SUDAH DICEK ATAU BELUM DOSEN MASUKNYA

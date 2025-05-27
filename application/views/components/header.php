@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?= !empty($title) ? $title : 'Sistem Rekap Absensi' ?></title>
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap-5.3.3/css/bootstrap.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/select2/css/select.css'); ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/mycss.css'); ?>">
     <?php
         if (!empty($css)) {

@@ -121,7 +121,7 @@ if (count($data_jadwal) > 0) {
     <div class="table-responsive">
         <table id="myTable" class="table table-info table-striped" rekap="1">
             <?php
-            $pertemuan = in_array($pilih_tanggal, $data_tanggal_jadwal) ? count($data_tanggal_jadwal) : count($data_tanggal_jadwal)+1;
+            $pertemuan = in_array($pilih_tanggal, $data_tanggal_jadwal) ? (array_search($pilih_tanggal, $data_tanggal_jadwal) !== false ? array_search($pilih_tanggal, $data_tanggal_jadwal)+1 : count($data_tanggal_jadwal)+1) : count($data_tanggal_jadwal)+1;
             if (count($data_jadwal) > 0) {
                 if (count($data_mhs_ambil_jadwal) > 0) {
             ?>
@@ -140,9 +140,17 @@ if (count($data_jadwal) > 0) {
                     <tr>
                         <th >
                             <div class="dropdown">
-                                <button class="btn <?= $pilih_tanggal==$pilih_tanggal ? 'btn-secondary': 'btn-outline-secondary'?> dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $pilih_tanggal ?></button>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $pilih_tanggal ?></button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item <?= $pilih_tanggal==$pilih_tanggal ? 'active' : '' ?> select-tanggal" href="#rekap_absensi_@_<?= $pilih_tanggal ?>">Select</a></li>
+                                    <li>
+                                        <select id="pilih-tanggal-pertemuan" class="dropdown-item form-control" style="width: 100%; height: 100%;">
+                                            <option value="" <?= in_array($pilih_tanggal, $data_tanggal_jadwal) ? '' : 'class="bg-primary" selected' ?>>Select Pertemuan</option>
+                                            <?php foreach ($data_tanggal_jadwal as $key => $value) { ?>
+                                            <option <?= $pilih_tanggal==$value ? 'selected class="bg-primary"' : '' ?> value="<?= "#rekap_absensi_@_".$value ?>">Pertemuan Ke-<?= $key+1 ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $pilih_tanggal ?>"  name="<?= $pilih_tanggal ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Tanggal" param="tanggal;_@_;<?= $pilih_tanggal ?>;_@_;id_jadwal;_@_;<?= $data_jadwal[$index_jadwal]['id'] ?>">Delete</a></li>
                                 </ul>
                             </div>
@@ -165,7 +173,7 @@ if (count($data_jadwal) > 0) {
                             <label class="btn btn-sm btn-outline-danger" for="mhsk3<?= $key ?>">Alpa</label>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-danger" name="<?= $value['nim'] ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Rekap Absensi Mahasiswa" param="id;_@_;<?= $value['id'] ?>;_@_;nim;_@_;<?= $value['nim'] ?>">Hapus</button>
+                            <button type="button" class="btn btn-sm btn-danger btn-hapus" name="<?= $value['nim'] ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Rekap Absensi Mahasiswa" param="id;_@_;<?= $value['id'] ?>;_@_;nim;_@_;<?= $value['nim'] ?>">Hapus</button>
                         </td>
                     </tr>
                     <?php

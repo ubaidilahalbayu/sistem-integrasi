@@ -8,7 +8,7 @@ if (empty($export)) {
     </div>
     <div class="col-lg-12 mb-3">
         <label for="nim">Pilih Mahasiswa</label>
-        <select class="form-select" id="nim" name="nim">
+        <select class="form-select js-select-jq" id="nim" name="nim">
             <?php
             foreach ($mhs as $key => $value) {
             ?>
