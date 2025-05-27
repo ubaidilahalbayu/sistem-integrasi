@@ -24,32 +24,14 @@ if (empty($export)) {
 ?>
 <div class="col-lg-6 mb-3">
     <label for="filter_semester">Filter Semester</label>
-    <select class="form-select" id="filter_semester" name="<?= !empty($export) ? 'data_mk_@_' : '' ?>semester">
-            <option value="all">Semua</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-    </select>
-</div>
-<div class="col-lg-6 mb-3">
-    <label for="filter_tahun_1">Filter Tahun Akademik 1</label>
-    <select class="form-select" id="filter_tahun_1" name="<?= !empty($export) ? 'data_semester_@_' : '' ?>tahun_1">
-            <option value="all">Semua</option>
-            <?php
-            for ($year = 2020; $year <= date('Y'); $year++) {
-                echo '<option value="'.$year.'">' . $year . '</option>';
+    <select class="form-select" id="filter_semester" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>semester_char">
+        <?php
+            foreach ($smt as $key => $value) {
+        ?>
+            <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
+        <?php
             }
-            ?>
-    </select>
-</div>
-<div class="col-lg-6 mb-3">
-    <label for="filter_tahun_2">Filter Tahun Akademik 2</label>
-    <select class="form-select" id="filter_tahun_2" name="<?= !empty($export) ? 'data_semester_@_' : '' ?>tahun_2">
-            <option value="all">Semua</option>
-            <?php
-            for ($year = 2020; $year <= date('Y'); $year++) {
-                echo '<option value="'.$year.'">' . $year . '</option>';
-            }
-            ?>
+        ?>
     </select>
 </div>
 <?php

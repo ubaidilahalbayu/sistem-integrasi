@@ -449,10 +449,9 @@ class Excel extends PHPExcel
 
 	public function exportAbsensi($data)
 	{
-		$data_mk = $data['data_mk'];
 		$data_dosen = $data['data_dosen'];
 		$data_jadwal = $data['data_jadwal'];
-		$data_absen = $data['data_absen'];
+		$data_mhs_ambil_jadwal = $data['data_mhs_ambil_jadwal'];
 		$kode_mk = $data['kode_mk'];
 		$kode_mk_jadwal = $data['kode_mk_jadwal'];
 		$data_isi_absen_mhs = $data['data_isi_absen_mhs'];

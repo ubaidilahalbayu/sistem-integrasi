@@ -525,7 +525,7 @@ class Main extends CI_Controller
 				}
 				if ($menu == 'rekap_absensi') {
 					$data = $this->MainModel->get_table_rekap_absensi($where);
-					// echo json_encode($data);die;
+					echo json_encode($data);die;
 					$title = ucwords(str_replace('_', ' ', $menu));
 					if (count($data['data_jadwal']) > 0) {
 						if (count($data['data_absen'][0]) > 0) {
