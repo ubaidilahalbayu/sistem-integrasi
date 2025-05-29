@@ -18,6 +18,12 @@ class Main extends CI_Controller
 			$this->tahun_1 = date('Y', strtotime('-1 year'));
 			$this->tahun_2 = date('Y');
 		}
+		$smt_data_now = array(
+			'tahun_1' => $this->tahun_1,
+			'tahun_2' => $this->tahun_2,
+			'semester' => $this->semester_now,
+		);
+		$this->MainModel->auto_create_smt($smt_data_now);
 		$this->hari_indonesia = array(
 			'Sunday'    => 'Minggu',
 			'Monday'    => 'Senin',

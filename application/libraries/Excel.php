@@ -13,6 +13,7 @@ class Excel extends PHPExcel
 	public function getExtractAbsenV2($path)
 	{
 		$object = PHPExcel_IOFactory::load($path);
+		$data_semester = [];
 		$data_dosen = [];
 		$data_mk = [];
 		$data_kelas = [];
@@ -44,6 +45,13 @@ class Excel extends PHPExcel
 				}
 				$th = explode(' ', $title[1]);
 				$semester_char = str_replace('/', '', $th[2]).(string)$semester;
+				//DATA SEMESTER
+				$smt = explode('/', $th[2]);
+				$data_semester = array(
+					'tahun_1' => $smt[0],
+					'tahun_2' => $smt[1],
+					'semester' => $semester,
+				);
 				//DATA MK
 				for ($i=3; $i < $highestRow; $i++) { 
 					$data_mk[] = array(
@@ -176,9 +184,11 @@ class Excel extends PHPExcel
 					//DATA ISI ABSEN MAHASISWA
 					$push_absen = [];
 					foreach (range("D", chr(ord($highestColumn) - 2)) as $value) {
+						$keterangan = $worksheet->getCell($value.$i)->getValue();
+						$keterangan = strtolower($keterangan) == "i" || strtolower($keterangan) == "s" ? 2 : $keterangan;
 						$tanggal = $worksheet->getCell($value."11")->getCalculatedValue();
 						$tanggal = PHPExcel_Shared_Date::ExcelToPHP($tanggal);
-						$push_absen[] = array('tanggal' => date('Y-m-d', $tanggal), 'keterangan' => $worksheet->getCell($value.$i)->getValue());
+						$push_absen[] = array('tanggal' => date('Y-m-d', $tanggal), 'keterangan' => $keterangan);
 					}
 					$isi_absen_mhs[] = $push_absen;
 				}
@@ -187,6 +197,7 @@ class Excel extends PHPExcel
 			}
 		}
 		return array(
+			'data_semester' => $data_semester,
 			'data_dosen' => $data_dosen,
 			'data_kelas' => $data_kelas,
 			'data_mk' => $data_mk,

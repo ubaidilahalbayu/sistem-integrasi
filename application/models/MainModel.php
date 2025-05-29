@@ -68,10 +68,19 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function auto_create_smt($data)
+    {
+        $check = $this->get_table('data_semester', false, true, $data);
+        if (count($check) < 1) {
+            $this->db->insert('data_semester', $data);
+        }
+    }
+
     public function create_absen_by_file_v2($data)
     {
         $this->db->trans_begin();
         $return = [];
+        $data_semester = $data['data_semester'];
         $data_jadwal = $data['data_jadwal'];
         $data_dosen = $data['data_dosen'];
         $data_mk = $data['data_mk'];
@@ -84,22 +93,37 @@ class MainModel extends CI_Model
         try{
             $lanjut = true;
             
-            //SIMPAN DATA DOSEN
-            foreach ($data_dosen as $key => $value) {
-                $where = [];
-                $where['nip'] = $value['nip'];
-                $check = $this->get_table('data_dosen', false, true, $where);
-                if (count($check) > 0) {
-                    continue;
-                } else {
-                    $this->db->insert('data_dosen', $value);
-                    if ($this->db->trans_status() === FALSE) {
-                        $this->db->trans_rollback();
-                        $error = $this->db->error();
-                        $return['status'] = 'danger';
-                        $return['message'] = 'Gagal :: ' . $error['message'];
-                        $lanjut = false;
-                        break;
+            //SIMPAN DATA SEMESTER
+            $check = $this->get_table('data_semester', false, true, $data_semester);
+            if (count($check) < 1) {
+                $this->db->insert('data_semester', $data_semester);
+                if ($this->db->trans_status() === FALSE) {
+                    $this->db->trans_rollback();
+                    $error = $this->db->error();
+                    $return['status'] = 'danger';
+                    $return['message'] = 'Gagal :: ' . $error['message'];
+                    $lanjut = false;
+                }
+            }
+
+            if ($lanjut) {
+                //SIMPAN DATA DOSEN
+                foreach ($data_dosen as $key => $value) {
+                    $where = [];
+                    $where['nip'] = $value['nip'];
+                    $check = $this->get_table('data_dosen', false, true, $where);
+                    if (count($check) > 0) {
+                        continue;
+                    } else {
+                        $this->db->insert('data_dosen', $value);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = 'danger';
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                            $lanjut = false;
+                            break;
+                        }
                     }
                 }
             }

@@ -115,7 +115,7 @@ if (count($data_jadwal) > 0) {
                         <?php
                             foreach ($data_tanggal_jadwal as $key2 => $value2) {
                         ?>
-                                <td class="<?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "1" ? "bg-success" : ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "2" ? "bg-warning" : "bg-danger")) : 'bg-danger' ?>"><?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? $data_isi_absen_mhs[$key][$value2]['keterangan'] : '0' ?></td>
+                                <td class="<?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "1" ? "bg-success" : ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "2" ? "bg-warning" : "bg-danger")) : '' ?>"><?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? $data_isi_absen_mhs[$key][$value2]['keterangan'] : '-' ?></td>
                         <?php
                             }
                         ?>
