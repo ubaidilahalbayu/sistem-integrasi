@@ -106,15 +106,40 @@ class MainModel extends CI_Model
                 }
             }
 
+            $nip_dosen_berubah = [];
+            $nip_dosen_fix = [];
             if ($lanjut) {
                 //SIMPAN DATA DOSEN
                 foreach ($data_dosen as $key => $value) {
                     $where = [];
-                    $where['nip'] = $value['nip'];
+                    $where['nama_dosen'] = $value['nama_dosen'];
                     $check = $this->get_table('data_dosen', false, true, $where);
                     if (count($check) > 0) {
+                        if ($check[0]['nip'] != $value['nip'] && !in_array($value['nip'], $nip_dosen_berubah)) {
+                            $nip_dosen_berubah[] = $value['nip'];
+                            $nip_dosen_fix[] = $check[0]['nip'];
+                        }
                         continue;
                     } else {
+                        $where = [];
+                        $where['nip'] = $value['nip'];
+                        $check = $this->get_table('data_dosen', false, true, $where);
+                        if (count($check) > 0) {
+                            //BUAT NIP RANDOM SEMENTARA
+                            do {
+                                $nip = 'D';
+                                for ($i = 0; $i < 3; $i++) {
+                                    $nip .= random_int(0, 9);
+                                }
+                                $where = ['nip' => $nip];
+                                $check = $this->get_table('data_dosen', false, true, $where);
+                            } while (count($check) > 0);
+                            if (!in_array($value['nip'], $nip_dosen_berubah)) {
+                                $nip_dosen_berubah[] = $value['nip'];
+                                $nip_dosen_fix[] = $nip;
+                            }
+                            $value['nip'] = $nip;
+                        }
                         $this->db->insert('data_dosen', $value);
                         if ($this->db->trans_status() === FALSE) {
                             $this->db->trans_rollback();
@@ -184,6 +209,18 @@ class MainModel extends CI_Model
                     if (count($check) > 0) {
                         continue;
                     } else {
+                        if (in_array($value['nip'], $nip_dosen_berubah)) {
+                            $index = array_search($value['nip'], $nip_dosen_berubah);
+                            $value['nip'] = $nip_dosen_fix[$index];
+                        }
+                        if (in_array($value['nip2'], $nip_dosen_berubah)) {
+                            $index = array_search($value['nip2'], $nip_dosen_berubah);
+                            $value['nip2'] = $nip_dosen_fix[$index];
+                        }
+                        if (in_array($value['nip3'], $nip_dosen_berubah)) {
+                            $index = array_search($value['nip3'], $nip_dosen_berubah);
+                            $value['nip3'] = $nip_dosen_fix[$index];
+                        }
                         $this->db->insert('jadwal_kuliah', $value);
                         $id = $this->db->insert_id();
                         $id_jadwal[$key] = $id;
@@ -274,6 +311,10 @@ class MainModel extends CI_Model
                         if (count($check) > 0) {
                             continue;
                         } else {
+                            if (in_array($value2['nip'], $nip_dosen_berubah)) {
+                                $index = array_search($value2['nip'], $nip_dosen_berubah);
+                                $value2['nip'] = $nip_dosen_fix[$index];
+                            }
                             $insert = array(
                                 'nip' => $value2['nip'],
                                 'id_jadwal' => $id_jadwal[$key],
@@ -300,6 +341,7 @@ class MainModel extends CI_Model
             //     echo "\n";
             //     echo json_encode(count($data_isi_absen_mhs[$i]))."<==>";
             // }
+            //                         $this->db->trans_rollback();
             // die;
             if ($lanjut) {
                 //SIMPAN DATA ISI ABSEN MAHASISWA

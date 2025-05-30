@@ -397,12 +397,8 @@ class Main extends CI_Controller
 					$object = PHPExcel_IOFactory::load($path);
 					if ($menu == "rekap_absensi") {
 						$pilihan_rekap = $this->input->post('pilihan_rekap');
-						$data_extract = $this->excel->getExtractAbsenV2($path);
-						// for ($i=0; $i < count($data_extract['data_mhs_ambil_jadwal']); $i++) {
-						// 	echo json_encode(count($data_extract['data_mhs_ambil_jadwal'][$i]))."<=>";
-						// 	echo json_encode(count($data_extract['data_isi_absen_mhs'][$i]))."<=>";
-						// 	echo "\n";
-						// }
+						$data_extract = $this->excel->getExtractAbsenV3($path);
+						// echo json_encode($data_extract);
 						// die;
 						$dataAlert = $this->MainModel->create_absen_by_file_v2($data_extract);
 					} elseif ($menu == "jadwal_kuliah") {

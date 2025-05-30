@@ -71,6 +71,44 @@ if (count($data_jadwal) > 0) {
 }
 ?>
 <div class="col-lg-12 mb-3">
+    <hr>
+</div>
+<div class="col-lg-6 mb-3">
+    <b>Keterangan*</b>
+    <div class="row justyfy-content-end">
+        <div class="col-lg-1">
+            0 :
+        </div>
+        <div class="col-lg-3 bg-danger">
+            Tidak Hadir
+        </div>
+    </div>
+    <div class="row justyfy-content-start">
+        <div class="col-lg-1">
+            1 :
+        </div>
+        <div class="col-lg-3 bg-success">
+            Hadir
+        </div>
+    </div>
+    <div class="row justyfy-content-start">
+        <div class="col-lg-1">
+            2 :
+        </div>
+        <div class="col-lg-3 bg-warning">
+            Izin / Sakit
+        </div>
+    </div>
+    <div class="row justyfy-content-start">
+        <div class="col-lg-1">
+            - :
+        </div>
+        <div class="col-lg-3">
+            Belum Diisi
+        </div>
+    </div>
+</div>
+<div class="col-lg-12 mb-3">
     <div class="table-responsive">
         <table id="myTable" class="table table-info table-striped" rekap="1">
             <?php
@@ -115,7 +153,7 @@ if (count($data_jadwal) > 0) {
                         <?php
                             foreach ($data_tanggal_jadwal as $key2 => $value2) {
                         ?>
-                                <td class="<?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "1" ? "bg-success" : ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "2" ? "bg-warning" : "bg-danger")) : '' ?>"><?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? $data_isi_absen_mhs[$key][$value2]['keterangan'] : '-' ?></td>
+                                <td class="<?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "1" ? "bg-success" : ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "2" ? "bg-warning" : ($data_isi_absen_mhs[$key][$value2]['keterangan'] == "0" ? "bg-danger" : ""))) : '' ?>"><?= isset($data_isi_absen_mhs[$key][$value2]['keterangan']) ? $data_isi_absen_mhs[$key][$value2]['keterangan'] : '-' ?></td>
                         <?php
                             }
                         ?>

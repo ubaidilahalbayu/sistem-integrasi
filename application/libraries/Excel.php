@@ -10,6 +10,231 @@ class Excel extends PHPExcel
 		parent::__construct();
 	}
 
+	public function getExtractAbsenV3($path)
+	{
+		$object = PHPExcel_IOFactory::load($path);
+		$data_semester = [];
+		$data_dosen = [];
+		$data_mk = [];
+		$data_kelas = [];
+		$data_jadwal = [];
+		$data_mahasiswa['nim'] = [];
+		$data_mahasiswa['nama_mahasiswa'] = [];
+		$data_mahasiswa['angkatan'] = [];
+		$data_mhs_ambil_jadwal = [];
+		$data_isi_absen_mhs = [];
+		$data_isi_absen_dsn = [];
+		//BUAT DOSEN KOSONG
+		$data_dosen[] = array(
+			'nip' => '-',
+			'nama_gelar_depan' => '-',
+			'nama_dosen' => '-',
+			'nama_gelar_belakang' => '-',
+		);
+		$semester_char = '';
+		foreach ($object->getWorksheetIterator() as $worksheet) {
+			$highestRow = $worksheet->getHighestRow();
+			$highestColumn = $worksheet->getHighestColumn();
+			if ($worksheet->getTitle() == "Kode MK") {
+				//MENGETAHUI SMESTER DARI TITLE
+				$title = $worksheet->getCellByColumnAndRow(0, 1)->getValue();
+				$title = explode(' - ', $title);
+				$semester = 1;
+				if (stripos($title[1], "Genap") !== false) {
+					$semester = 2;
+				}
+				$th = explode(' ', $title[1]);
+				$semester_char = str_replace('/', '', $th[2]).(string)$semester;
+				//DATA SEMESTER
+				$smt = explode('/', $th[2]);
+				$data_semester = array(
+					'tahun_1' => $smt[0],
+					'tahun_2' => $smt[1],
+					'semester' => $semester,
+				);
+				//DATA MK
+				for ($i=3; $i < $highestRow; $i++) {
+					$kode_mk = $worksheet->getCellByColumnAndRow(2, $i)->getValue();
+					$nama_mk = $worksheet->getCellByColumnAndRow(3, $i)->getValue();
+					if (empty($kode_mk) || empty($nama_mk)) {
+						continue;
+					}
+					$data_mk[] = array(
+						'kode_mk' => $kode_mk,
+						'nama_mk' => $nama_mk,
+						'sks' => 2,//DEFAULT SKS 2 Karena rata-rata sks 2
+						'semester' => $semester
+					);
+				}
+			}elseif($worksheet->getTitle() == "Rekap Dosen") {
+				//DATA DOSEN
+				for ($i=5; $i < $highestRow; $i++) { 
+					$nama_gelar_depan = '';
+					$nama_gelar_belakang = '';
+					$nip = $worksheet->getCellByColumnAndRow(1, $i)->getValue();
+					$dosen = $worksheet->getCellByColumnAndRow(2, $i)->getValue();
+					if (empty($nip) || empty($dosen)) {
+						continue;
+					}
+					$dosen = explode(', ', $dosen);
+					$nama_dosen = $dosen[0];
+
+					//PENGESTRAKAN GELAR DOSEN
+					for ($j=1; $j < count($dosen); $j++) { 
+						$cek = explode('. ', $dosen[$j]);
+						if (count($cek) > 1) {
+							for ($k=0; $k < count($cek); $k++) { 
+								if (stripos($cek[$k], 'Dr') !== false || stripos($cek[$k], 'Prof') !== false || stripos($cek[$k], 'Ir') !== false) {
+									$nama_gelar_depan .= $cek[$k].". ";
+								}else{
+									if ($nama_gelar_belakang == '') {
+										$nama_gelar_belakang .= ", ".$cek[$k].". ";
+									}else {
+										if ($k < count($cek)-1) {
+											$nama_gelar_belakang .= $cek[$k].". ";
+										}else{
+											$nama_gelar_belakang .= $cek[$k].".";
+										}
+									}
+								}
+							}
+						}else{
+							if ($nama_gelar_belakang == '') {
+								$nama_gelar_belakang .= ", ".$dosen[$j];
+							}else{
+								$nama_gelar_belakang .= $dosen[$j];
+							}
+
+						}
+						if ($j < count($dosen)-1) {
+							$nama_gelar_belakang .= ", ";
+						}
+					}
+					//DATA DOSEN
+					$data_dosen[] = array(
+						'nip' => $nip,
+						'nama_gelar_depan' => $nama_gelar_depan,
+						'nama_dosen' => $nama_dosen,
+						'nama_gelar_belakang' => $nama_gelar_belakang,
+					);
+				}
+			}else{
+				$kode_mk = $worksheet->getCellByColumnAndRow(1, 3)->getCalculatedValue();
+				$kode_kelas = $worksheet->getCellByColumnAndRow(1, 5)->getCalculatedValue();
+				$nip = !empty($worksheet->getCellByColumnAndRow(3, 3)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 3)->getValue() : '-';
+				$nip2 = !empty($worksheet->getCellByColumnAndRow(3, 4)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 4)->getValue() : '-';
+				$nip3 = !empty($worksheet->getCellByColumnAndRow(3, 5)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 5)->getValue() : '-';
+				$jadwal = $worksheet->getCellByColumnAndRow(1, 6)->getCalculatedValue();
+				$ruang = !empty($worksheet->getCellByColumnAndRow(1, 7)->getCalculatedValue()) ? $worksheet->getCellByColumnAndRow(1, 6)->getCalculatedValue() : '-';
+				if (empty($kode_mk) || empty($kode_kelas) || empty($jadwal)) {
+					continue;
+				}
+
+				//DATA KELAS
+				$data_kelas[] = array(
+					'kode_kelas' => $kode_kelas,
+					'nama_kelas' => $kode_kelas
+				);
+
+
+				$jdw = explode('/', str_replace(' ', '', $jadwal));
+				if (count($jdw) < 2) {
+					$jdw = explode(',', str_replace(' ', '', $jadwal));
+					if (count($jdw) < 2) {
+						$jdw = explode('.', str_replace(' ', '', $jadwal));
+					}
+				}
+				$hari = $jdw[0];
+				$jam = explode('-', $jdw[1]);
+				$jam_mulai = $jam[0];
+				$jam_selesai = str_replace("WIB", "", $jam[1]);
+				//DATA JADWAL KULIAH
+				$data_jadwal[] = array(
+					'kode_mk' => $kode_mk,
+					'kode_kelas' => $kode_kelas,
+					'nip' => $nip,
+					'nip2' => $nip2,
+					'nip3' => $nip3,
+					'hari' => ucfirst($hari),
+					'jam_mulai' => $jam_mulai,
+					'jam_selesai' => $jam_selesai,
+					'ruang' => $ruang,
+					'semester_char' => $semester_char,
+				);
+
+				//DATA ISI ABSEN DOSEN
+				$isi_absen_dsn = [];
+				foreach (range("D", chr(ord($highestColumn) - 2)) as $value) {
+					$tanggal = $worksheet->getCell($value."11")->getCalculatedValue();
+					if (empty($tanggal)) {
+						continue;
+					}
+					$nip = $worksheet->getCell($value."12")->getValue();
+					if (empty($nip) || $nip == ''  || $nip == ' ') {
+						$nip = '-';
+					}elseif (stripos($nip, "=") !== false) {
+						$nip = $worksheet->getCell($value."12")->getCalculatedValue();
+						if (empty($nip) || $nip == '' || $nip == ' ') {
+							$nip = '-';
+						}
+					}
+					$tanggal = PHPExcel_Shared_Date::ExcelToPHP($tanggal);
+					$isi_absen_dsn[] = array(
+						'nip' => $nip,
+						'tanggal' => date('Y-m-d', $tanggal),
+					);
+				};
+				$data_isi_absen_dsn[] = $isi_absen_dsn;
+
+				$mhs_ambil_jadwal = [];
+				$isi_absen_mhs = [];
+				for ($i=13; $i < $highestRow; $i++) { 
+					//DATA MAHASISWA
+					$nim = $worksheet->getCellByColumnAndRow(1, $i)->getValue();
+					$nama_mahasiswa = $worksheet->getCellByColumnAndRow(2, $i)->getValue();
+					if (empty($nim) || empty($nama_mahasiswa)) {
+						continue;
+					}
+					$angkatan = "20".$nim[7].$nim[8];
+					if (!in_array($nim, $data_mahasiswa['nim'])) {
+						$data_mahasiswa['nim'][] = $nim;
+						$data_mahasiswa['nama_mahasiswa'][] = $nama_mahasiswa;
+						$data_mahasiswa['angkatan'][] = $angkatan;
+					}
+
+					//DATA MAHASISWA AMBIL JADWAL
+					$mhs_ambil_jadwal[] = $nim;
+
+					//DATA ISI ABSEN MAHASISWA
+					$push_absen = [];
+					foreach (range("D", chr(ord($highestColumn) - 2)) as $value) {
+						$tanggal = $worksheet->getCell($value."11")->getCalculatedValue();
+						$tanggal = PHPExcel_Shared_Date::ExcelToPHP($tanggal);
+						if (empty($tanggal)) {
+							continue;
+						}
+						$keterangan = $worksheet->getCell($value.$i)->getValue();
+						$keterangan = empty($keterangan) ? "-" : (strtolower($keterangan) == "i" || strtolower($keterangan) == "s" ? 2 : $keterangan);
+						$push_absen[] = array('tanggal' => date('Y-m-d', $tanggal), 'keterangan' => $keterangan);
+					}
+					$isi_absen_mhs[] = $push_absen;
+				}
+				$data_mhs_ambil_jadwal[] = $mhs_ambil_jadwal;
+				$data_isi_absen_mhs[] = $isi_absen_mhs;
+			}
+		}
+		return array(
+			'data_semester' => $data_semester,
+			'data_dosen' => $data_dosen,
+			'data_kelas' => $data_kelas,
+			'data_mk' => $data_mk,
+			'data_jadwal' => $data_jadwal,
+			'data_mahasiswa' => $data_mahasiswa,
+			'data_mhs_ambil_jadwal' => $data_mhs_ambil_jadwal,
+			'data_isi_absen_dsn' => $data_isi_absen_dsn,
+			'data_isi_absen_mhs' => $data_isi_absen_mhs,
+		);
+	}
 	public function getExtractAbsenV2($path)
 	{
 		$object = PHPExcel_IOFactory::load($path);
