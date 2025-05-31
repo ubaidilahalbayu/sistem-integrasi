@@ -963,7 +963,7 @@ class MainModel extends CI_Model
                     //GET DATA ISI ABSEN DOSEN
                     $this->db->select('nip, tanggal');
                     $this->db->from('isi_absen_dosen');
-                    $this->db->where(array('id_jadwal' => $data_jadwal[$index_jadwal]['id']));
+                    $this->db->where(array('id_jadwal' => $value['id']));
                     $this->db->order_by('tanggal', 'ASC');
                     $isi_absen_dsn = $this->db->get()->result_array();
                     $isi_absen_dsn_fix = [];
@@ -977,6 +977,7 @@ class MainModel extends CI_Model
                     $data_isi_absen_dsn[] = $isi_absen_dsn_fix;
                 }
             }
+            $this->db->where('nip!=', '-');
             $data_dosen = $this->db->get("data_dosen")->result_array();
             $data_dosen_fix = [];
             $data_masuk_dosen = [];
@@ -988,12 +989,9 @@ class MainModel extends CI_Model
                     $total_masuk_jdw = 0;
                     if ($value['nip'] == $value2['nip'] || $value['nip'] == $value2['nip2'] || $value['nip'] == $value2['nip3']) {
                         $ada = true;
-                        foreach ($data_isi_absen_dsn[$key2] as $key3 => $value3) {
-                            if ($value3 == $value['nip']) {
-                                $total_masuk += 1;
-                                $total_masuk_jdw += 1;
-                            }
-                        }
+                        $total_masuk_jdw = $this->db->get_where('isi_absen_dosen', array('id_jadwal'=>$value2['id'], 'nip'=>$value['nip']))->result_array();
+                        $total_masuk_jdw = count($total_masuk_jdw);
+                        $total_masuk += $total_masuk_jdw;
                     }else{
                         $total_masuk_jdw = "-";
                     }
@@ -1073,7 +1071,7 @@ class MainModel extends CI_Model
             }
         }
         if ($table == 'jadwal_kuliah') {
-            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( CONCAT(data_dosen.nama_gelar_depan , ', '), data_dosen.nama_dosen, CONCAT(', ', data_dosen.nama_gelar_belakang))) AS pengampu_1, (CONCAT( CONCAT(data_dosen2.nama_gelar_depan , ', '), data_dosen2.nama_dosen, CONCAT(', ', data_dosen2.nama_gelar_belakang))) AS pengampu_2,  (CONCAT( CONCAT(data_dosen3.nama_gelar_depan , ', '), data_dosen3.nama_dosen, CONCAT(', ', data_dosen3.nama_gelar_belakang))) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3, jadwal_kuliah.ruang, jadwal_kuliah.semester_char, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip) AS jml, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip2 AND nip != '-') AS jml2, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip3 AND nip != '-') AS jml3");
+            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, data_mk.semester, data_mk.sks, jadwal_kuliah.kode_kelas, data_kelas.nama_kelas, (CONCAT( data_dosen.nama_dosen, data_dosen.nama_gelar_depan, data_dosen.nama_gelar_belakang )) AS pengampu_1, (CONCAT( data_dosen2.nama_dosen, data_dosen2.nama_gelar_depan, data_dosen2.nama_gelar_belakang )) AS pengampu_2, (CONCAT( data_dosen3.nama_dosen, data_dosen3.nama_gelar_depan, data_dosen3.nama_gelar_belakang )) AS pengampu_3,  jadwal_kuliah.hari, jadwal_kuliah.jam_mulai, jadwal_kuliah.jam_selesai, jadwal_kuliah.nip, jadwal_kuliah.nip2, jadwal_kuliah.nip3, TIMEDIFF(jadwal_kuliah.jam_selesai, jadwal_kuliah.jam_mulai) AS diff, (SELECT COUNT(*) FROM jadwal_kuliah jk WHERE jk.hari = jadwal_kuliah.hari AND jk.jam_mulai = jadwal_kuliah.jam_mulai AND jk.jam_selesai = jadwal_kuliah.jam_selesai GROUP BY jk.hari, jk.jam_mulai, jk.jam_selesai) AS bentrok, data_dosen.nama_dosen, data_dosen2.nama_dosen AS nama_dosen2, data_dosen3.nama_dosen AS nama_dosen3, jadwal_kuliah.ruang, jadwal_kuliah.semester_char, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip) AS jml, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip2 AND nip != '-') AS jml2, (SELECT COUNT(*) FROM isi_absen_dosen WHERE id_jadwal = jadwal_kuliah.id AND nip = jadwal_kuliah.nip3 AND nip != '-') AS jml3");
             $this->db->from($table);
             $this->db->join('data_mk', 'jadwal_kuliah.kode_mk = data_mk.kode_mk');
             $this->db->join('data_dosen', 'jadwal_kuliah.nip = data_dosen.nip');

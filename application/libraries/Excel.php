@@ -125,7 +125,7 @@ class Excel extends PHPExcel
 				$nip2 = !empty($worksheet->getCellByColumnAndRow(3, 4)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 4)->getValue() : '-';
 				$nip3 = !empty($worksheet->getCellByColumnAndRow(3, 5)->getValue()) ? $worksheet->getCellByColumnAndRow(3, 5)->getValue() : '-';
 				$jadwal = $worksheet->getCellByColumnAndRow(1, 6)->getCalculatedValue();
-				$ruang = !empty($worksheet->getCellByColumnAndRow(1, 7)->getCalculatedValue()) ? $worksheet->getCellByColumnAndRow(1, 6)->getCalculatedValue() : '-';
+				$ruang = !empty($worksheet->getCellByColumnAndRow(1, 7)->getCalculatedValue()) ? $worksheet->getCellByColumnAndRow(1, 7)->getCalculatedValue() : '-';
 				if (empty($kode_mk) || empty($kode_kelas) || empty($jadwal)) {
 					continue;
 				}
@@ -155,7 +155,7 @@ class Excel extends PHPExcel
 					'nip' => $nip,
 					'nip2' => $nip2,
 					'nip3' => $nip3,
-					'hari' => ucfirst($hari),
+					'hari' => ucfirst(strtolower($hari)),
 					'jam_mulai' => $jam_mulai,
 					'jam_selesai' => $jam_selesai,
 					'ruang' => $ruang,
@@ -685,11 +685,13 @@ class Excel extends PHPExcel
 
 	public function exportAbsensi($data)
 	{
-		$data_dosen = $data['data_dosen'];
 		$data_jadwal = $data['data_jadwal'];
+		$sampel_jadwal = $data['data_jadwal_selected'];
+		$data_dosen = $data['data_dosen'];
+		$data_rekap_dosen = $data['data_rekap_dosen'];
+		$data_tanggal_jadwal = $data['data_tanggal_jadwal'];
+		$data_isi_absen_dsn = $data['data_isi_absen_dsn'];
 		$data_mhs_ambil_jadwal = $data['data_mhs_ambil_jadwal'];
-		$kode_mk = $data['kode_mk'];
-		$kode_mk_jadwal = $data['kode_mk_jadwal'];
 		$data_isi_absen_mhs = $data['data_isi_absen_mhs'];
 		$this->getProperties()->setCreator('My Name')->setLastModifiedBy('My Name')->setTitle('ABSEN')->setSubject('ABSEN')->setDescription('ABSEN')->setKeywords('ABSEN');
 		$style_head = array(
@@ -759,8 +761,12 @@ class Excel extends PHPExcel
 		$active_sheet = $this->getActiveSheet();
 		$active_sheet->setTitle('Kode MK');
 		//TITLE
-		$active_sheet->setCellValue("A1", "PRODI MANAJEMEN INFORMATIKA (D3) - Semester Ganjil 2024/2025");
-		$active_sheet->mergeCells("A1:F1");
+		$semester_char = $sampel_jadwal['semester_char'];
+		$tahun_1 = $semester_char[0].$semester_char[1].$semester_char[2].$semester_char[3];
+		$tahun_2 = $semester_char[4].$semester_char[5].$semester_char[6].$semester_char[7];
+		$semester = $semester_char[8] == "1" ? "Ganjil" : "Genap";
+		$active_sheet->setCellValue("A1", "PRODI MANAJEMEN INFORMATIKA (D3) - Semester ".$semester." ".$tahun_1."/".$tahun_2);
+		$active_sheet->mergeCells("A1:J1");
 		$active_sheet->getStyle("A1")->getFont()->setBold(true);
 		$active_sheet->getStyle("A1")->getFont()->setSize(12);
 		$active_sheet->getStyle("A1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -775,24 +781,46 @@ class Excel extends PHPExcel
 		$active_sheet->getStyle("C2")->applyFromArray($style_head);
 		$active_sheet->setCellValue("D2", "Nama Mata Kuliah");
 		$active_sheet->getStyle("D2")->applyFromArray($style_head);
-		$active_sheet->setCellValue("E2", "Jumlah Ruang");
+		$active_sheet->setCellValue("E2", "Kelas");
 		$active_sheet->getStyle("E2")->applyFromArray($style_head);
-		$active_sheet->setCellValue("F2", "Keterangan");
+		$active_sheet->setCellValue("F2", "Jadwal");
 		$active_sheet->getStyle("F2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("G2", "Ruang");
+		$active_sheet->getStyle("G2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("H2", "Dosen Pengampu 1");
+		$active_sheet->getStyle("H2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("I2", "Dosen Pengampu 2");
+		$active_sheet->getStyle("I2")->applyFromArray($style_head);
+		$active_sheet->setCellValue("J2", "Dosen Pengampu 3");
+		$active_sheet->getStyle("J2")->applyFromArray($style_head);
 		//BODY TABLE
-		foreach ($data_mk as $key => $value) {
+		foreach ($data_jadwal as $key => $value) {
+			$kode = $key+1;
+			if ($kode < 10) {
+				$kode = "MK-0".(String)($key+1);
+			}else{
+				$kode = "MK-".(String)($key+1);
+			}
 			$active_sheet->setCellValue("A".(String)($key+3), $key+1);
 			$active_sheet->getStyle("A".(String)($key+3))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("B".(String)($key+3), $kode_mk[$key]);
+			$active_sheet->setCellValue("B".(String)($key+3), $kode);
 			$active_sheet->getStyle("B".(String)($key+3))->applyFromArray($style_href);
 			$active_sheet->setCellValue("C".(String)($key+3), $value['kode_mk']);
 			$active_sheet->getStyle("C".(String)($key+3))->applyFromArray($style_body2);
 			$active_sheet->setCellValue("D".(String)($key+3), $value['nama_mk']);
 			$active_sheet->getStyle("D".(String)($key+3))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("E".(String)($key+3), '');
+			$active_sheet->setCellValue("E".(String)($key+3), $value['kode_kelas']);
 			$active_sheet->getStyle("E".(String)($key+3))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("F".(String)($key+3), '');
+			$active_sheet->setCellValue("F".(String)($key+3), $value['hari'].", ".$value['jam_mulai']."-".$value['jam_selesai']);
 			$active_sheet->getStyle("F".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("G".(String)($key+3), $value['ruang']);
+			$active_sheet->getStyle("G".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("H".(String)($key+3), $value['pengampu_1']);
+			$active_sheet->getStyle("H".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("I".(String)($key+3), $value['pengampu_2']);
+			$active_sheet->getStyle("I".(String)($key+3))->applyFromArray($style_body2);
+			$active_sheet->setCellValue("J".(String)($key+3), $value['pengampu_3']);
+			$active_sheet->getStyle("J".(String)($key+3))->applyFromArray($style_body2);
 		}
 		$highest_column = $active_sheet->getHighestColumn();
 		$highest_row = $active_sheet->getHighestRow();
@@ -830,17 +858,37 @@ class Excel extends PHPExcel
 		$active_sheet->setCellValue("D2", "Total Masuk");
 		$active_sheet->mergeCells("D2:D4");
 		$active_sheet->getStyleByColumnAndRow(3, 2, 3, 4)->applyFromArray($style_head);
+
+		$active_sheet->setCellValue("E2", "Rekapitulasi Kehadiran Dosen Per-Kelas");
+		$active_sheet->mergeCellsByColumnAndRow(4, 2, count($data_jadwal)+3, 2);
+		$active_sheet->getStyleByColumnAndRow(4, 2, count($data_jadwal), 2)->applyFromArray($style_head);
 		// $active_sheet->getStyle("D2")->applyFromArray($style_head);
+		foreach ($data_jadwal as $key => $value) {
+			$kode = $key+1;
+			if ($kode < 10) {
+				$kode = "MK-0".(String)($key+1);
+			}else{
+				$kode = "MK-".(String)($key+1);
+			}
+			$active_sheet->setCellValueByColumnAndRow($key+4, 3, $kode);
+			$active_sheet->getStyleByColumnAndRow($key+4, 3, $key+4, 3)->applyFromArray($style_href);
+			$active_sheet->setCellValueByColumnAndRow($key+4, 4, $key+1);
+			$active_sheet->getStyleByColumnAndRow($key+4, 4, $key+4, 4)->applyFromArray($style_head);
+		}
 		//BODY TABLE
 		foreach ($data_dosen as $key => $value) {
 			$active_sheet->setCellValue("A".(String)($key+5), $key+1);
 			$active_sheet->getStyle("A".(String)($key+5))->applyFromArray($style_body2);
 			$active_sheet->setCellValue("B".(String)($key+5), $value['nip']);
 			$active_sheet->getStyle("B".(String)($key+5))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("C".(String)($key+5), $value['dosen']);
+			$active_sheet->setCellValue("C".(String)($key+5), $value['nama_dosen'].", ".$value['nama_gelar_depan'].$value['nama_gelar_belakang']);
 			$active_sheet->getStyle("C".(String)($key+5))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("D".(String)($key+5), $value['jumlah_hadir']);
+			$active_sheet->setCellValue("D".(String)($key+5), $value['total_masuk']);
 			$active_sheet->getStyle("D".(String)($key+5))->applyFromArray($style_body);
+			foreach ($data_jadwal as $key2 => $value2) {
+				$active_sheet->setCellValueByColumnAndRow($key2+4, $key+5, $data_rekap_dosen[$key][$key2]);
+				$active_sheet->getStyleByColumnAndRow($key2+4, $key+5, $key2+4, $key+5)->applyFromArray($style_body2);
+			}
 		}
 		$highest_column = $active_sheet->getHighestColumn();
 		$highest_row = $active_sheet->getHighestRow();
@@ -851,9 +899,175 @@ class Excel extends PHPExcel
 			$active_sheet->getRowDimension($i)->setZeroHeight(true);
 		}
 
+		//SHEET REKAP ABSENSI PER JADWAL
+		foreach ($data_jadwal as $key => $value) {
+			$kode = $key+1;
+			if ($kode < 10) {
+				$kode = "MK-0".(String)($key+1);
+			}else{
+				$kode = "MK-".(String)($key+1);
+			}
+			$active_sheet = $this->createSheet();
+			$active_sheet->setTitle($kode);
+
+			//BTN BACK
+			$active_sheet->setCellValue("A1", "BACK");
+			$active_sheet->getStyle("A1")->getFont()->setBold(true);
+			$active_sheet->getStyle("A1")->getFont()->setUnderline(true);
+			$active_sheet->getStyle("A1")->getFont()->setSize(10);
+			$active_sheet->getStyle("A1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			$active_sheet->getStyle("A1")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+			$active_sheet->getStyle("A1")->applyFromArray(array('fill' => array("type" => PHPExcel_Style_Fill::FILL_SOLID, "color" => array("rgb" => "FF0000"))));
+
+			//DETAIL JADWAL
+			$active_sheet->setCellValue("A2", "No. MK");
+			$active_sheet->getStyle("A2")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B2", $kode);
+			$active_sheet->getStyle("B2")->applyFromArray($style_body);
+			$active_sheet->setCellValue("A3", "Kode MK");
+			$active_sheet->getStyle("A3")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B3", $value['kode_mk']);
+			$active_sheet->getStyle("B3")->applyFromArray($style_body);
+			$active_sheet->setCellValue("A4", "Nama MK");
+			$active_sheet->getStyle("A4")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B4", $value['nama_mk']);
+			$active_sheet->getStyle("B4")->applyFromArray($style_body);
+			$active_sheet->setCellValue("A5", "Kelas");
+			$active_sheet->getStyle("A5")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B5", $value['kode_kelas']);
+			$active_sheet->getStyle("B5")->applyFromArray($style_body);
+			$active_sheet->setCellValue("A6", "Hari/Jam");
+			$active_sheet->getStyle("A6")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B6", $value['hari'].", ".$value['jam_mulai']."-".$value['jam_selesai']);
+			$active_sheet->getStyle("B6")->applyFromArray($style_body);
+			$active_sheet->setCellValue("A7", "Ruang");
+			$active_sheet->getStyle("A7")->applyFromArray($style_head);
+			$active_sheet->setCellValue("B7", $value['ruang']);
+			$active_sheet->getStyle("B7")->applyFromArray($style_body);
+			//Pengampu
+			$active_sheet->setCellValue("C2", "Dosen Pengampu");
+			$active_sheet->getStyle("C2")->applyFromArray($style_head);
+			$active_sheet->setCellValue("C3", $value['pengampu_1']);
+			$active_sheet->getStyle("C3")->applyFromArray($style_body);
+			$active_sheet->setCellValue("D2", "Kode");
+			$active_sheet->getStyle("D2")->applyFromArray($style_head);
+			$active_sheet->setCellValue("D3", $value['nip']);
+			$active_sheet->getStyle("D3")->applyFromArray($style_body);
+			$active_sheet->setCellValue("E2", "Jml.");
+			$active_sheet->getStyle("E2")->applyFromArray($style_head);
+			//mencari dosen masuk perjdwal
+			$index1 = 0;
+			$index2 = 0;
+			$index3 = 0;
+			$stop = 0;
+			for ($i=0; $i < count($data_dosen); $i++) { 
+				if ($data_dosen[$i]['nip'] == $value['nip']) {
+					$index1 = $i;
+					$stop++;
+				}
+				if ($data_dosen[$i]['nip'] == $value['nip2']) {
+					$index2 = $i;
+					$stop++;
+				}
+				if ($data_dosen[$i]['nip'] == $value['nip3']) {
+					$index3 = $i;
+					$stop++;
+				}
+				if ($stop == 1 && $value['nip2'] == "-" && $value['nip3'] == "-") {
+					break;
+				}elseif ($stop == 2 && $value['nip3'] == "-") {
+					break;
+				}elseif($stop == 3) {
+					break;
+				}
+			}
+			$total_masuk = $data_rekap_dosen[$index1][$key];
+			$active_sheet->setCellValue("E3", $data_rekap_dosen[$index1][$key]);
+			$active_sheet->getStyle("E3")->applyFromArray($style_body);
+			if ($value['nip2'] != "-") {
+				$active_sheet->setCellValue("C4", $value['pengampu_2']);
+				$active_sheet->getStyle("C4")->applyFromArray($style_body);
+				$active_sheet->setCellValue("D4", $value['nip2']);
+				$active_sheet->getStyle("D4")->applyFromArray($style_body);
+				$total_masuk += $data_rekap_dosen[$index2][$key];
+				$active_sheet->setCellValue("E4", $data_rekap_dosen[$index2][$key]);
+				$active_sheet->getStyle("E4")->applyFromArray($style_body);
+			}
+			if ($value['nip3'] != "-") {
+				$active_sheet->setCellValue("C5", $value['pengampu_3']);
+				$active_sheet->getStyle("C5")->applyFromArray($style_body);
+				$active_sheet->setCellValue("D5", $value['nip3']);
+				$active_sheet->getStyle("D5")->applyFromArray($style_body);
+				$total_masuk += $data_rekap_dosen[$index3][$key];
+				$active_sheet->setCellValue("E5", $data_rekap_dosen[$index3][$key]);
+				$active_sheet->getStyle("E5")->applyFromArray($style_body);
+			}
+			$active_sheet->setCellValue("C6", '');
+			$active_sheet->getStyle("C6")->applyFromArray($style_body);
+			$active_sheet->setCellValue("D6", '');
+			$active_sheet->getStyle("D6")->applyFromArray($style_body);
+			$active_sheet->setCellValue("E6", '');
+			$active_sheet->getStyle("E6")->applyFromArray($style_body);
+			
+			$active_sheet->setCellValue("C7", 'Total Pertemuan');
+			$active_sheet->getStyle("C7")->applyFromArray($style_head);
+			$active_sheet->setCellValue("D7", '');
+			$active_sheet->getStyle("D7")->applyFromArray($style_body);
+			$active_sheet->setCellValue("E7", $total_masuk);
+			$active_sheet->getStyle("E7")->applyFromArray($style_head);
+
+			//ABSEN MAHASISWA
+			//HEAD
+			$active_sheet->setCellValue("A9", "No");
+			$active_sheet->mergeCells("A9:A12");
+			$active_sheet->getStyleByColumnAndRow(0, 9, 0, 12)->applyFromArray($style_head);
+			$active_sheet->setCellValue("B9", "NIM");
+			$active_sheet->mergeCells("B9:B12");
+			$active_sheet->getStyleByColumnAndRow(1, 9, 1, 12)->applyFromArray($style_head);
+			$active_sheet->setCellValue("C9", "Nama Mahasiswa");
+			$active_sheet->mergeCells("C9:C12");
+			$active_sheet->getStyleByColumnAndRow(2, 9, 2, 12)->applyFromArray($style_head);
+			$active_sheet->setCellValue("D9", "Pertemuan Ke-");
+			$active_sheet->mergeCellsByColumnAndRow(3, 9, count($data_tanggal_jadwal[$key])+2, 9);
+			$active_sheet->getStyleByColumnAndRow(3, 9, count($data_tanggal_jadwal[$key])+2, 9)->applyFromArray($style_head);
+			foreach ($data_tanggal_jadwal[$key] as $key2 => $value2) {
+				$active_sheet->setCellValueByColumnAndRow($key2+3, 10, $key2+1);
+				$active_sheet->getStyleByColumnAndRow($key2+3, 10, $key2+3, 10)->applyFromArray($style_head);
+				$active_sheet->setCellValueByColumnAndRow($key2+3, 11, $value2);
+				$active_sheet->getStyleByColumnAndRow($key2+3, 11, $key2+3, 11)->applyFromArray($style_head);
+				$nip_masuk = isset($data_isi_absen_dsn[$key][$value2]) ? $data_isi_absen_dsn[$key][$value2] : '';
+				$active_sheet->setCellValueByColumnAndRow($key2+3, 12, $nip_masuk);
+				$active_sheet->getStyleByColumnAndRow($key2+3, 12, $key2+3, 12)->applyFromArray($style_head);
+			}
+
+			//BODY
+			foreach ($data_mhs_ambil_jadwal[$key] as $key2 => $value2) {
+				$active_sheet->setCellValueByColumnAndRow(0, $key2+13, $key2+1);
+				$active_sheet->getStyleByColumnAndRow(0, $key2+13, 0, $key2+13)->applyFromArray($style_body);
+				$active_sheet->setCellValueByColumnAndRow(1, $key2+13, $value2['nim']);
+				$active_sheet->getStyleByColumnAndRow(1, $key2+13, 1, $key2+13)->applyFromArray($style_body);
+				$active_sheet->setCellValueByColumnAndRow(2, $key2+13, $value2['nama_mahasiswa']);
+				$active_sheet->getStyleByColumnAndRow(2, $key2+13, 2, $key2+13)->applyFromArray($style_body);
+				foreach ($data_tanggal_jadwal[$key] as $key3 => $value3) {
+					$keterangan = isset($data_isi_absen_mhs[$key][$key2][$value3]['keterangan']) ? $data_isi_absen_mhs[$key][$key2][$value3]['keterangan'] : "-";
+					$active_sheet->setCellValueByColumnAndRow($key3+3, $key2+13, $keterangan);
+					$active_sheet->getStyleByColumnAndRow($key3+3, $key2+13, $key3+3, $key2+13)->applyFromArray($style_body2);
+				}
+			}
+
+			$highest_column = $active_sheet->getHighestColumn();
+			$highest_row = $active_sheet->getHighestRow();
+			foreach (range("A", $highest_column) as $key2 => $value2) {
+				$active_sheet->getColumnDimensionByColumn($key2)->setAutoSize(true);
+			}
+			for ($i=1; $i <=$highest_row ; $i++) {
+				$active_sheet->getRowDimension($i)->setZeroHeight(true);
+			}
+		}
+
 		// Proses file 
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		header('Content-Disposition: attachment; filename="absen_mahasiswa.xlsx"'); // Set nama file
+		header('Content-Disposition: attachment; filename="Rekap_Absen_Semeseter_'.$semester.'_'.$tahun_1.'/'.$tahun_2.'.xlsx"'); // Set nama file
 		header('Cache-Control: max-age=0');
 		$write = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
 		$write->save('php://output');

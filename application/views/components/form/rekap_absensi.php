@@ -24,13 +24,39 @@ if (empty($export)) {
 ?>
 <div class="col-lg-6 mb-3">
     <label for="filter_semester">Filter Semester</label>
-    <select class="form-select" id="filter_semester" name="<?= !empty($export) ? 'jadwal_kuliah_@_' : '' ?>semester_char">
+    <select class="form-select" id="filter_semester" name="jadwal_kuliah_@_semester_char">
         <?php
             foreach ($smt as $key => $value) {
         ?>
             <option value="<?= $value['tahun_1'].$value['tahun_2'].$value['semester'] ?>" <?= $selected_smt == $value['tahun_1'].$value['tahun_2'].$value['semester'] ? 'selected' : '' ?>>Semester <?= $value['semester'] == 1 ? 'Ganjil' : 'Genap' ?> <?= $value['tahun_1']."/".$value['tahun_2'] ?></option>
         <?php
             }
+        ?>
+    </select>
+</div>
+<div class="col-lg-6 mb-3">
+    <label for="filter_hari">Filter Hari</label>
+    <select id="filter_hari" class="form-select" name="jadwal_kuliah_@_hari">
+        <option value="all" selected>Semua</option>
+        <?php
+            foreach ($hr as $key => $value) {
+        ?>
+            <option value="<?= $value ?>"><?= $value ?></option>
+        <?php
+            }
+        ?>
+    </select>
+</div>
+<div class="col-lg-6 mb-3">
+    <label for="kode_mk">Filter Mata Kuliah</label>
+    <select class="form-select" id="kode_mk" name="jadwal_kuliah_@_kode_mk">
+        <option value="all" selected>Semua</option>
+        <?php
+        foreach ($mk as $key => $value) {
+        ?>
+            <option value="<?= $value['kode_mk'] ?>"><?= $value['nama_mk'] ?> Semester <?= $value['semester'] ?> <?= $value['sks'] ?> SKS</option>
+        <?php
+        }
         ?>
     </select>
 </div>
