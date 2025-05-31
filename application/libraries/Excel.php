@@ -803,7 +803,7 @@ class Excel extends PHPExcel
 			}
 			$active_sheet->setCellValue("A".(String)($key+3), $key+1);
 			$active_sheet->getStyle("A".(String)($key+3))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("B".(String)($key+3), $kode);
+			$active_sheet->setCellValue("B".(String)($key+3), '=HYPERLINK("#\''.$kode.'\'!A1", "'.$kode.'")');
 			$active_sheet->getStyle("B".(String)($key+3))->applyFromArray($style_href);
 			$active_sheet->setCellValue("C".(String)($key+3), $value['kode_mk']);
 			$active_sheet->getStyle("C".(String)($key+3))->applyFromArray($style_body2);
@@ -870,11 +870,14 @@ class Excel extends PHPExcel
 			}else{
 				$kode = "MK-".(String)($key+1);
 			}
-			$active_sheet->setCellValueByColumnAndRow($key+4, 3, $kode);
+			$active_sheet->setCellValueByColumnAndRow($key+4, 3, '=HYPERLINK("#\''.$kode.'\'!A1", "'.$kode.'")');
 			$active_sheet->getStyleByColumnAndRow($key+4, 3, $key+4, 3)->applyFromArray($style_href);
 			$active_sheet->setCellValueByColumnAndRow($key+4, 4, $key+1);
 			$active_sheet->getStyleByColumnAndRow($key+4, 4, $key+4, 4)->applyFromArray($style_head);
 		}
+		//TOTAL PERTEMUAN
+		$total_pertemuan = 0;
+		$total_pertemuan_per_jdw = [];
 		//BODY TABLE
 		foreach ($data_dosen as $key => $value) {
 			$active_sheet->setCellValue("A".(String)($key+5), $key+1);
@@ -884,12 +887,37 @@ class Excel extends PHPExcel
 			$active_sheet->setCellValue("C".(String)($key+5), $value['nama_dosen'].", ".$value['nama_gelar_depan'].$value['nama_gelar_belakang']);
 			$active_sheet->getStyle("C".(String)($key+5))->applyFromArray($style_body2);
 			$active_sheet->setCellValue("D".(String)($key+5), $value['total_masuk']);
+			$total_pertemuan += $value['total_masuk'];
 			$active_sheet->getStyle("D".(String)($key+5))->applyFromArray($style_body);
 			foreach ($data_jadwal as $key2 => $value2) {
+				if (isset($total_pertemuan_per_jdw[$key2])) {
+					$total_pertemuan_per_jdw[$key2] += $data_rekap_dosen[$key][$key2]=="-" ? 0 : $data_rekap_dosen[$key][$key2];
+				}else{
+					$total_pertemuan_per_jdw[$key2] = $data_rekap_dosen[$key][$key2]=="-" ? 0 : $data_rekap_dosen[$key][$key2];
+				}
 				$active_sheet->setCellValueByColumnAndRow($key2+4, $key+5, $data_rekap_dosen[$key][$key2]);
 				$active_sheet->getStyleByColumnAndRow($key2+4, $key+5, $key2+4, $key+5)->applyFromArray($style_body2);
 			}
 		}
+		//TOTAL PERTEMUAN
+		$row_pertemuan = $key+6;
+		$active_sheet->setCellValueByColumnAndRow(0, $row_pertemuan, "Total Pertemuan");
+		$active_sheet->mergeCellsByColumnAndRow(0, $row_pertemuan, 2, $row_pertemuan);
+		$active_sheet->getStyleByColumnAndRow(0, $row_pertemuan, 2, $row_pertemuan)->applyFromArray($style_head);
+		$active_sheet->setCellValueByColumnAndRow(0, $row_pertemuan+1, "Rata-rata Pertemuan");
+		$active_sheet->mergeCellsByColumnAndRow(0, $row_pertemuan+1, 2, $row_pertemuan+1);
+		$active_sheet->getStyleByColumnAndRow(0, $row_pertemuan+1, 2, $row_pertemuan+1)->applyFromArray($style_head);
+		$active_sheet->setCellValueByColumnAndRow(3, $row_pertemuan, array_sum($total_pertemuan_per_jdw));
+		$active_sheet->getStyleByColumnAndRow(3, $row_pertemuan, 3, $row_pertemuan)->applyFromArray($style_head);
+		$active_sheet->setCellValueByColumnAndRow(3, $row_pertemuan+1, array_sum($total_pertemuan_per_jdw) / count($total_pertemuan_per_jdw));
+		$active_sheet->getStyleByColumnAndRow(3, $row_pertemuan+1, 3, $row_pertemuan+1)->applyFromArray($style_head);
+		foreach ($total_pertemuan_per_jdw as $key => $value) {
+			$active_sheet->setCellValueByColumnAndRow($key+4, $row_pertemuan, $value);
+			$active_sheet->getStyleByColumnAndRow($key+4, $row_pertemuan, $key+4, $row_pertemuan)->applyFromArray($style_head);
+			$active_sheet->setCellValueByColumnAndRow($key+4, $row_pertemuan+1, (String)($value/16*100)."%");
+			$active_sheet->getStyleByColumnAndRow($key+4, $row_pertemuan+1, $key+4, $row_pertemuan+1)->applyFromArray($style_head);
+		}
+
 		$highest_column = $active_sheet->getHighestColumn();
 		$highest_row = $active_sheet->getHighestRow();
 		foreach (range("A", $highest_column) as $key => $value) {
@@ -911,7 +939,7 @@ class Excel extends PHPExcel
 			$active_sheet->setTitle($kode);
 
 			//BTN BACK
-			$active_sheet->setCellValue("A1", "BACK");
+			$active_sheet->setCellValue("A1", '=HYPERLINK("#\'Kode MK\'!A1", "BACK")');
 			$active_sheet->getStyle("A1")->getFont()->setBold(true);
 			$active_sheet->getStyle("A1")->getFont()->setUnderline(true);
 			$active_sheet->getStyle("A1")->getFont()->setSize(10);
@@ -1030,6 +1058,12 @@ class Excel extends PHPExcel
 			$active_sheet->setCellValue("D9", "Pertemuan Ke-");
 			$active_sheet->mergeCellsByColumnAndRow(3, 9, count($data_tanggal_jadwal[$key])+2, 9);
 			$active_sheet->getStyleByColumnAndRow(3, 9, count($data_tanggal_jadwal[$key])+2, 9)->applyFromArray($style_head);
+			$active_sheet->setCellValueByColumnAndRow(count($data_tanggal_jadwal[$key])+3, 9, "Total Kehadiran");
+			$active_sheet->mergeCellsByColumnAndRow(count($data_tanggal_jadwal[$key])+3, 9, count($data_tanggal_jadwal[$key])+3, 12);
+			$active_sheet->getStyleByColumnAndRow(count($data_tanggal_jadwal[$key])+3, 9, count($data_tanggal_jadwal[$key])+3, 12)->applyFromArray($style_head);
+			$active_sheet->setCellValueByColumnAndRow(count($data_tanggal_jadwal[$key])+4, 9, "Persentase Kehadiran");
+			$active_sheet->mergeCellsByColumnAndRow(count($data_tanggal_jadwal[$key])+4, 9, count($data_tanggal_jadwal[$key])+4, 12);
+			$active_sheet->getStyleByColumnAndRow(count($data_tanggal_jadwal[$key])+4, 9, count($data_tanggal_jadwal[$key])+4, 12)->applyFromArray($style_head);
 			foreach ($data_tanggal_jadwal[$key] as $key2 => $value2) {
 				$active_sheet->setCellValueByColumnAndRow($key2+3, 10, $key2+1);
 				$active_sheet->getStyleByColumnAndRow($key2+3, 10, $key2+3, 10)->applyFromArray($style_head);
@@ -1048,11 +1082,19 @@ class Excel extends PHPExcel
 				$active_sheet->getStyleByColumnAndRow(1, $key2+13, 1, $key2+13)->applyFromArray($style_body);
 				$active_sheet->setCellValueByColumnAndRow(2, $key2+13, $value2['nama_mahasiswa']);
 				$active_sheet->getStyleByColumnAndRow(2, $key2+13, 2, $key2+13)->applyFromArray($style_body);
+				$total_kehadiran = 0;
 				foreach ($data_tanggal_jadwal[$key] as $key3 => $value3) {
 					$keterangan = isset($data_isi_absen_mhs[$key][$key2][$value3]['keterangan']) ? $data_isi_absen_mhs[$key][$key2][$value3]['keterangan'] : "-";
+					if ($keterangan != "-" && $keterangan != "2" && $keterangan != 2) {
+						$total_kehadiran += (int)$keterangan;
+					}
 					$active_sheet->setCellValueByColumnAndRow($key3+3, $key2+13, $keterangan);
 					$active_sheet->getStyleByColumnAndRow($key3+3, $key2+13, $key3+3, $key2+13)->applyFromArray($style_body2);
 				}
+				$active_sheet->setCellValueByColumnAndRow($key3+4, $key2+13, $total_kehadiran);
+				$active_sheet->getStyleByColumnAndRow($key3+4, $key2+13, $key3+4, $key2+13)->applyFromArray($style_body);
+				$active_sheet->setCellValueByColumnAndRow($key3+5, $key2+13, (String)($total_kehadiran/16*100)."%");
+				$active_sheet->getStyleByColumnAndRow($key3+5, $key2+13, $key3+5, $key2+13)->applyFromArray($style_body);
 			}
 
 			$highest_column = $active_sheet->getHighestColumn();
