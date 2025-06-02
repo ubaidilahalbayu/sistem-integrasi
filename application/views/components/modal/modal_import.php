@@ -59,7 +59,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="import_submit">Submit</button>
+                <button type="submit" class="btn btn-primary" id="import_submit" form="import_form">Submit</button>
             </div>
         </div>
     </div>

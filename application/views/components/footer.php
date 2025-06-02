@@ -99,6 +99,23 @@
             }
         }, false);
     }
+    $(document).ready(function () {
+        $("#form-login").on("click", ".btn-light", function () {
+            let link_img = $("#icon-pass").attr("src");
+            link_img = link_img.split("/");
+            if ($("#password").attr("type") == "password") {
+                link_img[link_img.length-1] = "mata_buka.png";
+                link_img = link_img.join("/");
+                $("#icon-pass").attr("src", link_img);
+                $("#password").attr("type", "text");
+            }else{
+                link_img[link_img.length-1] = "mata_tutup.png";
+                link_img = link_img.join("/");
+                $("#icon-pass").attr("src", link_img);
+                $("#password").attr("type", "password");
+            }
+        });
+    });
 </script>
 <?php
 if (!empty($this->session->flashdata('alert'))) {
@@ -109,7 +126,6 @@ if (!empty($this->session->flashdata('alert'))) {
                     $(this).remove();
                 });
             }, 5000);
-
         });
     </script>';
 }

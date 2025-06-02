@@ -117,6 +117,16 @@ class Main extends CI_Controller
 		}
 		if ($nama_content == 'dashboard') {
 			$data['title_header'] = 'Dashboard';
+			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
+			$semester = 'Semester ';
+			if ($this->semester_now == 2) {
+				$semester .= 'Genap Tahun Akademik '.$this->tahun_1.'/'.$this->tahun_2;
+			}else{
+				$semester .= 'Ganjil Tahun Akademik '.$this->tahun_1.'/'.$this->tahun_2;
+			}
+			$where = array("semester_char" => $semester_char);
+			$data['persentase'] = $this->MainModel->get_table("persentase", false, true, $where);
+			$data['semester'] = $semester;
 		} else if ($nama_content == 'rekap_absensi') {
 			$where = [];
 			$index_jadwal = 0;
@@ -421,7 +431,7 @@ class Main extends CI_Controller
 			}
 			$this->session->set_flashdata('menu_now', $menu);
 			$this->session->set_flashdata('alert', $dataAlert);
-			redirect('/');
+			// redirect('/');
 		} else {
 			show_404();
 		}

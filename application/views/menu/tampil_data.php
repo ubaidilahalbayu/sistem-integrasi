@@ -122,6 +122,9 @@ if ($title_header == "Rekap Absensi") {
                         <?php
                         if (!empty($data)) {
                             foreach ($data as $key1 => $dt) {
+                                if ($title_header == "Data Dosen" && $dt['nip'] == "-") {
+                                    continue;
+                                }
                         ?>
                                 <tr>
                                     <?php
@@ -189,12 +192,28 @@ if ($title_header == "Rekap Absensi") {
                 $("#formFile").val('');
             }
         });
-        $('#import_submit').on('click', function() {
-            $('#loadingModal').modal('show');
-            $('#modalImport').modal('hide');
-            $('#import_form').submit();
-            $('#loadingModal').modal('hide');
+        $('#import_form').on('submit', function(e) {
+            e.preventDefault(); // Cegah form submit normal
+            let formData = new FormData(this); // Ambil semua data form termasuk file
+            $("#modalImport").modal('hide');
+            $("#loadingModal").modal('show');
+            $.ajax({
+                url: base_url('proses'), // Ganti dengan URL tujuan upload-mu
+                type: 'POST',
+                data: formData,
+                contentType: false, // penting untuk FormData
+                processData: false, // penting agar tidak diubah ke query string
+                success: function(response) {
+                    $("#loadingModal").modal('hide');
+                    location.reload();
+                },
+                error: function() {
+                    $("#loadingModal").modal('hide');
+                    location.reload();
+                }
+            });
         });
+        
         $('#export_submit').on('click', function() {
             $('#loadingModal').modal('show');
             $('#modalExport').modal('hide');
@@ -514,6 +533,20 @@ if ($title_header == "Rekap Absensi") {
                     param_tgl: 1
                 };
                 updateAbsensi(dataSend);
+            }
+        });
+
+        $("#myTable").on("dblclick", ".dsn-mk", function () {
+            let isDsn = $(this).attr("isDsn");
+            if (isDsn == "0") {
+                let dayName = $(this).attr("hari");;
+                let data_tambahan = {
+                    param_smt: $("#ganti_semester").val(),
+                    param_hr: dayName,
+                    param_idx_jdw: "DJ_@_0",
+                    param_id: $(this).html(),
+                };
+                appendContentMenu('rekap_absensi', data_tambahan);
             }
         });
     });

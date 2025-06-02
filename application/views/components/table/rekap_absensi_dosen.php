@@ -32,7 +32,7 @@
                     ?>
                         <th>
                             <div class="dropdown">
-                                <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= "MK-".$value['id'] ?></button>
+                                <button type="button" class="btn btn-danger dropdown-toggle dsn-mk" data-bs-toggle="dropdown" aria-expanded="false" hari="<?= $value['hari'] ?>" isDsn="<?= $this->session->userdata('level') != 3 ? "0" : "1" ?>"><?= "MK-".$value['id'] ?></button>
                                 <ul class="dropdown-menu">
                                         <li><a class="dropdown-item active" href="#rekap_absensi_dosen"><?= $value['nama_mk'] ?></a></li>
                                         <li><a class="dropdown-item" href="#rekap_absensi_dosen"><?= "Kelas ".$value['kode_kelas'] ?></a></li>

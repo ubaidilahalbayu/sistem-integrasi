@@ -12,7 +12,7 @@ view('components/header', $data_header);
             <div class="row mb-5">
                 <h4 class="text-center">Sign in To Continue</h4>
             </div>
-            <form action="<?= base_url('login') ?>" method="POST">
+            <form action="<?= base_url('login') ?>" method="POST" id="form-login">
                 <div class="row justify-content-start">
                     <?php
                     view('components/alert');
@@ -24,7 +24,10 @@ view('components/header', $data_header);
                     </div>
                     <div class="col-lg-12 mb-5">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="*****">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="*****">
+                              <button class="input-group-text btn btn-light" type="button"><img src="<?= base_url('assets/image/mata_tutup.png') ?>" height="25px" width="25px" alt="Lihat" id="icon-pass"></button>
+                        </div>
                     </div>
                 </div>
                 <div class="row justify-content-center">

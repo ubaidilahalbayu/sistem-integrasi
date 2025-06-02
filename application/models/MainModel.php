@@ -1083,6 +1083,16 @@ class MainModel extends CI_Model
             }
             $query = $this->db->get();
             $header = ['id', 'kode_mk', 'nama_mk', 'semester', 'kode_kelas', 'pengampu_1', 'pengampu_2', 'pengampu_3', 'hari', 'jam_mulai', 'jam_selesai', 'ruang'];
+        } elseif ($table == "persentase") {
+            $this->db->select("jadwal_kuliah.id, jadwal_kuliah.kode_mk, data_mk.nama_mk, CONCAT(jadwal_kuliah.hari, ', ', jadwal_kuliah.jam_mulai, '-', jadwal_kuliah.jam_selesai) AS jadwal, COUNT(isi_absen_dosen.id_jadwal) AS jlh_pertemuan, jadwal_kuliah.hari, jadwal_kuliah.semester_char AS smt");
+            $this->db->from('jadwal_kuliah');
+            $this->db->join('data_mk', 'data_mk.kode_mk=jadwal_kuliah.kode_mk');
+            $this->db->join('isi_absen_dosen', 'isi_absen_dosen.id_jadwal=jadwal_kuliah.id');
+            $this->db->where('isi_absen_dosen.nip!=', '-');
+            $this->db->where('jadwal_kuliah.semester_char', $where['semester_char']);
+            $this->db->group_by('jadwal_kuliah.id');
+            $query = $this->db->get();
+            $get_header = false;
         } else {
             // Mengambil data dari tabel $table
             if (!empty($where)) {
