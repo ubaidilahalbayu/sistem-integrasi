@@ -68,6 +68,31 @@ class MainModel extends CI_Model
         return $return;
     }
 
+    public function create_new_password($password, $where)
+    {
+        $this->db->trans_begin();
+        $return = [];
+        try {
+            $this->db->update('user', $password, $where);
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+            } else {
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Ubah Password Baru';
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+        
+    }
+
     public function auto_create_smt($data)
     {
         $check = $this->get_table('data_semester', false, true, $data);
@@ -92,17 +117,25 @@ class MainModel extends CI_Model
 
         try{
             $lanjut = true;
+
+            //HAPUSIN SEMUA
+            // $this->db->empty_table('data_dosen');
+            // $this->db->empty_table('data_mahasiswa');
+            // $this->db->empty_table('data_semester');
+            // $this->db->empty_table('data_kelas');
             
-            //SIMPAN DATA SEMESTER
-            $check = $this->get_table('data_semester', false, true, $data_semester);
-            if (count($check) < 1) {
-                $this->db->insert('data_semester', $data_semester);
-                if ($this->db->trans_status() === FALSE) {
-                    $this->db->trans_rollback();
-                    $error = $this->db->error();
-                    $return['status'] = 'danger';
-                    $return['message'] = 'Gagal :: ' . $error['message'];
-                    $lanjut = false;
+            if ($lanjut) {
+                //SIMPAN DATA SEMESTER
+                $check = $this->get_table('data_semester', false, true, $data_semester);
+                if (count($check) < 1) {
+                    $this->db->insert('data_semester', $data_semester);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                    }
                 }
             }
 
@@ -381,6 +414,37 @@ class MainModel extends CI_Model
                 }
             }
 
+            //USER Dosen
+            if ($lanjut) {
+                $this->db->where('level', 3);
+                $this->db->delete('user');
+                if ($this->db->trans_status() === FALSE) {
+                    $this->db->trans_rollback();
+                    $error = $this->db->error();
+                    $return['status'] = 'danger';
+                    $return['message'] = 'Gagal :: ' . $error['message'];
+                    $lanjut = false;
+                }
+            }
+            if ($lanjut) {
+                foreach ($data_dosen as $key => $value) {
+                    $nip = in_array($value['nip'], $nip_dosen_berubah) ? $nip_dosen_fix[array_search($value['nip'], $nip_dosen_berubah)] : $value['nip'];
+                    $insert = array(
+                        'username' => $nip,
+                        'password' => md5($nip),
+                        'level' => 3,
+                    );
+                    $this->db->insert('user', $insert);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = 'danger';
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                        $lanjut = false;
+                        break;
+                    }
+                }
+            }
             if ($lanjut) {
                 //COMMIT TRANSACTION
                 $this->db->trans_commit();

@@ -78,6 +78,9 @@ view('components/header', $data_header);
             }
             ?>
             <li class="nav-item">
+                <a class="nav-link mybtn-1" href="#setting_password" id="setting_password">Setting Password</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link mybtn-1" href="<?= base_url('logout') ?>">Logout</a>
             </li>
         </ul>
@@ -131,6 +134,9 @@ $(document).ready(function() {
     });
     $('#jadwal_kuliah').on('click', function() {
         appendContentMenu('jadwal_kuliah');
+    });
+    $('#setting_password').on('click', function() {
+        appendContentMenu('setting_password');
     });
 });
 </script>"

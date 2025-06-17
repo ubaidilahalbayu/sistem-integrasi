@@ -53,6 +53,7 @@
         $("#data_kelas").removeClass("mybtn-2").addClass("mybtn-1");
         $("#data_semester").removeClass("mybtn-2").addClass("mybtn-1");
         $("#jadwal_kuliah").removeClass("mybtn-2").addClass("mybtn-1");
+        $("#setting_password").removeClass("mybtn-2").addClass("mybtn-1");
 
         // Change the active menu item
         $("#" + menu_aktif).removeClass("mybtn-1").addClass("mybtn-2");

@@ -105,7 +105,7 @@ class Main extends CI_Controller
 		$nama_content = !empty($this->input->post('nama_content')) ? $this->input->post('nama_content') : '';
 		$data = [];
 		if ($this->session->userdata('level') == 3) {
-			$nama_content_arr = ['dashboard', 'rekap_absensi_dosen'];
+			$nama_content_arr = ['dashboard', 'rekap_absensi_dosen', 'setting_password'];
 			if (!in_array($nama_content, $nama_content_arr)) {
 				$dataAlert = [
 					'status' => 'warning',
@@ -311,8 +311,10 @@ class Main extends CI_Controller
 			$getData = $this->MainModel->get_table('user');
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
+		}else if ($nama_content == 'setting_password') {
+			$data['title_header'] = 'Setting Password';
 		}
-		view("menu/" . ($nama_content != 'dashboard' ? 'tampil_data' : $nama_content), $data, true);
+		view("menu/" . ($nama_content != 'dashboard' ? ($nama_content != 'setting_password' ? 'tampil_data' : $nama_content) : $nama_content), $data, true);
 	}
 
 	public function ngisi_absen()
@@ -425,7 +427,19 @@ class Main extends CI_Controller
 				$data = $this->input->post();
 				if ($menu == "rekap_absensi") {
 					$dataAlert = $this->MainModel->create('mhs_ambil_jadwal', $data);
-				} else {
+				}elseif ($menu == "setting_password") {
+					$where['username'] = $data['username'];
+					$password = $data['password'];
+					$c_password = $data['c_password'];
+					if ($password == $c_password) {
+						$password = ['password' => md5($password)];
+						$dataAlert = $this->MainModel->create_new_password($password, $where);
+					}else{
+						$dataAlert['message'] = "Password Konfirmasi Tidak Sama";
+						$this->session->set_flashdata('password', $password);
+						$this->session->set_flashdata('c_password', $c_password);
+					}
+				}else {
 					$dataAlert = $this->MainModel->create($menu, $data);
 				}
 			}

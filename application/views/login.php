@@ -10,7 +10,7 @@ view('components/header', $data_header);
                 <h1 class="text-center">Login</h1>
             </div>
             <div class="row mb-5">
-                <h4 class="text-center">Sign in To Continue</h4>
+                <h4 class="text-center">Rekapitulasi Kehadiran</h4>
             </div>
             <form action="<?= base_url('login') ?>" method="POST" id="form-login">
                 <div class="row justify-content-start">

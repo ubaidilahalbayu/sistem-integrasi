@@ -3,6 +3,29 @@
 <hr>
 <h3>List Pertemuan <?= $semester ?></h3>
 <div class="row justify-content-start mt-3">
+    <div class="col-lg-6 mb-3">
+        <b>Keterangan*</b>
+        <div class="row justyfy-content-end">
+            <div class="col-lg-12 bg-danger">
+                Jumlah pertemuan kurang atau sama dengan 25%
+            </div>
+        </div>
+        <div class="row justyfy-content-start">
+            <div class="col-lg-12 bg-warning">
+                Jumlah pertemuan kurang atau sama dengan 50%
+            </div>
+        </div>
+        <div class="row justyfy-content-start">
+            <div class="col-lg-12 bg-info">
+                Jumlah pertemuan kurang atau sama dengan 75%
+            </div>
+        </div>
+        <div class="row justyfy-content-start">
+            <div class="col-lg-12 bg-success">
+                Jumlah pertemuan kurang atau sama dengan 100%
+            </div>
+        </div>
+    </div>
     <div class="col-lg-12">
         <div class="table-responsive">
             <table class="table table-info table-striped">
