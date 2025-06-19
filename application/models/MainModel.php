@@ -4,11 +4,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class MainModel extends CI_Model
 {
 
+    private $user_model;
     public function __construct()
     {
         parent::__construct();
         // Load database
         $this->load->database();
+        $this->user_model = $this->db->get_where('data_dosen', array('nip' => $this->session->userdata('username')))->row_array();
+        $this->user_model = !empty($this->user_model) ? (!empty($this->user_model['nama_dosen']) ? $this->user_model['nama_dosen'] : $this->session->userdata('username')) : $this->session->userdata('username'); 
     }
 
     public function create($table, $data, $banyak = false)
@@ -36,6 +39,13 @@ class MainModel extends CI_Model
                         break;
                     }
                 }
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Menambah Data Ke tabel ".$table,
+                );
+                $this->db->insert('laporan_aktivitas', $act);
                 if ($lanjut) {
                     $this->db->trans_commit();
                     $return['status'] = 'success';
@@ -49,6 +59,12 @@ class MainModel extends CI_Model
                     }
                 }
                 $this->db->insert($table, $insert);
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Menambah Data Ke tabel ".$table,
+                );
                 if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
                     $error = $this->db->error();
@@ -74,6 +90,13 @@ class MainModel extends CI_Model
         $return = [];
         try {
             $this->db->update('user', $password, $where);
+            //INSERT AKTIVITAS
+            $act = array(
+                'tanggal' => date("Y-m-d"),
+                'waktu' => date('H:i:s'),
+                'aktivitas' => $this->user_model." Mengubah Kata Sandi",
+            );
+            $this->db->insert('laporan_aktivitas', $act);
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
                 $error = $this->db->error();
@@ -444,6 +467,20 @@ class MainModel extends CI_Model
                         break;
                     }
                 }
+            }
+            //INSERT AKTIVITAS
+            $act = array(
+                'tanggal' => date("Y-m-d"),
+                'waktu' => date('H:i:s'),
+                'aktivitas' => $this->user_model." Mengimport File Rekapitulasi Kehadiran ".json_encode($data_semester),
+            );
+            $this->db->insert('laporan_aktivitas', $act);
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+                $lanjut = false;
             }
             if ($lanjut) {
                 //COMMIT TRANSACTION
@@ -917,6 +954,13 @@ class MainModel extends CI_Model
                     }
                 }
             }
+            //INSERT AKTIVITAS
+            $act = array(
+                'tanggal' => date("Y-m-d"),
+                'waktu' => date('H:i:s'),
+                'aktivitas' => $this->user_model." Mengimport File Jadwal Kuliah",
+            );
+            $this->db->insert('laporan_aktivitas', $act);
             if ($lanjut) {
                 //COMMIT TRANSACTION
                 $this->db->trans_commit();
@@ -952,6 +996,13 @@ class MainModel extends CI_Model
             $count = count($this->db->get($table)->result_array());
             if ($count > 0) {
                 $this->db->update($table, $data, $where);
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Mengubah Kehadiran ".$table." Where".json_encode($where)." Menjadi ".json_encode($data),
+                );
+                $this->db->insert('laporan_aktivitas', $act);
                 if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
                     $error = $this->db->error();
@@ -964,6 +1015,13 @@ class MainModel extends CI_Model
                 }
             }else{
                 $this->db->insert($table, $data);
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Menambah Kehadiran ".$table." Dengan Data ".json_encode($data),
+                );
+                $this->db->insert('laporan_aktivitas', $act);
                 if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
                     $error = $this->db->error();
@@ -1157,6 +1215,30 @@ class MainModel extends CI_Model
             $this->db->group_by('jadwal_kuliah.id');
             $query = $this->db->get();
             $get_header = false;
+        } elseif ($table=="laporan_aktivitas") {
+            $limit = $where['limit'];
+            unset($where['limit']);
+            $search = $where['search'];
+            unset($where['search']);
+            $sql = "
+                SELECT 
+                    @rownum := @rownum + 1 AS no,
+                    id_log,
+                    tanggal,
+                    waktu,
+                    aktivitas
+                FROM (
+                    SELECT id_log, tanggal, waktu, aktivitas
+                    FROM laporan_aktivitas
+                    WHERE aktivitas LIKE ?
+                    ORDER BY tanggal DESC, waktu DESC
+                    LIMIT ?
+                ) AS sub,
+                (SELECT @rownum := 0) AS r
+            ";
+
+            $query = $this->db->query($sql, ['%' . $search . '%', (int)$limit]);
+            $header = ['no', 'tanggal', 'waktu', 'aktivitas'];
         } else {
             // Mengambil data dari tabel $table
             if (!empty($where)) {
@@ -1196,6 +1278,7 @@ class MainModel extends CI_Model
         $this->db->trans_begin();
         $return = [];
         try{
+            $count = 0;
             $cek_tgl = array('tanggal' => $data['tanggal'], 'id_jadwal' => $where['id_jadwal']);
             $cek_tgl = $this->db->get_where('isi_absen_dosen', $cek_tgl)->result_array();
             if (count($cek_tgl) > 0) {
@@ -1206,6 +1289,7 @@ class MainModel extends CI_Model
                 $cek_tgl = $this->db->get_where('isi_absen_dosen', $where)->result_array();
                 if (count($cek_tgl) > 0) {
                     $this->db->update('isi_absen_dosen', $data, $where);
+                    $count += $this->db->affected_rows();
                     if ($this->db->trans_status() === FALSE) {
                         $this->db->trans_rollback();
                         $error = $this->db->error();
@@ -1216,9 +1300,19 @@ class MainModel extends CI_Model
                         $get_mhs_ambil_jadwal = $this->db->get_where('mhs_ambil_jadwal', $get_mhs_ambil_jadwal)->result_array();
                         foreach ($get_mhs_ambil_jadwal as $key => $value) {
                             $this->db->update('isi_absen_mhs', $data, array('id_mhs' => $value['id'], 'tanggal '=> $where['tanggal']));
+                            $count += $this->db->affected_rows();
                             if ($this->db->trans_status() === FALSE) {
                                 break;
                             }
+                        }
+                        if ( $count > 0) {
+                            //INSERT AKTIVITAS
+                            $act = array(
+                                'tanggal' => date("Y-m-d"),
+                                'waktu' => date('H:i:s'),
+                                'aktivitas' => $this->user_model." Mengubah Tanggal Kehadiran Where ".json_encode($where)." Menjadi ".json_encode($data),
+                            );
+                            $this->db->insert('laporan_aktivitas', $act);
                         }
                         if ($this->db->trans_status() === FALSE) {
                             $this->db->trans_rollback();
@@ -1249,6 +1343,7 @@ class MainModel extends CI_Model
         $this->db->trans_begin();
         $return = [];
         try {
+            $count = 0;
             $header = $this->db->list_fields($table);
             $insert = [];
             foreach ($data as $key => $value) {
@@ -1258,6 +1353,16 @@ class MainModel extends CI_Model
             }
             $this->db->where($where);
             $this->db->update($table, $insert);
+            $count += $this->db->affected_rows();
+            if ( $count > 0) {
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Mengubah Where ".json_encode($where)." Menjadi ".json_encode($insert)." Dari Tabel ".$table,
+                );
+                $this->db->insert('laporan_aktivitas', $act);
+            }
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
                 $error = $this->db->error();
@@ -1282,21 +1387,86 @@ class MainModel extends CI_Model
         $this->db->trans_begin();
         $return = [];
         try {
+            $count = 0;
             if ($where == "all") {
                 $this->db->empty_table($table);
+                $count += $this->db->affected_rows();
+                
             } else {
                 $this->db->where($where);
                 $this->db->delete($table);
+                $count += $this->db->affected_rows();
+            }
+            if ( $count > 0) {
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Menghapus Where ".json_encode($where)." Dari Tabel ".$table,
+                );
+                $this->db->insert('laporan_aktivitas', $act);
             }
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
                 $error = $this->db->error();
                 $return['status'] = 'danger';
                 $return['message'] = 'Gagal :: ' . $error['message'];
+            } elseif ($count == 0) {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: Tidak Ada Data!';
             } else {
                 $this->db->trans_commit();
                 $return['status'] = 'success';
                 $return['message'] = 'Berhasil Hapus dari tabel ' . $table;
+            }
+        } catch (\Throwable $e) {
+            $this->db->trans_rollback();
+            $return['status'] = 'danger';
+            $return['message'] = 'Gagal :: ' . $e->getMessage();
+        }
+        return $return;
+    }
+    // Menghapus semua
+    public function deleteAll()
+    {
+        $this->db->trans_begin();
+        $return = [];
+        try {
+            $count = 0;
+            $this->db->empty_table('data_semester');
+            $this->db->empty_table('data_mk');
+            $count += $this->db->affected_rows();
+            $this->db->empty_table('data_kelas');
+            $count += $this->db->affected_rows();
+            $this->db->empty_table('data_dosen');
+            $count += $this->db->affected_rows();
+            $this->db->empty_table('data_mahasiswa');
+            $count += $this->db->affected_rows();
+            if ( $count > 0) {
+                //INSERT AKTIVITAS
+                $act = array(
+                    'tanggal' => date("Y-m-d"),
+                    'waktu' => date('H:i:s'),
+                    'aktivitas' => $this->user_model." Menghapus SELURUH DATABASE !!",
+                );
+                $this->db->insert('laporan_aktivitas', $act);
+            }
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: ' . $error['message'];
+            } elseif ($count == 0) {
+                $this->db->trans_rollback();
+                $error = $this->db->error();
+                $return['status'] = 'danger';
+                $return['message'] = 'Gagal :: Database Sudah Kosong!';
+            } else {
+                $this->db->trans_commit();
+                $return['status'] = 'success';
+                $return['message'] = 'Berhasil Menghapus Semua Data';
             }
         } catch (\Throwable $e) {
             $this->db->trans_rollback();

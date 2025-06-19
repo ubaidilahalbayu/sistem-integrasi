@@ -3,7 +3,8 @@ view('components/modal/modal_import');
 view('components/modal/modal_export');
 view('components/modal/modal_form');
 view('components/modal/modal_confirm');
-if ($title_header == "Rekap Absensi") {
+// view('components/alert');
+if ($title_header == "Rekapitulasi Kehadiran") {
     if (count($data_jadwal) > 0) {
         $paramTambah['export'] = 0;
 ?>
@@ -35,17 +36,17 @@ if ($title_header == "Rekap Absensi") {
 }
 ?>
 <div class="row justify-content-start mt-5">
-    <?php if ($title_header != "Rekap Absensi Dosen" && $title_header != "Rekap Absensi Mahasiswa") { ?>
+    <?php if ($title_header != "Rekapitulasi Kehadiran Dosen" && $title_header != "Rekapitulasi Kehadiran Mahasiswa" && $title_header != "Laporan Aktivitas") { ?>
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-success" data-bs-toggle="modal"
             data-bs-target="#modalExport">Export</button>
     </div>
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-            data-bs-target="#modalImport">Import</button>
+            data-bs-target="#modalImport"><?= $title_header == "Rekapitulasi Kehadiran" ? 'Import' : 'Tambah Data' ?></button>
     </div>
     <?php
-		if ($this->session->userdata('level') == 1) {
+		if ($this->session->userdata('level') == 1 && $title_header == "Data Semester") {
     ?>
         <div class="col-lg-2 d-grid gap-2 mb-3">
             <button type="button" class="btn btn-danger" id="hapusSemua">Delete All</button>
@@ -87,17 +88,17 @@ if ($title_header == "Rekap Absensi") {
     ?>
     
     <?php
-    if ($title_header == "Rekap Absensi") {
+    if ($title_header == "Rekapitulasi Kehadiran") {
         view('components/table/rekap_absensi');
-    }elseif ($title_header == "Rekap Absensi Dosen") {
+    }elseif ($title_header == "Rekapitulasi Kehadiran Dosen") {
         view('components/table/rekap_absensi_dosen');
-    }elseif ($title_header == "Rekap Absensi Mahasiswa") {
+    }elseif ($title_header == "Rekapitulasi Kehadiran Mahasiswa") {
         view('components/table/rekap_absensi_mhs');
     }else{
     ?>
     <div class="col-lg-12 mb-3">
         <div class="table-responsive">
-            <table id="myTable" class="table table-info table-striped">
+            <table id="myTable" class="table table-bordered table-striped align-middle">
                 <?php
                     if (empty($header_table)) {
                 ?>
@@ -106,7 +107,7 @@ if ($title_header == "Rekap Absensi") {
                 <?php
                 } else {
                 ?>
-                    <thead>
+                    <thead class="table-dark">
                         <tr>
                             <?php
                             foreach ($header_table as $key => $value) {
@@ -114,8 +115,10 @@ if ($title_header == "Rekap Absensi") {
                                 <th><?= ucwords(str_replace('_', ' ', $value)) ?></th>
                             <?php
                             }
+                            if ($title_header != "Laporan Aktivitas") {
                             ?>
                             <th>Action</th>
+                            <?php } ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,15 +146,17 @@ if ($title_header == "Rekap Absensi") {
                                     if ($title_header=="Data Dosen") {
                                         $paramPost = $header_table[0] . ';_@_;' . $dt[$header_table[0]] . ';_@_;' . $header_table[2] . ';_@_;' . $dt[$header_table[2]];
                                     }
+                                    if ($title_header != "Laporan Aktivitas") {
                                     ?>
                                     <td><button type="button" class="btn btn-warning"
                                             param="<?= $paramPost ?>"
-                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? ($this->session->flashdata('selected_rekap') == 1 || $this->session->flashdata('selected_rekap') == 2 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "' semester_char='" . $dt['semester_char'] . "'" : '' ?>>Edit</button> <button type="button"
+                                            name="<?= $dt[$header_table[0]] ?>" table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekapitulasi Kehadiran" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?> <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekapitulasi Kehadiran" ? ($this->session->flashdata('selected_rekap') == 1 || $this->session->flashdata('selected_rekap') == 2 ? "id='" . $dt['id_jadwal'] . "'" : "id='" . $dt['id_absen'] . "'") : '' ?> <?= $title_header == "Jadwal Kuliah" ? "nip='" . $dt['nip'] . "' nip2='" . $dt['nip2'] . "' nip3='" . $dt['nip3'] . "' semester_char='" . $dt['semester_char'] . "'" : '' ?>>Edit</button> <button type="button"
                                             class="btn btn-danger btn-hapus"
                                             param="<?= $paramPost ?>"
                                             name="<?= $dt[$header_table[0]] ?>"
                                             head="<?= ucwords(str_replace('_', ' ', $header_table[0])) ?>"
-                                            table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekap Absensi" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?>>Hapus</button></td>
+                                            table="<?= $title_header ?>" <?= !empty($this->session->flashdata('selected_rekap')) && $title_header == "Rekapitulasi Kehadiran" ? "selected_rekap='" . $this->session->flashdata('selected_rekap') . "'" : '' ?>>Hapus</button></td>
+                                    <?php } ?>
                                 </tr>
                         <?php
                             }
@@ -234,7 +239,7 @@ if ($title_header == "Rekap Absensi") {
             }).get(); // Mengubah hasil menjadi array
             let index_td = previousTdValues.length - 1;
 
-            if (name_table == "Rekap Absensi") {
+            if (name_table == "Rekapitulasi Kehadiran") {
                 let selected_rekap = $(this).attr('selected_rekap');
                 let id_selected = $(this).attr('id');
 

@@ -8,7 +8,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="staticBackdropLabel">Hapus
-                    <?= $title_header ?> (<b id="title_name_delete"></b>) </h1>
+                    <?= $title_header=="Data Semester" ? "Data" : $title_header ?> (<b id="title_name_delete"></b>) </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -21,7 +21,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                         <div class="col-lg-12 mb-3">
                             <h4 class="text-center hapus-satu">Apakah Yakin Ingin Menghapus Data dengan <b id="head_delete"></b> <b
                                     id="konfir_name_delete"></b> dari <b id="title_head_delete"></b> ?</h4>
-                            <h4 class="text-center hapus-semua" style="display: none;">Apakah Yakin Ingin Menghapus Semua <b><?= $title_header ?></b> ?<br>ini Mungkin akan menghapus juga beberapa data lain yang <b>Terkait. Yakin?!</b></h4>
+                            <h4 class="text-center hapus-semua" style="display: none;">Apakah Yakin Ingin Menghapus Semua <b>Data</b>? Yakin?!</b></h4>
                         </div>
                     </div>
                 </form>

@@ -17,7 +17,7 @@ $title_header = !empty($title_header) ? $title_header : 'Form';
                     <div class="row justify-content-start">
                         <?php
                         $paramView['export'] = 1;
-                        if ($title_header == "Rekap Absensi") {
+                        if ($title_header == "Rekapitulasi Kehadiran") {
                             view('components/form/rekap_absensi', $paramView);
                         } elseif ($title_header == "Jadwal Kuliah") {
                             view('components/form/jadwal_kuliah', $paramView);

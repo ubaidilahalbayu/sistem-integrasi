@@ -1,6 +1,6 @@
-<div class="row justify-content-start">
+<div class="kontener row justify-content-start">
     <div class="col-lg-6 mb-5 mt-5">
-        <h4 class="text-center">Ubah Pasword</h4>
+        <h4 class="text-center">Ubah Kata Sandi</h4>
     </div>
     <div class="col-lg-12"></div>
     <div class="col-lg-6">
@@ -9,14 +9,14 @@
                 <input type="hidden" value="<?= $this->session->userdata('username') ?>" name="username">
                 <input type="hidden" value="setting_password" name="menu">
                 <div class="col-lg-12 mb-5">
-                    <label for="password" class="form-label">Password Baru</label>
+                    <label for="password" class="form-label">Kata Sandi Baru</label>
                     <div class="input-group">
                         <input type="password" class="form-control" id="password" name="password" placeholder="*****" value="<?= !empty($this->session->flashdata('password')) ? $this->session->flashdata('password') : ''?>">
                         <button class="input-group-text btn btn-light btn-passim" type="button"><img src="<?= base_url('assets/image/mata_tutup.png') ?>" height="25px" width="25px" alt="Lihat" id="icon-passim"></button>
                     </div>
                 </div>
                 <div class="col-lg-12 mb-5">
-                    <label for="c_password" class="form-label">Konfirmasi Password Baru</label>
+                    <label for="c_password" class="form-label">Konfirmasi Kata Sandi Baru</label>
                     <div class="input-group">
                         <input type="c_password" class="form-control" id="c_password" name="c_password" placeholder="*****" value="<?= !empty($this->session->flashdata('c_password')) ? $this->session->flashdata('c_password') : ''?>">
                         <button class="input-group-text btn btn-light btn-cpassim" type="button"><img src="<?= base_url('assets/image/mata_tutup.png') ?>" height="25px" width="25px" alt="Lihat" id="icon-cpassim"></button>

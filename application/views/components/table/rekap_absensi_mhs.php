@@ -110,13 +110,13 @@ if (count($data_jadwal) > 0) {
 </div>
 <div class="col-lg-12 mb-3">
     <div class="table-responsive">
-        <table id="myTable" class="table table-info table-striped" rekap="1">
+        <table id="myTable" class="table table-bordered table-striped align-middle" rekap="1">
             <?php
             $data_tanggal_jadwal = count($data_tanggal_jadwal) > 0 ? $data_tanggal_jadwal : [date('Y-m-d')];
             if (count($data_jadwal) > 0) {
                 if (count($data_mhs_ambil_jadwal) > 0) {
             ?>
-                <thead style="z-index: ;">
+                <thead class="table-dark">
                     <tr>
                         <th rowspan="3" scope="col" style="width: 150px;">NIM</th>
                         <th rowspan="3" scope="col">Nama Mahasiswa</th>

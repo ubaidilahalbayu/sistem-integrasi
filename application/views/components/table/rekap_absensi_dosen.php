@@ -14,8 +14,8 @@
 </div>
 <div class="col-lg-12 mb-3">
     <div class="table-responsive">
-        <table id="myTable" class="table table-info table-striped" rekap="1">
-            <thead>
+        <table id="myTable" class="table table-bordered table-striped align-middle" rekap="1">
+            <thead class="table-dark">
                 <tr>
                     <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">No</th>
                     <th rowspan="<?= count($data_jadwal) > 0 ? "3" : "1"?>">Kode</th>

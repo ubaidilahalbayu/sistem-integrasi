@@ -52,7 +52,7 @@ if (count($data_jadwal) > 0) {
     </div>
     <div class="col-lg-12 mb-3">
         <div class="table-responsive">
-            <table class="table table-info table-striped">
+            <table class="table table-bordered table-striped align-middle">
                 <tr>
                     <th>Tanggal</th>
                     <th>
@@ -119,13 +119,13 @@ if (count($data_jadwal) > 0) {
 ?>
 <div class="col-lg-12 mb-3">
     <div class="table-responsive">
-        <table id="myTable" class="table table-info table-striped" rekap="1">
+        <table id="myTable" class="table table-bordered table-striped align-middle" rekap="1">
             <?php
             $pertemuan = in_array($pilih_tanggal, $data_tanggal_jadwal) ? (array_search($pilih_tanggal, $data_tanggal_jadwal) !== false ? array_search($pilih_tanggal, $data_tanggal_jadwal)+1 : count($data_tanggal_jadwal)+1) : count($data_tanggal_jadwal)+1;
             if (count($data_jadwal) > 0) {
                 if (count($data_mhs_ambil_jadwal) > 0) {
             ?>
-                <thead style="z-index: ;">
+                <thead class="table-dark">
                     <tr>
                         <th rowspan="3" scope="col" style="width: 150px;">NIM</th>
                         <th rowspan="3" scope="col">Nama Mahasiswa</th>

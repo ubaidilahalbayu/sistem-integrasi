@@ -105,7 +105,7 @@ class Main extends CI_Controller
 		$nama_content = !empty($this->input->post('nama_content')) ? $this->input->post('nama_content') : '';
 		$data = [];
 		if ($this->session->userdata('level') == 3) {
-			$nama_content_arr = ['dashboard', 'rekap_absensi_dosen', 'setting_password'];
+			$nama_content_arr = ['dashboard', 'rekapitulasi_kehadiran_dosen', 'setting_password'];
 			if (!in_array($nama_content, $nama_content_arr)) {
 				$dataAlert = [
 					'status' => 'warning',
@@ -127,7 +127,7 @@ class Main extends CI_Controller
 			$where = array("semester_char" => $semester_char);
 			$data['persentase'] = $this->MainModel->get_table("persentase", false, true, $where);
 			$data['semester'] = $semester;
-		} else if ($nama_content == 'rekap_absensi') {
+		} else if ($nama_content == 'rekapitulasi_kehadiran') {
 			$where = [];
 			$index_jadwal = 0;
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
@@ -152,7 +152,7 @@ class Main extends CI_Controller
 			}
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
-			$data['title_header'] = 'Rekap Absensi';
+			$data['title_header'] = 'Rekapitulasi Kehadiran';
 			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
@@ -171,7 +171,7 @@ class Main extends CI_Controller
 					$data['pilih_tanggal'] = $pilih_tanggal[1];
 				}
 			}
-		} else if ($nama_content == 'rekap_absensi_dosen') {
+		} else if ($nama_content == 'rekapitulasi_kehadiran_dosen') {
 			$where = [];
 			$index_jadwal = 0;
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
@@ -196,7 +196,7 @@ class Main extends CI_Controller
 			}
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
-			$data['title_header'] = 'Rekap Absensi Dosen';
+			$data['title_header'] = 'Rekapitulasi Kehadiran Dosen';
 			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
@@ -215,7 +215,7 @@ class Main extends CI_Controller
 					$data['pilih_tanggal'] = $pilih_tanggal[1];
 				}
 			}
-		} else if ($nama_content == 'rekap_absensi_mhs') {
+		} else if ($nama_content == 'rekapitulasi_kehadiran_mhs') {
 			$where = [];
 			$index_jadwal = 0;
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
@@ -240,7 +240,7 @@ class Main extends CI_Controller
 			}
 			$getData = $this->MainModel->get_table_rekap_absensi($where, $index_jadwal);
 			$data = $getData;
-			$data['title_header'] = 'Rekap Absensi Mahasiswa';
+			$data['title_header'] = 'Rekapitulasi Kehadiran Mahasiswa';
 			// $data['jdw'] = $this->MainModel->get_table('jadwal_kuliah')['data'];
 			$data['dsn'] = $this->MainModel->get_table('data_dosen')['data'];
 			$data['mhs'] = $this->MainModel->get_table('data_mahasiswa')['data'];
@@ -312,7 +312,16 @@ class Main extends CI_Controller
 			$data['header_table'] = $getData['header'];
 			$data['data'] = $getData['data'];
 		}else if ($nama_content == 'setting_password') {
-			$data['title_header'] = 'Setting Password';
+			$data['title_header'] = 'Ubah Kata Sandi';
+		}else if ($nama_content == 'laporan_aktivitas') {
+			$data['title_header'] = 'Laporan Aktivitas';
+			$where = array(
+				'limit' => 100,
+				'search' => '',
+			);
+			$getData = $this->MainModel->get_table('laporan_aktivitas', true, true, $where);
+			$data['header_table'] = $getData['header'];
+			$data['data'] = $getData['data'];
 		}
 		view("menu/" . ($nama_content != 'dashboard' ? ($nama_content != 'setting_password' ? 'tampil_data' : $nama_content) : $nama_content), $data, true);
 	}
@@ -407,7 +416,7 @@ class Main extends CI_Controller
 				try {
 					$path = $_FILES["formFile"]["tmp_name"];
 					$object = PHPExcel_IOFactory::load($path);
-					if ($menu == "rekap_absensi") {
+					if ($menu == "rekapitulasi_kehadiran") {
 						$pilihan_rekap = $this->input->post('pilihan_rekap');
 						$data_extract = $this->excel->getExtractAbsenV3($path);
 						// echo json_encode($data_extract);
@@ -425,7 +434,7 @@ class Main extends CI_Controller
 				}
 			} else {
 				$data = $this->input->post();
-				if ($menu == "rekap_absensi") {
+				if ($menu == "rekapitulasi_kehadiran") {
 					$dataAlert = $this->MainModel->create('mhs_ambil_jadwal', $data);
 				}elseif ($menu == "setting_password") {
 					$where['username'] = $data['username'];
@@ -473,7 +482,7 @@ class Main extends CI_Controller
 				die;
 			}
 			$data = $this->input->post();
-			if ($menu == "rekap_absensi") {
+			if ($menu == "rekapitulasi_kehadiran") {
 			} else {
 				$dataAlert = $this->MainModel->update($menu, $data, $where);
 			}
@@ -509,7 +518,7 @@ class Main extends CI_Controller
 						die;
 					}
 				}
-				if ($menu == "rekap_absensi") {
+				if ($menu == "rekapitulasi_kehadiran") {
 					if (!empty($where['tanggal'])) {
 						unset($where['id_jadwal']);
 						$dataAlert = $this->MainModel->delete('isi_absen_mhs', $where);
@@ -518,6 +527,12 @@ class Main extends CI_Controller
 						}
 					}else{
 						$dataAlert = $this->MainModel->delete('mhs_ambil_jadwal', $where);
+					}
+				} else if($menu == "data_semester") {
+					if ($where == "all") {
+						$dataAlert = $this->MainModel->deleteAll();
+					}else {
+						$dataAlert = $this->MainModel->delete($menu, $where);
 					}
 				} else {
 					$dataAlert = $this->MainModel->delete($menu, $where);
@@ -549,7 +564,7 @@ class Main extends CI_Controller
 					}
 					unset($where[$key]);
 				}
-				if ($menu == 'rekap_absensi') {
+				if ($menu == 'rekapitulasi_kehadiran') {
 					$data = $this->MainModel->get_table_rekap_absensi($where, 0, true);
 					// echo json_encode($data);die;
 					$title = ucwords(str_replace('_', ' ', $menu));
