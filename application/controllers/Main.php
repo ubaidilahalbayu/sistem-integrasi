@@ -33,6 +33,7 @@ class Main extends CI_Controller
 			'Friday'    => 'Jumat',
 			'Saturday'  => 'Sabtu',
 		);
+		date_default_timezone_set('Asia/Jakarta');
 	}
 
 	public function index()
@@ -105,7 +106,7 @@ class Main extends CI_Controller
 		$nama_content = !empty($this->input->post('nama_content')) ? $this->input->post('nama_content') : '';
 		$data = [];
 		if ($this->session->userdata('level') == 3) {
-			$nama_content_arr = ['dashboard', 'rekapitulasi_kehadiran_dosen', 'setting_password'];
+			$nama_content_arr = ['dashboard', 'rekapitulasi_kehadiran_dosen', 'setting_password', 'laporan_aktivitas'];
 			if (!in_array($nama_content, $nama_content_arr)) {
 				$dataAlert = [
 					'status' => 'warning',
@@ -116,7 +117,7 @@ class Main extends CI_Controller
 			}
 		}
 		if ($nama_content == 'dashboard') {
-			$data['title_header'] = 'Dashboard';
+			$data['title_header'] = 'Beranda';
 			$semester_char = $this->tahun_1.$this->tahun_2.$this->semester_now;//DEFAULT SEMESTER SEKARANG
 			$semester = 'Semester ';
 			if ($this->semester_now == 2) {
@@ -358,14 +359,23 @@ class Main extends CI_Controller
 						$where['tanggal'] = $value[2];
 						$data_response = $this->MainModel->update_or_create_absen($data, $where);
 					}else{
-						$data = [];
-						$data['keterangan'] = $value[0];
-						$data['id_mhs'] = $value[1];
-						$data['tanggal'] = $value[2];
-						$where = [];
-						$where['id_mhs'] = $value[1];
-						$where['tanggal'] = $value[2];
-						$data_response = $this->MainModel->update_or_create_absen($data, $where, true);
+						if (empty($this->input->post('param_mhs_semua'))) {
+							$data = [];
+							$data['keterangan'] = $value[0];
+							$data['id_mhs'] = $value[1];
+							$data['tanggal'] = $value[2];
+							$where = [];
+							$where['id_mhs'] = $value[1];
+							$where['tanggal'] = $value[2];
+							$data_response = $this->MainModel->update_or_create_absen($data, $where, true);
+						}else{
+							$data = [];
+							$data['keterangan'] = '1';
+							$data['tanggal'] = $value[0];
+							$where = [];
+							$where['id_jadwal'] = $value[1];
+							$data_response = $this->MainModel->update_or_create_absen($data, $where, true, true);
+						}
 					}
 				}else{
 					$data_menu = array(
@@ -521,9 +531,13 @@ class Main extends CI_Controller
 				if ($menu == "rekapitulasi_kehadiran") {
 					if (!empty($where['tanggal'])) {
 						unset($where['id_jadwal']);
-						$dataAlert = $this->MainModel->delete('isi_absen_mhs', $where);
-						if ($dataAlert['status'] == 'success') {
-							$dataAlert = $this->MainModel->delete('isi_absen_dosen', $where);
+						$dataAlert1 = $this->MainModel->delete('isi_absen_mhs', $where);
+						$dataAlert2 = $this->MainModel->delete('isi_absen_dosen', $where);
+						if ($dataAlert1['status'] == 'success') {
+							$dataAlert = $dataAlert1;
+						}
+						if ($dataAlert2['status'] == 'success') {
+							$dataAlert = $dataAlert2;
 						}
 					}else{
 						$dataAlert = $this->MainModel->delete('mhs_ambil_jadwal', $where);

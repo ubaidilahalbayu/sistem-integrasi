@@ -24,7 +24,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      background-color: #343a40;
+      background-color: #2c3e50;
       color: #fff;
       padding-top: 1rem;
       transition: transform 0.3s ease, width 0.3s ease;
@@ -36,7 +36,7 @@
     }
 
     .sidebar a {
-      color: #adb5bd;
+      color: #ecf0f1;
       display: block;
       padding: 0.75rem 1.5rem;
       text-decoration: none;
@@ -44,7 +44,7 @@
     }
 
     .sidebar a:hover, .sidebar a.active {
-      background-color: #495057;
+      background-color: #34495e;
       color: #fff;
     }
 
@@ -59,7 +59,7 @@
     }
 
     .topbar {
-      background-color: whitesmoke;
+      background-color: #ffffff;
       padding: 1rem 2rem;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       display: flex;
@@ -68,14 +68,14 @@
       border-radius: 8px;
     }
     .kontener {
-      background-color: whitesmoke;
+      background-color: #ffffff;
       padding: 1rem 2rem;
       margin-top: 25px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border-radius: 8px;
     }
     .animasi-dashboard {
-      background-color: whitesmoke;
+      background-color: #ffffff;
       animation: shadowPulse 2s ease-in-out infinite;
       display: flex;
       justify-content: space-between; /* content between */
@@ -160,7 +160,7 @@
       <img src="<?= base_url('assets/image/icon.png') ?>" alt="Icon" width="80" class="rounded-circle shadow">
       <h5 class="mt-2">Sistem Rekapitulasi Kehadiran</h5>
     </div>
-    <a href="#dashboard" id="dashboard"><i class="bi bi-house"></i> Dashboard</a>
+    <a href="#dashboard" id="dashboard"><i class="bi bi-house"></i> Beranda</a>
     <?php        
       if ($this->session->userdata('level') != 3) {
     ?>
@@ -175,7 +175,7 @@
       <a  href="#rekapitulasi_kehadiran_mhs" id="rekapitulasi_kehadiran_mhs"><i class="bi bi-clipboard-check"></i> Rekapitulasi Kehadiran Mahasiswa</a>
       <a  href="#data_dosen" id="data_dosen"><i class="bi bi-person"></i> Data Dosen</a>
       <a  href="#data_mahasiswa" id="data_mahasiswa"><i class="bi bi-people"></i> Data Mahasiswa</a>
-      <a  href="#data_mk" id="data_mk"><i class="bi bi-book"></i> Data MK</a>
+      <a  href="#data_mk" id="data_mk"><i class="bi bi-book"></i> Data Mata Kuliah</a>
       <a  href="#data_kelas" id="data_kelas"><i class="bi bi-building"></i> Data Kelas</a>
     <?php } ?>
     <a href="#setting_password" id="setting_password"><i class="bi bi-gear"></i> Ubah Kata Sandi</a>

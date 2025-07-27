@@ -154,6 +154,7 @@ if (count($data_jadwal) > 0) {
                                     <li><input type="date" class="dropdown-item form-control ubah-tanggal" title="Ubah Tanggal" value="<?= $pilih_tanggal ?>" tgl="<?= $pilih_tanggal ?>" cek="<?= in_array($pilih_tanggal, $data_tanggal_jadwal) ? "0" : "1" ?>"></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item delete-tanggal" href="#rekap_absensi_@_<?= $pilih_tanggal ?>"  name="<?= $pilih_tanggal ?> MK-<?= $data_jadwal[$index_jadwal]['id'] ?>" table="<?= $title_header ?>" head="Tanggal" param="tanggal;_@_;<?= $pilih_tanggal ?>;_@_;id_jadwal;_@_;<?= $data_jadwal[$index_jadwal]['id'] ?>">Delete</a></li>
+                                    <li><a class="dropdown-item hadir-semua" href="#ngisi_absen_@_<?= $pilih_tanggal ?>" param="<?= $pilih_tanggal ?>_@_<?= $data_jadwal[$index_jadwal]['id'] ?>_@_<?= $pilih_tanggal ?>">Hadir Semua</a></li>
                                 </ul>
                             </div>
                         </th>

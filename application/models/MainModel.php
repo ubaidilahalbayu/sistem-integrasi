@@ -65,6 +65,7 @@ class MainModel extends CI_Model
                     'waktu' => date('H:i:s'),
                     'aktivitas' => $this->user_model." Menambah Data Ke tabel ".$table,
                 );
+                $this->db->insert("laporan_aktivitas", $act);
                 if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
                     $error = $this->db->error();
@@ -975,62 +976,126 @@ class MainModel extends CI_Model
         return $return;
     }
 
-    public function update_or_create_absen($data, $where, $is_mhs = false)
+    public function update_or_create_absen($data, $where, $is_mhs = false, $is_semua = false)
     {
         $this->db->trans_begin();
         $return = [];
         try{
-            $table = 'isi_absen_dosen';
-            $message = array(
-                'update' => 'Berhasil Update Dosen Masuk',
-                'insert' => 'Berhasil Memilih Dosen Masuk'
-            );
-            if ($is_mhs) {
-                $table = 'isi_absen_mhs';
+            if ($is_semua) {
                 $message = array(
-                    'update' => 'Berhasil Update Kehadiran',
-                    'insert' => 'Berhasil Simpan Kehadiran'
+                    'update' => 'Berhasil Hadir Semua Mahasiswa',
+                    'insert' => 'Berhasil Hadir Semua Mahasiswa'
                 );
-            }
-            $this->db->where($where);
-            $count = count($this->db->get($table)->result_array());
-            if ($count > 0) {
-                $this->db->update($table, $data, $where);
-                //INSERT AKTIVITAS
-                $act = array(
-                    'tanggal' => date("Y-m-d"),
-                    'waktu' => date('H:i:s'),
-                    'aktivitas' => $this->user_model." Mengubah Kehadiran ".$table." Where".json_encode($where)." Menjadi ".json_encode($data),
-                );
-                $this->db->insert('laporan_aktivitas', $act);
-                if ($this->db->trans_status() === FALSE) {
-                    $this->db->trans_rollback();
-                    $error = $this->db->error();
-                    $return['status'] = false;
-                    $return['message'] = 'Gagal :: ' . $error['message'];
+                $this->db->where($where);
+                $mhs_ambil_jadwal = $this->db->get('mhs_ambil_jadwal')->result_array();
+                if (count($mhs_ambil_jadwal) > 0) {
+                    foreach ($mhs_ambil_jadwal as $key => $value) {
+                        $where_check_abs = [];
+                        $where_check_abs['id_mhs'] = $value['id'];
+                        $where_check_abs['tanggal'] = $data['tanggal'];
+                        $this->db->where($where_check_abs);
+                        $count = count($this->db->get('isi_absen_mhs')->result_array());
+                        $data['id_mhs'] = $value['id'];
+                        if ($count > 0) {
+                            $this->db->update('isi_absen_mhs', $data, $where_check_abs);
+                        }else{
+                            $this->db->insert('isi_absen_mhs', $data);
+                        }
+                        if ($this->db->trans_status() === FALSE) {
+                            break;
+                        }
+                    }
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = false;
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                    }else{
+                        $act = array(
+                            'tanggal' => date("Y-m-d"),
+                            'waktu' => date('H:i:s'),
+                            'aktivitas' => $this->user_model." Membuat Kehadiran Where ".json_encode($where)." Menjadi Hadir Semua",
+                        );
+                        $this->db->insert('laporan_aktivitas', $act);
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $error = $this->db->error();
+                            $return['status'] = false;
+                            $return['message'] = 'Gagal :: ' . $error['message'];
+                        }else{
+                            $this->db->trans_commit();
+                            $return['status'] = true;
+                            $return['message'] = $message['update'];
+                        }
+                    }
                 }else{
-                    $this->db->trans_commit();
-                    $return['status'] = true;
-                    $return['message'] = $message['update'];
+                    $this->db->trans_rollback();
+                    $return['status'] = false;
+                    $return['message'] = 'Gagal :: Data Tidak Ada';
                 }
             }else{
-                $this->db->insert($table, $data);
-                //INSERT AKTIVITAS
-                $act = array(
-                    'tanggal' => date("Y-m-d"),
-                    'waktu' => date('H:i:s'),
-                    'aktivitas' => $this->user_model." Menambah Kehadiran ".$table." Dengan Data ".json_encode($data),
+                $table = 'isi_absen_dosen';
+                $message = array(
+                    'update' => 'Berhasil Update Dosen Masuk',
+                    'insert' => 'Berhasil Memilih Dosen Masuk'
                 );
-                $this->db->insert('laporan_aktivitas', $act);
-                if ($this->db->trans_status() === FALSE) {
-                    $this->db->trans_rollback();
-                    $error = $this->db->error();
-                    $return['status'] = false;
-                    $return['message'] = 'Gagal :: ' . $error['message'];
+                if ($is_mhs) {
+                    $table = 'isi_absen_mhs';
+                    $message = array(
+                        'update' => 'Berhasil Update Kehadiran',
+                        'insert' => 'Berhasil Simpan Kehadiran'
+                    );
+                }
+                $this->db->where($where);
+                $count = count($this->db->get($table)->result_array());
+                if ($count > 0) {
+                    $this->db->update($table, $data, $where);
+                    if ($table=="isi_absen_mhs") {
+                        $nim = $this->db->get_where("mhs_ambil_jadwal", array("id" => $data['id_mhs']))->row_array();
+                        $nim = !empty($nim['nim']) ? $nim['nim'] : $data['id_mhs'];
+                        $data['id_mhs'] = $nim;
+                    }
+                    //INSERT AKTIVITAS
+                    $act = array(
+                        'tanggal' => date("Y-m-d"),
+                        'waktu' => date('H:i:s'),
+                        'aktivitas' => $this->user_model." Mengubah Kehadiran ".$table." Where".json_encode($where)." Menjadi ".json_encode($data),
+                    );
+                    $this->db->insert('laporan_aktivitas', $act);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = false;
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                    }else{
+                        $this->db->trans_commit();
+                        $return['status'] = true;
+                        $return['message'] = $message['update'];
+                    }
                 }else{
-                    $this->db->trans_commit();
-                    $return['status'] = true;
-                    $return['message'] = $message['insert'];
+                    $this->db->insert($table, $data);
+                    if ($table=="isi_absen_mhs") {
+                        $nim = $this->db->get_where("mhs_ambil_jadwal", array("id" => $data['id_mhs']))->row_array();
+                        $nim = !empty($nim['nim']) ? $nim['nim'] : $data['id_mhs'];
+                        $data['id_mhs'] = $nim;
+                    }
+                    //INSERT AKTIVITAS
+                    $act = array(
+                        'tanggal' => date("Y-m-d"),
+                        'waktu' => date('H:i:s'),
+                        'aktivitas' => $this->user_model." Menambah Kehadiran ".$table." Dengan Data ".json_encode($data),
+                    );
+                    $this->db->insert('laporan_aktivitas', $act);
+                    if ($this->db->trans_status() === FALSE) {
+                        $this->db->trans_rollback();
+                        $error = $this->db->error();
+                        $return['status'] = false;
+                        $return['message'] = 'Gagal :: ' . $error['message'];
+                    }else{
+                        $this->db->trans_commit();
+                        $return['status'] = true;
+                        $return['message'] = $message['insert'];
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -1354,6 +1419,13 @@ class MainModel extends CI_Model
             $this->db->where($where);
             $this->db->update($table, $insert);
             $count += $this->db->affected_rows();
+            if ($table=="data_dosen" && $where['nip'] != $data['nip']) {
+                $this->db->where("username", $where['nip']);
+                $this->db->update("user", array(
+                    "username" => $data['nip'],
+                    "password" => md5($data['nip']),
+                ));
+            }
             if ( $count > 0) {
                 //INSERT AKTIVITAS
                 $act = array(

@@ -83,7 +83,7 @@
                 param_idx_jdw: "DJ_@_0",
                 param_id: $(this).html(),
             };
-            appendContentMenu('rekap_absensi', data_tambahan);
+            appendContentMenu('rekapitulasi_kehadiran', data_tambahan);
         });
     });
 </script>

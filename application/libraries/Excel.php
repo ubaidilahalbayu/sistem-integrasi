@@ -882,7 +882,7 @@ class Excel extends PHPExcel
 		foreach ($data_dosen as $key => $value) {
 			$active_sheet->setCellValue("A".(String)($key+5), $key+1);
 			$active_sheet->getStyle("A".(String)($key+5))->applyFromArray($style_body2);
-			$active_sheet->setCellValue("B".(String)($key+5), $value['nip']);
+			$active_sheet->setCellValue("B".(String)($key+5), "'".$value['nip']);
 			$active_sheet->getStyle("B".(String)($key+5))->applyFromArray($style_body2);
 			$active_sheet->setCellValue("C".(String)($key+5), $value['nama_dosen'].", ".$value['nama_gelar_depan'].$value['nama_gelar_belakang']);
 			$active_sheet->getStyle("C".(String)($key+5))->applyFromArray($style_body2);
@@ -979,7 +979,7 @@ class Excel extends PHPExcel
 			$active_sheet->getStyle("C3")->applyFromArray($style_body);
 			$active_sheet->setCellValue("D2", "Kode");
 			$active_sheet->getStyle("D2")->applyFromArray($style_head);
-			$active_sheet->setCellValue("D3", $value['nip']);
+			$active_sheet->setCellValue("D3","'".$value['nip']);
 			$active_sheet->getStyle("D3")->applyFromArray($style_body);
 			$active_sheet->setCellValue("E2", "Jml.");
 			$active_sheet->getStyle("E2")->applyFromArray($style_head);
@@ -1015,7 +1015,7 @@ class Excel extends PHPExcel
 			if ($value['nip2'] != "-") {
 				$active_sheet->setCellValue("C4", $value['pengampu_2']);
 				$active_sheet->getStyle("C4")->applyFromArray($style_body);
-				$active_sheet->setCellValue("D4", $value['nip2']);
+				$active_sheet->setCellValue("D4","'". $value['nip2']);
 				$active_sheet->getStyle("D4")->applyFromArray($style_body);
 				$total_masuk += $data_rekap_dosen[$index2][$key];
 				$active_sheet->setCellValue("E4", $data_rekap_dosen[$index2][$key]);
@@ -1024,7 +1024,7 @@ class Excel extends PHPExcel
 			if ($value['nip3'] != "-") {
 				$active_sheet->setCellValue("C5", $value['pengampu_3']);
 				$active_sheet->getStyle("C5")->applyFromArray($style_body);
-				$active_sheet->setCellValue("D5", $value['nip3']);
+				$active_sheet->setCellValue("D5","'". $value['nip3']);
 				$active_sheet->getStyle("D5")->applyFromArray($style_body);
 				$total_masuk += $data_rekap_dosen[$index3][$key];
 				$active_sheet->setCellValue("E5", $data_rekap_dosen[$index3][$key]);

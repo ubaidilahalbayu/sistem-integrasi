@@ -36,11 +36,14 @@ if ($title_header == "Rekapitulasi Kehadiran") {
 }
 ?>
 <div class="row justify-content-start mt-5">
-    <?php if ($title_header != "Rekapitulasi Kehadiran Dosen" && $title_header != "Rekapitulasi Kehadiran Mahasiswa" && $title_header != "Laporan Aktivitas") { ?>
+    <?php if ($title_header != "Rekapitulasi Kehadiran Dosen" && $title_header != "Rekapitulasi Kehadiran Mahasiswa" && $title_header != "Laporan Aktivitas") {
+    if ($title_header == "Rekapitulasi Kehadiran") {
+    ?>
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-success" data-bs-toggle="modal"
             data-bs-target="#modalExport">Export</button>
     </div>
+    <?php } ?>
     <div class="col-lg-2 d-grid gap-2 mb-3">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
             data-bs-target="#modalImport"><?= $title_header == "Rekapitulasi Kehadiran" ? 'Import' : 'Tambah Data' ?></button>
@@ -315,7 +318,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_id: $(this).attr("href"),
             };
-            appendContentMenu('rekap_absensi', data_tambahan);
+            appendContentMenu('rekapitulasi_kehadiran', data_tambahan);
         });
 
         $('#hapusSemua').on('click', function() {
@@ -349,14 +352,14 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 };
                 appendContentMenu('jadwal_kuliah', data_tambahan);
             }else if($(this).attr('menu') == "absen"){
-                let menu_absen = 'rekap_absensi';
+                let menu_absen = 'rekapitulasi_kehadiran';
                 let data_tambahan = {
                     param_smt: $(this).val(),
                     param_hr: $("#ganti_hari").val(),
                     param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 };
                 if ($(this).attr('prm_dsn') != undefined) {
-                    menu_absen = 'rekap_absensi_dosen';
+                    menu_absen = 'rekapitulasi_kehadiran_dosen';
                     data_tambahan = {
                         param_smt: $(this).val(),
                         param_hr: $("#ganti_hari").val(),
@@ -365,7 +368,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                     };  
                 }
                 else if ($(this).attr('prm_mhs') != undefined) {
-                    menu_absen = 'rekap_absensi_mhs';
+                    menu_absen = 'rekapitulasi_kehadiran_mhs';
                     data_tambahan = {
                         param_smt: $(this).val(),
                         param_hr: $("#ganti_hari").val(),
@@ -385,14 +388,14 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 };
                 appendContentMenu('jadwal_kuliah', data_tambahan);
             }else if($(this).attr('menu') == "absen"){
-                let menu_absen = 'rekap_absensi';
+                let menu_absen = 'rekapitulasi_kehadiran';
                 let data_tambahan = {
                     param_smt: $("#ganti_semester").val(),
                     param_hr: $(this).val(),
                     param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 };
                 if ($(this).attr('prm_dsn') != undefined) {
-                    menu_absen = 'rekap_absensi_dosen';
+                    menu_absen = 'rekapitulasi_kehadiran_dosen';
                     data_tambahan = {
                         param_smt: $("#ganti_semester").val(),
                         param_hr: $(this).val(),
@@ -401,7 +404,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                     };  
                 }
                 else if ($(this).attr('prm_mhs') != undefined) {
-                    menu_absen = 'rekap_absensi_mhs';
+                    menu_absen = 'rekapitulasi_kehadiran_mhs';
                     data_tambahan = {
                         param_smt: $("#ganti_semester").val(),
                         param_hr: $(this).val(),
@@ -413,14 +416,14 @@ if ($title_header == "Rekapitulasi Kehadiran") {
             }
         });
         $("input[name='pilih-mk-abs']").on("change", function () {
-            let menu_absen = 'rekap_absensi';
+            let menu_absen = 'rekapitulasi_kehadiran';
             let data_tambahan = {
                 param_smt: $("#ganti_semester").val(),
                 param_hr: $("#ganti_hari").val(),
                 param_idx_jdw: $(this).val(),
             };
             if ($(this).attr('prm_dsn') != undefined) {
-                menu_absen = 'rekap_absensi_dosen';
+                menu_absen = 'rekapitulasi_kehadiran_dosen';
                 data_tambahan = {
                     param_smt: $("#ganti_semester").val(),
                     param_hr: $("#ganti_hari").val(),
@@ -429,7 +432,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 };  
             }
             else if ($(this).attr('prm_mhs') != undefined) {
-                menu_absen = 'rekap_absensi_mhs';
+                menu_absen = 'rekapitulasi_kehadiran_mhs';
                 data_tambahan = {
                     param_smt: $("#ganti_semester").val(),
                     param_hr: $("#ganti_hari").val(),
@@ -459,7 +462,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
                 param_tgl: $(this).val(),
             };
-            appendContentMenu('rekap_absensi', data_tambahan);  
+            appendContentMenu('rekapitulasi_kehadiran', data_tambahan);  
         });
         
         //CHECK SUDAH DICEK ATAU BELUM DOSEN MASUKNYA
@@ -503,6 +506,19 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                 valValue = valValue.join('_@_');
                 dataSend.param_value = valValue;
             }
+            updateAbsensi(dataSend);
+        });
+        $(".hadir-semua").on("click", function () {
+            console.log($(this).attr('param'));
+            let dataSend = {
+                param_smt: $("#ganti_semester").val(),
+                param_hr: $("#ganti_hari").val(),
+                param_idx_jdw: $("input[name='pilih-mk-abs']").val() != undefined ? $("input[name='pilih-mk-abs']:checked").val() : "DJ_@_0",
+                param_value: $(this).attr('param'),
+                param_mhs: 1,
+                param_mhs_semua: 1
+            };
+            
             updateAbsensi(dataSend);
         });
         
@@ -551,7 +567,7 @@ if ($title_header == "Rekapitulasi Kehadiran") {
                     param_idx_jdw: "DJ_@_0",
                     param_id: $(this).html(),
                 };
-                appendContentMenu('rekap_absensi', data_tambahan);
+                appendContentMenu('rekapitulasi_kehadiran', data_tambahan);
             }
         });
     });
